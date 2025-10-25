@@ -16,7 +16,7 @@ public class Sanpham {
     private Danhmuc danhMuc;
 
     @ManyToOne
-    @JoinColumn(name = "matk", insertable = false, updatable = false)
+    @JoinColumn(name = "maqt", insertable = false, updatable = false)
     private Taikhoanquantri taiKhoanQuanTri;
 
     @ManyToOne

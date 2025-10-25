@@ -13,4 +13,13 @@ public enum TrangThaiTaiKhoan {
     public String getValue() {
         return value;
     }
+
+    public static TrangThaiTaiKhoan fromString(String value) {
+        for (TrangThaiTaiKhoan flightStatus : TrangThaiTaiKhoan.values()) {
+            if (flightStatus.value.equalsIgnoreCase(value)) {
+                return flightStatus;
+            }
+        }
+        throw new IllegalArgumentException("Unknown role: " + value);
+    }
 }
