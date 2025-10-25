@@ -1,15 +1,13 @@
 package com.example.daugia.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 import java.sql.Timestamp;
 
 @Entity
 public class Thongbao {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String matb;
 
     @ManyToOne
@@ -17,7 +15,7 @@ public class Thongbao {
     private Taikhoan taiKhoan;
 
     @ManyToOne
-    @JoinColumn(name = "matk", insertable = false, updatable = false)
+    @JoinColumn(name = "maqt", insertable = false, updatable = false)
     private Taikhoanquantri taiKhoanQuanTri;
 
     private String noidung;
