@@ -1,48 +1,16 @@
-package com.example.daugia.entity;
+package com.example.daugia.dto.response;
 
 import com.example.daugia.core.enums.KetQuaPhien;
 import com.example.daugia.core.enums.TrangThaiPhienDauGia;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.sql.Timestamp;
-import java.util.List;
 
-@Entity
-public class Phiendaugia {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+public class AuctionDTO {
     private String maphiendg;
-
-    @OneToOne
-    @JoinColumn(name = "masp", nullable = false, unique = true)
-    @JsonBackReference
-    private Sanpham sanPham;
-
-    @OneToOne(mappedBy = "phienDauGia")
-    @JsonManagedReference
-    private Phieuthanhtoan phieuThanhToan;
-
-    @ManyToOne
-    @JoinColumn(name = "maqtv", insertable = false, updatable = false)
-    @JsonBackReference
-    private Taikhoanquantri taiKhoanQuanTri;
-
-    @ManyToOne
-    @JoinColumn(name = "makh", insertable = false, updatable = false)
-    @JsonManagedReference
-    private Taikhoan taiKhoan;
-
-    @OneToMany(mappedBy = "phienDauGia", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<Phientragia> phienTraGia;
-
-    @OneToMany(mappedBy = "phienDauGia", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<Phieuthanhtoantiencoc> phieuThanhToanTienCoc;
-
+    private UserShortDTO taiKhoanNguoiBan;
+    private UserShortDTO taiKhoanQuanTri;
     private TrangThaiPhienDauGia trangthai;
     private Timestamp thoigianbd;
     private Timestamp thoigiankt;
@@ -56,6 +24,45 @@ public class Phiendaugia {
     private KetQuaPhien ketquaphien;
     private int slnguoithamgia;
 
+    public AuctionDTO(String maphiendg, UserShortDTO taiKhoanNguoiBan, UserShortDTO taiKhoanQuanTri, TrangThaiPhienDauGia trangthai, Timestamp thoigianbd, Timestamp thoigiankt, Timestamp thoigianbddk, Timestamp thoigianktdk, double giakhoidiem, double giatran, double buocgia, double giacaonhatdatduoc, double tiencoc, KetQuaPhien ketquaphien, int slnguoithamgia) {
+        this.maphiendg = maphiendg;
+        this.taiKhoanNguoiBan = taiKhoanNguoiBan;
+        this.taiKhoanQuanTri = taiKhoanQuanTri;
+        this.trangthai = trangthai;
+        this.thoigianbd = thoigianbd;
+        this.thoigiankt = thoigiankt;
+        this.thoigianbddk = thoigianbddk;
+        this.thoigianktdk = thoigianktdk;
+        this.giakhoidiem = giakhoidiem;
+        this.giatran = giatran;
+        this.buocgia = buocgia;
+        this.giacaonhatdatduoc = giacaonhatdatduoc;
+        this.tiencoc = tiencoc;
+        this.ketquaphien = ketquaphien;
+        this.slnguoithamgia = slnguoithamgia;
+    }
+
+    public AuctionDTO(String maphiendg, UserShortDTO taiKhoanNguoiBan, TrangThaiPhienDauGia trangthai, Timestamp thoigianbd, Timestamp thoigiankt, Timestamp thoigianbddk, Timestamp thoigianktdk, double giakhoidiem, double giatran, double buocgia, double tiencoc) {
+        this.maphiendg = maphiendg;
+        this.taiKhoanNguoiBan = taiKhoanNguoiBan;
+        this.trangthai = trangthai;
+        this.thoigianbd = thoigianbd;
+        this.thoigiankt = thoigiankt;
+        this.thoigianbddk = thoigianbddk;
+        this.thoigianktdk = thoigianktdk;
+        this.giakhoidiem = giakhoidiem;
+        this.giatran = giatran;
+        this.buocgia = buocgia;
+        this.tiencoc = tiencoc;
+    }
+
+    public AuctionDTO(String maphiendg) {
+        this.maphiendg = maphiendg;
+    }
+
+    public AuctionDTO() {
+    }
+
     public String getMaphiendg() {
         return maphiendg;
     }
@@ -64,52 +71,20 @@ public class Phiendaugia {
         this.maphiendg = maphiendg;
     }
 
-    public Sanpham getSanPham() {
-        return sanPham;
+    public UserShortDTO getTaiKhoanNguoiBan() {
+        return taiKhoanNguoiBan;
     }
 
-    public void setSanPham(Sanpham sanPham) {
-        this.sanPham = sanPham;
+    public void setTaiKhoanNguoiBan(UserShortDTO taiKhoanNguoiBan) {
+        this.taiKhoanNguoiBan = taiKhoanNguoiBan;
     }
 
-    public Phieuthanhtoan getPhieuThanhToan() {
-        return phieuThanhToan;
-    }
-
-    public void setPhieuThanhToan(Phieuthanhtoan phieuThanhToan) {
-        this.phieuThanhToan = phieuThanhToan;
-    }
-
-    public Taikhoanquantri getTaiKhoanQuanTri() {
+    public UserShortDTO getTaiKhoanQuanTri() {
         return taiKhoanQuanTri;
     }
 
-    public void setTaiKhoanQuanTri(Taikhoanquantri taiKhoanQuanTri) {
+    public void setTaiKhoanQuanTri(UserShortDTO taiKhoanQuanTri) {
         this.taiKhoanQuanTri = taiKhoanQuanTri;
-    }
-
-    public Taikhoan getTaiKhoan() {
-        return taiKhoan;
-    }
-
-    public void setTaiKhoan(Taikhoan taiKhoan) {
-        this.taiKhoan = taiKhoan;
-    }
-
-    public List<Phientragia> getPhienTraGia() {
-        return phienTraGia;
-    }
-
-    public void setPhienTraGia(List<Phientragia> phienTraGia) {
-        this.phienTraGia = phienTraGia;
-    }
-
-    public List<Phieuthanhtoantiencoc> getPhieuThanhToanTienCoc() {
-        return phieuThanhToanTienCoc;
-    }
-
-    public void setPhieuThanhToanTienCoc(List<Phieuthanhtoantiencoc> phieuThanhToanTienCoc) {
-        this.phieuThanhToanTienCoc = phieuThanhToanTienCoc;
     }
 
     public TrangThaiPhienDauGia getTrangthai() {

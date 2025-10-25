@@ -1,16 +1,19 @@
-package com.example.daugia.core;
+package com.example.daugia.core.enums;
 
-public enum TrangThaiPhieuThanhToan {
+import com.fasterxml.jackson.annotation.JsonValue;
+
+public enum KetQuaPhien {
     PENDING_APPROVAL("Chờ duyệt"),
     APPROVED("Đã duyệt"),
     CANCELLED("Đã huỷ");
 
     private final String value;
 
-    TrangThaiPhieuThanhToan(String value) {
+    KetQuaPhien(String value) {
         this.value = value;
     }
 
+    @JsonValue
     public String getValue() {
         return value;
     }

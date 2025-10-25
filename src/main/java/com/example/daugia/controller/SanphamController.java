@@ -1,10 +1,10 @@
 package com.example.daugia.controller;
 
 import com.example.daugia.dto.request.ApiResponse;
-import com.example.daugia.entity.Taikhoan;
-import com.example.daugia.service.TaikhoanService;
+import com.example.daugia.dto.response.ProductDTO;
+import com.example.daugia.entity.Sanpham;
+import com.example.daugia.service.SanphamService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,19 +12,19 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
-public class TaikhoanController {
+@RequestMapping("/products")
+public class SanphamController {
     @Autowired
-    private TaikhoanService taikhoanService;
+    private SanphamService sanphamService;
 
     @GetMapping("/find-all")
-    public ApiResponse<List<Taikhoan>> findAll(){
-        ApiResponse<List<Taikhoan>> apiResponse = new ApiResponse<>();
+    public ApiResponse<List<ProductDTO>> findAll(){
+        ApiResponse<List<ProductDTO>> apiResponse = new ApiResponse<>();
         try{
-            List<Taikhoan> taikhoanList = taikhoanService.findAll();
+            List<ProductDTO> sanphamList = sanphamService.findAll();
             apiResponse.setCode(200);
             apiResponse.setMessage("Thanh cong");
-            apiResponse.setResult(taikhoanList);
+            apiResponse.setResult(sanphamList);
         } catch (IllegalArgumentException e) {
             apiResponse.setCode(500);
             apiResponse.setMessage("That bai:" + e.getMessage());

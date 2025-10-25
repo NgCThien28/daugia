@@ -1,7 +1,8 @@
 package com.example.daugia.entity;
 
-import com.example.daugia.core.TrangThaiTaiKhoan;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.example.daugia.core.enums.TrangThaiTaiKhoan;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -13,27 +14,27 @@ public class Taikhoan {
     private String matk;
 
     @OneToMany(mappedBy = "taiKhoan", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonIgnore
     private List<Thongbao> thongBao;
 
     @OneToMany(mappedBy = "taiKhoan", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonBackReference
     private List<Phiendaugia> phienDauGia;
 
     @OneToMany(mappedBy = "taiKhoan", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonIgnore
     private List<Phientragia> phienTraGia;
 
     @OneToMany(mappedBy = "taiKhoan", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonBackReference
     private List<Sanpham> sanPham;
 
     @OneToMany(mappedBy = "taiKhoan", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonIgnore
     private List<Phieuthanhtoantiencoc> phieuThanhToanTienCoc;
 
     @OneToMany(mappedBy = "taiKhoan", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonIgnore
     private List<Phieuthanhtoan> phieuThanhToan;
 
     private String ho;
@@ -43,6 +44,7 @@ public class Taikhoan {
     private String diachi;
     private String diachigiaohang;
     private String sdt;
+    @JsonIgnore
     private String matkhau;
     private TrangThaiTaiKhoan trangthaidangnhap;
 
