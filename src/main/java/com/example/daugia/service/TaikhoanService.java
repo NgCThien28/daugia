@@ -12,7 +12,7 @@ public class TaikhoanService {
     @Autowired
     private TaikhoanRepository taikhoanRepository;
 
-    public List<Taikhoan> getAllTaiKhoan(){
+    public List<Taikhoan> findAll(){
         return taikhoanRepository.findAll();
     }
 }

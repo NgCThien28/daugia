@@ -1,10 +1,9 @@
 package com.example.daugia.controller;
 
 import com.example.daugia.dto.request.ApiResponse;
-import com.example.daugia.entity.Taikhoan;
-import com.example.daugia.service.TaikhoanService;
+import com.example.daugia.entity.Hinhanh;
+import com.example.daugia.service.HinhanhService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,19 +11,19 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
-public class TaikhoanController {
+@RequestMapping("/images")
+public class HinhanhController {
     @Autowired
-    private TaikhoanService taikhoanService;
+    private HinhanhService hinhanhService;
 
     @GetMapping("/find-all")
-    public ApiResponse<List<Taikhoan>> findAll(){
-        ApiResponse<List<Taikhoan>> apiResponse = new ApiResponse<>();
+    public ApiResponse<List<Hinhanh>> findAll(){
+        ApiResponse<List<Hinhanh>> apiResponse = new ApiResponse<>();
         try{
-            List<Taikhoan> taikhoanList = taikhoanService.findAll();
+            List<Hinhanh> hinhanhList = hinhanhService.findAll();
             apiResponse.setCode(200);
             apiResponse.setMessage("Thanh cong");
-            apiResponse.setResult(taikhoanList);
+            apiResponse.setResult(hinhanhList);
         } catch (IllegalArgumentException e) {
             apiResponse.setCode(500);
             apiResponse.setMessage("That bai:" + e.getMessage());

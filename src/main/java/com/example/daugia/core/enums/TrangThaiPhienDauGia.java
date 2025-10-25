@@ -1,4 +1,6 @@
-package com.example.daugia.core;
+package com.example.daugia.core.enums;
+
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum TrangThaiPhienDauGia {
     PENDING_APPROVAL("Chờ duyệt"),
@@ -11,6 +13,7 @@ public enum TrangThaiPhienDauGia {
         this.value = value;
     }
 
+    @JsonValue
     public String getValue() {
         return value;
     }
