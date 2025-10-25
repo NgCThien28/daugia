@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Oct 22, 2025 at 05:06 PM
+-- Generation Time: Oct 25, 2025 at 06:11 PM
 -- Server version: 9.1.0
 -- PHP Version: 8.3.14
 
@@ -30,11 +30,11 @@ SET time_zone = "+00:00";
 DROP TABLE IF EXISTS `baocao`;
 CREATE TABLE IF NOT EXISTS `baocao` (
   `mabc` char(10) NOT NULL,
-  `maqt` char(10) NOT NULL,
+  `maqtv` char(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `noidung` varchar(100) NOT NULL,
   `thoigian` timestamp NOT NULL,
   PRIMARY KEY (`mabc`),
-  KEY `maqt` (`maqt`)
+  KEY `maqt` (`maqtv`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -75,7 +75,8 @@ DROP TABLE IF EXISTS `phiendaugia`;
 CREATE TABLE IF NOT EXISTS `phiendaugia` (
   `maphiendg` char(10) NOT NULL,
   `masp` char(10) NOT NULL,
-  `maqt` char(10) NOT NULL,
+  `maqtv` char(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `makh` char(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `trangthai` tinyint NOT NULL,
   `thoigianbd` timestamp NOT NULL,
   `thoigiankt` timestamp NOT NULL,
@@ -90,7 +91,8 @@ CREATE TABLE IF NOT EXISTS `phiendaugia` (
   `slnguoithamgia` int NOT NULL,
   PRIMARY KEY (`maphiendg`),
   KEY `masp` (`masp`),
-  KEY `maqt` (`maqt`)
+  KEY `maqt` (`maqtv`),
+  KEY `makh` (`makh`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -159,7 +161,7 @@ DROP TABLE IF EXISTS `sanpham`;
 CREATE TABLE IF NOT EXISTS `sanpham` (
   `masp` char(10) NOT NULL,
   `madm` char(10) NOT NULL,
-  `maqtv` char(10) NOT NULL,
+  `maqtv` char(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `makh` char(10) NOT NULL,
   `tinhtrangsp` varchar(50) NOT NULL,
   `tensp` varchar(50) NOT NULL,
@@ -219,12 +221,12 @@ DROP TABLE IF EXISTS `thongbao`;
 CREATE TABLE IF NOT EXISTS `thongbao` (
   `matb` char(10) NOT NULL,
   `makh` char(10) NOT NULL,
-  `maqt` char(10) NOT NULL,
+  `maqtv` char(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `noidung` varchar(100) NOT NULL,
   `thoigian` timestamp NOT NULL,
   PRIMARY KEY (`matb`),
   KEY `makh` (`makh`),
-  KEY `maqt` (`maqt`)
+  KEY `maqt` (`maqtv`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -235,7 +237,7 @@ CREATE TABLE IF NOT EXISTS `thongbao` (
 -- Constraints for table `baocao`
 --
 ALTER TABLE `baocao`
-  ADD CONSTRAINT `baocao_ibfk_1` FOREIGN KEY (`maqt`) REFERENCES `taikhoanquantri` (`matk`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `baocao_ibfk_1` FOREIGN KEY (`maqtv`) REFERENCES `taikhoanquantri` (`matk`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
 -- Constraints for table `hinhanh`
@@ -248,7 +250,8 @@ ALTER TABLE `hinhanh`
 --
 ALTER TABLE `phiendaugia`
   ADD CONSTRAINT `phiendaugia_ibfk_1` FOREIGN KEY (`masp`) REFERENCES `sanpham` (`masp`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  ADD CONSTRAINT `phiendaugia_ibfk_2` FOREIGN KEY (`maqt`) REFERENCES `taikhoanquantri` (`matk`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `phiendaugia_ibfk_2` FOREIGN KEY (`maqtv`) REFERENCES `taikhoanquantri` (`matk`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  ADD CONSTRAINT `phiendaugia_ibfk_3` FOREIGN KEY (`makh`) REFERENCES `taikhoan` (`matk`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
 -- Constraints for table `phientragia`
@@ -284,7 +287,7 @@ ALTER TABLE `sanpham`
 --
 ALTER TABLE `thongbao`
   ADD CONSTRAINT `thongbao_ibfk_1` FOREIGN KEY (`makh`) REFERENCES `taikhoan` (`matk`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  ADD CONSTRAINT `thongbao_ibfk_2` FOREIGN KEY (`maqt`) REFERENCES `taikhoanquantri` (`matk`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `thongbao_ibfk_2` FOREIGN KEY (`maqtv`) REFERENCES `taikhoanquantri` (`matk`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

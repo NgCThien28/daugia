@@ -11,11 +11,11 @@ public class Thongbao {
     private String matb;
 
     @ManyToOne
-    @JoinColumn(name = "matk", insertable = false, updatable = false)
+    @JoinColumn(name = "makh", insertable = false, updatable = false)
     private Taikhoan taiKhoan;
 
     @ManyToOne
-    @JoinColumn(name = "maqt", insertable = false, updatable = false)
+    @JoinColumn(name = "maqtv", insertable = false, updatable = false)
     private Taikhoanquantri taiKhoanQuanTri;
 
     private String noidung;

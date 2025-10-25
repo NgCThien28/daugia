@@ -22,7 +22,11 @@ public class Phiendaugia {
     private Phieuthanhtoan phieuThanhToan;
 
     @ManyToOne
-    @JoinColumn(name = "matk", insertable = false, updatable = false)
+    @JoinColumn(name = "maqtv", insertable = false, updatable = false)
+    private Taikhoanquantri taiKhoanQuanTri;
+
+    @ManyToOne
+    @JoinColumn(name = "makh", insertable = false, updatable = false)
     private Taikhoan taiKhoan;
 
     @OneToMany(mappedBy = "phienDauGia", cascade = CascadeType.ALL, orphanRemoval = true)

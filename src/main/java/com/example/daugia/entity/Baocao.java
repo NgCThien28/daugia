@@ -11,7 +11,7 @@ public class Baocao {
     private String mabc;
 
     @ManyToOne
-    @JoinColumn(name = "matk", insertable = false, updatable = false)
+    @JoinColumn(name = "maqtv", insertable = false, updatable = false)
     private Taikhoanquantri taiKhoanQuanTri;
 
     private String noidung;
