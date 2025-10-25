@@ -12,7 +12,7 @@ public class Phientragia {
     private String maphientg;
 
     @ManyToOne
-    @JoinColumn(name = "matk", insertable = false, updatable = false)
+    @JoinColumn(name = "makh", insertable = false, updatable = false)
     private Taikhoan taiKhoan;
 
     @ManyToOne

@@ -16,7 +16,7 @@ public class Phieuthanhtoantiencoc {
     private Phiendaugia phienDauGia;
 
     @ManyToOne
-    @JoinColumn(name = "matk", insertable = false, updatable = false)
+    @JoinColumn(name = "makh", insertable = false, updatable = false)
     private Taikhoan taiKhoan;
 
     private Timestamp thoigianthanhtoan;

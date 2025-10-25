@@ -16,11 +16,11 @@ public class Sanpham {
     private Danhmuc danhMuc;
 
     @ManyToOne
-    @JoinColumn(name = "maqt", insertable = false, updatable = false)
+    @JoinColumn(name = "maqtv", insertable = false, updatable = false)
     private Taikhoanquantri taiKhoanQuanTri;
 
     @ManyToOne
-    @JoinColumn(name = "matk", insertable = false, updatable = false)
+    @JoinColumn(name = "makh", insertable = false, updatable = false)
     private Taikhoan taiKhoan;
 
     @OneToMany(mappedBy = "sanPham", cascade = CascadeType.ALL, orphanRemoval = true)
