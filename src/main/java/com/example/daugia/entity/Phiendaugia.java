@@ -22,7 +22,7 @@ public class Phiendaugia {
     private Sanpham sanPham;
 
     @OneToOne(mappedBy = "phienDauGia")
-    @JsonManagedReference
+    @JsonBackReference
     private Phieuthanhtoan phieuThanhToan;
 
     @ManyToOne
@@ -40,7 +40,7 @@ public class Phiendaugia {
     private List<Phientragia> phienTraGia;
 
     @OneToMany(mappedBy = "phienDauGia", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @JsonBackReference
     private List<Phieuthanhtoantiencoc> phieuThanhToanTienCoc;
 
     private TrangThaiPhienDauGia trangthai;

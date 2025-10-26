@@ -60,6 +60,11 @@ public class AuctionDTO {
         this.maphiendg = maphiendg;
     }
 
+    public AuctionDTO(String maphiendg, double giacaonhatdatduoc) {
+        this.maphiendg = maphiendg;
+        this.giacaonhatdatduoc = giacaonhatdatduoc;
+    }
+
     public AuctionDTO() {
     }
 

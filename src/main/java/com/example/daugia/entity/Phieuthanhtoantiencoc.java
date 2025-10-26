@@ -2,6 +2,7 @@ package com.example.daugia.entity;
 
 import com.example.daugia.core.enums.TrangThaiPhieuThanhToanTienCoc;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
@@ -12,14 +13,15 @@ public class Phieuthanhtoantiencoc {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String matc;
 
+
     @ManyToOne
     @JoinColumn(name = "maphiendg", insertable = false, updatable = false)
-    @JsonBackReference
+    @JsonManagedReference
     private Phiendaugia phienDauGia;
 
     @ManyToOne
     @JoinColumn(name = "makh", insertable = false, updatable = false)
-    @JsonBackReference
+    @JsonManagedReference
     private Taikhoan taiKhoan;
 
     private Timestamp thoigianthanhtoan;

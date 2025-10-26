@@ -4,13 +4,16 @@ import com.example.daugia.core.enums.TrangThaiTaiKhoan;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.util.List;
 
 @Entity
 public class Taikhoan {
+    public static final String ID_PREFIX = "KH";
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(generator = "prefix-id")
+    @GenericGenerator(name = "prefix-id", strategy = "com.example.daugia.core.custom.PrefixIdGenerator")
     private String matk;
 
     @OneToMany(mappedBy = "taiKhoan", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -30,11 +33,11 @@ public class Taikhoan {
     private List<Sanpham> sanPham;
 
     @OneToMany(mappedBy = "taiKhoan", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @JsonBackReference
     private List<Phieuthanhtoantiencoc> phieuThanhToanTienCoc;
 
     @OneToMany(mappedBy = "taiKhoan", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @JsonBackReference
     private List<Phieuthanhtoan> phieuThanhToan;
 
     private String ho;
