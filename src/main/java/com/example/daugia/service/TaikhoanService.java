@@ -21,6 +21,11 @@ public class TaikhoanService {
         return taikhoanRepository.findAll();
     }
 
+    public Taikhoan findByEmail(String email) {
+        return taikhoanRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng"));
+    }
+
     public Taikhoan createUser(TaikhoanCreationRequest request){
         Taikhoan taikhoan = new Taikhoan();
         if(taikhoanRepository.existsByEmail(request.getEmail()))
@@ -53,8 +58,8 @@ public class TaikhoanService {
         return taikhoan;
     }
 
-    public void logout(String matk) {
-        Taikhoan taikhoan = taikhoanRepository.findById(matk)
+    public void logout(String email) {
+        Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản"));
         taikhoan.setTrangthaidangnhap(TrangThaiTaiKhoan.OFFLINE);
         taikhoanRepository.save(taikhoan);
