@@ -53,6 +53,41 @@ public class AuthController {
         return response;
     }
 
+    @GetMapping("/me")
+    public ApiResponse<Object> getCurrentUser(@RequestHeader("Authorization") String header) {
+        ApiResponse<Object> response = new ApiResponse<>();
+
+        if (header == null || !header.startsWith("Bearer ")) {
+            response.setCode(401);
+            response.setMessage("Thiếu token");
+            return response;
+        }
+
+        String token = header.substring(7);
+        String email = JwtUtil.validateToken(token);
+
+        if (email == null) {
+            response.setCode(401);
+            response.setMessage("Token không hợp lệ hoặc hết hạn");
+            return response;
+        }
+
+        // Nếu token không phải token hợp lệ hiện tại → báo đăng nhập nơi khác
+        if (!activeTokenService.isSameToken(email, token)) {
+            response.setCode(403);
+            response.setMessage("Tài khoản đã đăng nhập ở thiết bị khác. Vui lòng đăng nhập lại.");
+            return response;
+        }
+
+        Taikhoan user = taikhoanService.findByEmail(email);
+        user.setMatkhau(null);
+
+        response.setCode(200);
+        response.setMessage("Đang đăng nhập");
+        response.setResult(user);
+        return response;
+    }
+
     @PostMapping("/logout")
     public ApiResponse<String> logout(@RequestHeader("Authorization") String header) {
         ApiResponse<String> response = new ApiResponse<>();

@@ -28,6 +28,10 @@ public class JwtFilter implements Filter {
             chain.doFilter(req, res);
             return;
         }
+        if (path.startsWith("/api/users/create")) {
+            chain.doFilter(req, res);
+            return;
+        }
 
         String header = request.getHeader("Authorization");
         if (header == null || !header.startsWith("Bearer ")) {
