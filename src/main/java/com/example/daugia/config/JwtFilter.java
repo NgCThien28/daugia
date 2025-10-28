@@ -24,11 +24,7 @@ public class JwtFilter implements Filter {
         String path = request.getRequestURI();
 
         // Bỏ qua các endpoint public
-        if (path.startsWith("/api/auth/login")) {
-            chain.doFilter(req, res);
-            return;
-        }
-        if (path.startsWith("/api/users/create")) {
+        if (path.startsWith("/api")) {
             chain.doFilter(req, res);
             return;
         }

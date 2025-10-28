@@ -1,15 +1,17 @@
 package com.example.daugia.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Timestamp;
 
 @Entity
 public class Thongbao {
+    public static final String ID_PREFIX = "TB";
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(generator = "prefix-id")
+    @GenericGenerator(name = "prefix-id", strategy = "com.example.daugia.core.custom.PrefixIdGenerator")
     private String matb;
 
     @ManyToOne

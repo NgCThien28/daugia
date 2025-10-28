@@ -5,16 +5,19 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.util.List;
 @Entity
 public class Sanpham {
+    public static final String ID_PREFIX = "SP";
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(generator = "prefix-id")
+    @GenericGenerator(name = "prefix-id", strategy = "com.example.daugia.core.custom.PrefixIdGenerator")
     private String masp;
 
     @ManyToOne
-    @JoinColumn(name = "madm", insertable = false, updatable = false)
+    @JoinColumn(name = "madm")
     @JsonBackReference
     private Danhmuc danhMuc;
 
@@ -24,7 +27,7 @@ public class Sanpham {
     private Taikhoanquantri taiKhoanQuanTri;
 
     @ManyToOne
-    @JoinColumn(name = "makh", insertable = false, updatable = false)
+    @JoinColumn(name = "makh")
     @JsonManagedReference
     private Taikhoan taiKhoan;
 

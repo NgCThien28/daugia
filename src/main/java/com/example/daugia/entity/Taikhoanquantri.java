@@ -2,15 +2,17 @@ package com.example.daugia.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.util.List;
 
 @Entity
 public class Taikhoanquantri {
+    public static final String ID_PREFIX = "QT";
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(generator = "prefix-id")
+    @GenericGenerator(name = "prefix-id", strategy = "com.example.daugia.core.custom.PrefixIdGenerator")
     private String matk;
 
     @OneToMany(mappedBy = "taiKhoanQuanTri", cascade = CascadeType.ALL, orphanRemoval = true)
