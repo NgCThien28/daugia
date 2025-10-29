@@ -157,4 +157,9 @@ public class ThongbaoService {
         // Push SSE
         notificationService.sendNotification(userEmail, saved);
     }
+
+    public Thongbao update() {
+        Thongbao tb = new Thongbao();
+        return tb;
+    }
 }
