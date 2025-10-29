@@ -1,7 +1,5 @@
 package com.example.daugia.dto.request;
 
-import com.example.daugia.core.enums.TrangThaiTaiKhoan;
-
 public class TaikhoanCreationRequest {
     private String ho;
     private String tenlot;
@@ -11,7 +9,6 @@ public class TaikhoanCreationRequest {
     private String diachigiaohang;
     private String sdt;
     private String matkhau;
-    private TrangThaiTaiKhoan trangthaidangnhap;
     public String getHo() {
         return ho;
     }
@@ -74,13 +71,5 @@ public class TaikhoanCreationRequest {
 
     public void setMatkhau(String matkhau) {
         this.matkhau = matkhau;
-    }
-
-    public TrangThaiTaiKhoan getTrangthaidangnhap() {
-        return trangthaidangnhap;
-    }
-
-    public void setTrangthaidangnhap(TrangThaiTaiKhoan trangthaidangnhap) {
-        this.trangthaidangnhap = trangthaidangnhap;
     }
 }

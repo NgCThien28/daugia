@@ -1,5 +1,6 @@
 package com.example.daugia.entity;
 
+import com.example.daugia.core.enums.TrangThaiThongBao;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -26,6 +27,7 @@ public class Thongbao {
 
     private String noidung;
     private Timestamp thoigian;
+    private TrangThaiThongBao trangthai;
 
     public String getMatb() {
         return matb;
@@ -65,5 +67,13 @@ public class Thongbao {
 
     public void setThoigian(Timestamp thoigian) {
         this.thoigian = thoigian;
+    }
+
+    public TrangThaiThongBao getTrangthai() {
+        return trangthai;
+    }
+
+    public void setTrangthai(TrangThaiThongBao trangthai) {
+        this.trangthai = trangthai;
     }
 }

@@ -23,9 +23,9 @@ public class BaocaoService {
         return baocaoRepository.findAll();
     }
 
-    public Baocao create(BaoCaoCreationRequest request) {
+    public Baocao create(BaoCaoCreationRequest request, String email) {
         Baocao baoCao = new Baocao();
-        Taikhoanquantri qtv = taikhoanquantriRepository.findById(request.getMaqtv())
+        Taikhoanquantri qtv = taikhoanquantriRepository.findByEmail(email)
                 .orElseThrow(()-> new IllegalArgumentException("Không tìm thấy tài khoản quản trị"));
         baoCao.setTaiKhoanQuanTri(qtv);
         baoCao.setNoidung(request.getNoidung());
@@ -33,12 +33,12 @@ public class BaocaoService {
         return baocaoRepository.save(baoCao);
     }
 
-    public Baocao update(String mabc, BaoCaoCreationRequest request) {
+    public Baocao update(String mabc, BaoCaoCreationRequest request, String email) {
         Baocao baoCao = baocaoRepository.findById(mabc)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy báo cáo với mã: " + mabc));
-        if (request.getMaqtv() != null) {
-            Taikhoanquantri qtv = taikhoanquantriRepository.findById(request.getMaqtv())
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản quản trị: " + request.getMaqtv()));
+        if (email != null) {
+            Taikhoanquantri qtv = taikhoanquantriRepository.findByEmail(email)
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản quản trị: " + email));
             baoCao.setTaiKhoanQuanTri(qtv);
         }
 
