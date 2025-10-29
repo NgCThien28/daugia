@@ -46,4 +46,9 @@ public class ThongbaoService {
         tb.setTrangthai(TrangThaiThongBao.UNSENT);
         return thongbaoRepository.save(tb);
     }
+
+    public Thongbao update() {
+        Thongbao tb = new Thongbao();
+        return tb;
+    }
 }
