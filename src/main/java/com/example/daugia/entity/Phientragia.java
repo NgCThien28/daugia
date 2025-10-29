@@ -15,12 +15,12 @@ public class Phientragia {
     private String maphientg;
 
     @ManyToOne
-    @JoinColumn(name = "makh", insertable = false, updatable = false)
+    @JoinColumn(name = "makh")
     @JsonBackReference
     private Taikhoan taiKhoan;
 
     @ManyToOne
-    @JoinColumn(name = "maphiendg", insertable = false, updatable = false)
+    @JoinColumn(name = "maphiendg")
     @JsonBackReference
     private Phiendaugia phienDauGia;
 
