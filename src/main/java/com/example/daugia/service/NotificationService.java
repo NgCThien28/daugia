@@ -9,11 +9,20 @@ public class NotificationService {
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     public SseEmitter createEmitter(String email) {
-        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+        // Nếu emitter cũ còn tồn tại -> hủy trước
+        SseEmitter oldEmitter = emitters.remove(email);
+        if (oldEmitter != null) {
+            try {
+                oldEmitter.complete();
+            } catch (Exception ignored) {}
+        }
+
+        SseEmitter emitter = new SseEmitter(0L); // 0L = không timeout
         emitters.put(email, emitter);
 
         emitter.onCompletion(() -> emitters.remove(email));
         emitter.onTimeout(() -> emitters.remove(email));
+        emitter.onError((ex) -> emitters.remove(email));
 
         return emitter;
     }
@@ -33,3 +42,4 @@ public class NotificationService {
         }
     }
 }
+

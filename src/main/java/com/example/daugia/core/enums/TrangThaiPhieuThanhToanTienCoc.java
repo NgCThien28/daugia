@@ -3,9 +3,9 @@ package com.example.daugia.core.enums;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum TrangThaiPhieuThanhToanTienCoc {
-    PENDING_APPROVAL("Chờ duyệt"),
-    APPROVED("Đã duyệt"),
-    CANCELLED("Đã huỷ");
+    UNPAID("Chưa thanh toán"),
+    PAID("Đã thanh toán"),
+    REFUND("Hoàn trả");
 
     private final String value;
 
