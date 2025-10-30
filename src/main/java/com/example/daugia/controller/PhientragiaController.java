@@ -8,7 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/biddings")
@@ -56,16 +60,28 @@ public class PhientragiaController {
         return res;
     }
 
-    // Dành cho WebSocket realtime
     @MessageMapping("/bid") // client gửi tới /app/bid
     public void handleBid(BiddingDTO bidding) {
-        BiddingDTO dto = phientragiaService.createBid(
-                bidding.getPhienDauGia().getMaphiendg(),
-                bidding.getTaiKhoanNguoiRaGia().getMatk(),
-                bidding.getSolan()
-        );
+        try {
+            BiddingDTO dto = phientragiaService.createBid(
+                    bidding.getPhienDauGia().getMaphiendg(),
+                    bidding.getTaiKhoanNguoiRaGia().getMatk(),
+                    bidding.getSolan());
+            messagingTemplate.convertAndSend("/topic/auction/" + dto.getPhienDauGia().getMaphiendg(), dto);
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", true);
+            error.put("message", e.getMessage());
+            messagingTemplate.convertAndSend("/topic/auction/" + bidding.getPhienDauGia().getMaphiendg(), error);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", true);
+            error.put("message", "Lỗi hệ thống: " + e.getMessage());
 
-        messagingTemplate.convertAndSend("/topic/auction/" + dto.getPhienDauGia().getMaphiendg(), dto);
+            messagingTemplate.convertAndSend("/topic/auction/" + bidding.getPhienDauGia().getMaphiendg(), error);
+        }
     }
+
+
 
 }

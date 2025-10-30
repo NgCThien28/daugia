@@ -15,14 +15,16 @@ public class NotificationController {
     private NotificationService notificationService;
 
     @GetMapping("/connect")
-    public SseEmitter connect(@RequestHeader("Authorization") String header) {
-        if (header == null || !header.startsWith("Bearer ")) {
+    public SseEmitter connect(@RequestParam("token") String token) {
+        if (token == null || token.isBlank()) {
             throw new IllegalArgumentException("Thiếu token");
         }
-        String token = header.substring(7);
         String email = JwtUtil.validateToken(token);
-        if (email == null) throw new IllegalArgumentException("Token không hợp lệ");
+        if (email == null) {
+            throw new IllegalArgumentException("Token không hợp lệ");
+        }
 
         return notificationService.createEmitter(email);
     }
+
 }

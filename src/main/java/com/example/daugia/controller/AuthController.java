@@ -93,6 +93,13 @@ public class AuthController {
         }
 
         String token = header.substring(7);
+
+        if (blacklistService.isBlacklisted(token)) {
+            response.setCode(400);
+            response.setMessage("Token đã bị vô hiệu hóa, không thể logout lại");
+            return response;
+        }
+
         String email = JwtUtil.validateToken(token);
 
         if (email == null) {
