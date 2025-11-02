@@ -39,6 +39,11 @@ public class Sanpham {
     @JsonIgnore
     private Phiendaugia phienDauGia;
 
+    @ManyToOne
+    @JoinColumn(name = "matp")
+    @JsonManagedReference
+    private Thanhpho thanhPho;
+
     private String tinhtrangsp;
     private String tensp;
     private TrangThaiSanPham trangthai;
@@ -113,5 +118,13 @@ public class Sanpham {
 
     public void setTrangthai(TrangThaiSanPham trangthai) {
         this.trangthai = trangthai;
+    }
+
+    public Thanhpho getThanhPho() {
+        return thanhPho;
+    }
+
+    public void setThanhPho(Thanhpho thanhPho) {
+        this.thanhPho = thanhPho;
     }
 }

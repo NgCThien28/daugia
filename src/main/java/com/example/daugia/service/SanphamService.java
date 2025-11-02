@@ -2,15 +2,13 @@ package com.example.daugia.service;
 
 import com.example.daugia.core.enums.TrangThaiSanPham;
 import com.example.daugia.dto.request.SanPhamCreationRequest;
+import com.example.daugia.dto.response.CityDTO;
 import com.example.daugia.dto.response.ImageDTO;
 import com.example.daugia.dto.response.ProductDTO;
 import com.example.daugia.dto.response.UserShortDTO;
 import com.example.daugia.entity.Hinhanh;
 import com.example.daugia.entity.Sanpham;
-import com.example.daugia.repository.DanhmucRepository;
-import com.example.daugia.repository.HinhanhRepository;
-import com.example.daugia.repository.SanphamRepository;
-import com.example.daugia.repository.TaikhoanRepository;
+import com.example.daugia.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +25,8 @@ public class SanphamService {
     private TaikhoanRepository taikhoanRepository;
     @Autowired
     private HinhanhRepository hinhanhRepository;
-
+    @Autowired
+    private ThanhphoRepository thanhphoRepository;
     public List<ProductDTO> findAll() {
         List<Sanpham> sanphamList = sanphamRepository.findAll();
         return sanphamList.stream()
@@ -41,6 +40,7 @@ public class SanphamService {
                                 sp.getTaiKhoan().getEmail(),
                                 sp.getTaiKhoan().getSdt()
                         ),
+                        new CityDTO(sp.getThanhPho().getMatp(), sp.getThanhPho().getTentp()),
                         sp.getHinhAnh().stream()
                                 .map(ha -> new ImageDTO(ha.getMaanh(), ha.getTenanh()))
                                 .toList(),
@@ -58,7 +58,8 @@ public class SanphamService {
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy danh mục")));
         sp.setTaiKhoan(taikhoanRepository.findById(request.getMakh())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản khách hàng")));
-
+        sp.setThanhPho(thanhphoRepository.findById(request.getMatp())
+                .orElseThrow(() -> new IllegalArgumentException("Khong tim thay thanh pho")));
         sp.setTensp(request.getTensp());
         sp.setTinhtrangsp(request.getTinhtrangsp());
         sp.setTrangthai(TrangThaiSanPham.PENDING_APPROVAL);
@@ -66,8 +67,9 @@ public class SanphamService {
         sanphamRepository.save(sp);
 
         UserShortDTO userShortDTO = new UserShortDTO(sp.getTaiKhoan().getMatk());
+        CityDTO cityDTO = new CityDTO(sp.getThanhPho().getTentp());
         List<ImageDTO> hinhAnh = new ArrayList<>();
-        ProductDTO productDTO = new ProductDTO(sp.getMasp(), userShortDTO, hinhAnh, sp.getTinhtrangsp(),
+        ProductDTO productDTO = new ProductDTO(sp.getMasp(), userShortDTO,cityDTO, hinhAnh, sp.getTinhtrangsp(),
                 sp.getTensp(), sp.getTrangthai().getValue());
 
         if (request.getHinhAnh() != null && !request.getHinhAnh().isEmpty()) {

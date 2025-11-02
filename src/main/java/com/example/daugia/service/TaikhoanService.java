@@ -3,7 +3,9 @@ package com.example.daugia.service;
 import com.example.daugia.core.enums.TrangThaiTaiKhoan;
 import com.example.daugia.dto.request.TaikhoanCreationRequest;
 import com.example.daugia.entity.Taikhoan;
+import com.example.daugia.entity.Thanhpho;
 import com.example.daugia.repository.TaikhoanRepository;
+import com.example.daugia.repository.ThanhphoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,8 @@ import java.util.List;
 public class TaikhoanService {
     @Autowired
     private TaikhoanRepository taikhoanRepository;
+    @Autowired
+    private ThanhphoRepository thanhphoRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -30,6 +34,8 @@ public class TaikhoanService {
         Taikhoan taikhoan = new Taikhoan();
         if(taikhoanRepository.existsByEmail(request.getEmail()))
             throw new IllegalArgumentException("Username already exists");
+        taikhoan.setThanhPho(thanhphoRepository.findById(request.getMatp())
+                .orElseThrow(() -> new IllegalArgumentException("Thanh pho khong ton tai")));
         taikhoan.setHo(request.getHo());
         taikhoan.setTenlot(request.getTenlot());
         taikhoan.setTen(request.getTen());

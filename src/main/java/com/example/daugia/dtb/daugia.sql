@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3306
--- Generation Time: Oct 29, 2025 at 05:44 PM
--- Server version: 9.1.0
--- PHP Version: 8.3.14
+-- Máy chủ: 127.0.0.1:3306
+-- Thời gian đã tạo: Th10 02, 2025 lúc 04:47 PM
+-- Phiên bản máy phục vụ: 9.1.0
+-- Phiên bản PHP: 8.3.14
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `daugia`
+-- Cơ sở dữ liệu: `daugia`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `baocao`
+-- Cấu trúc bảng cho bảng `baocao`
 --
 
 DROP TABLE IF EXISTS `baocao`;
@@ -37,21 +37,10 @@ CREATE TABLE IF NOT EXISTS `baocao` (
   KEY `maqt` (`maqtv`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Dumping data for table `baocao`
---
-
-INSERT INTO `baocao` (`mabc`, `maqtv`, `noidung`, `thoigian`) VALUES
-('1', '1', 'abc', '2025-10-25 20:20:31'),
-('BC06830611', '1', 'ádgfvb', '2025-10-29 16:56:27'),
-('BC58554323', '1', 'Đã sửa nội dung', '2025-10-28 16:39:17'),
-('BC69808116', '1', 'ádgfvb', '2025-10-29 16:39:05'),
-('BC85500499', '1', 'ádgfvb', '2025-10-29 16:25:47');
-
 -- --------------------------------------------------------
 
 --
--- Table structure for table `danhmuc`
+-- Cấu trúc bảng cho bảng `danhmuc`
 --
 
 DROP TABLE IF EXISTS `danhmuc`;
@@ -62,16 +51,16 @@ CREATE TABLE IF NOT EXISTS `danhmuc` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `danhmuc`
+-- Đang đổ dữ liệu cho bảng `danhmuc`
 --
 
 INSERT INTO `danhmuc` (`madm`, `tendm`) VALUES
-('1', 'Gỗ');
+('DM00000001', 'Gỗ');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `hinhanh`
+-- Cấu trúc bảng cho bảng `hinhanh`
 --
 
 DROP TABLE IF EXISTS `hinhanh`;
@@ -83,23 +72,10 @@ CREATE TABLE IF NOT EXISTS `hinhanh` (
   KEY `masp` (`masp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Dumping data for table `hinhanh`
---
-
-INSERT INTO `hinhanh` (`maanh`, `masp`, `tenanh`) VALUES
-('1', '1', 'anh'),
-('HA07023226', 'SP12427644', 'asus_t123.jpg'),
-('HA10455718', 'SP93801173', 'asus_t123.jpg'),
-('HA20621650', 'SP12427644', 'thien_loc.jpg'),
-('HA21457969', 'SP93801173', 'thien_loc.jpg'),
-('HA55068063', 'SP12427644', 'asus_tk4565.jpg'),
-('HA84565875', 'SP93801173', 'asus_tk4565.jpg');
-
 -- --------------------------------------------------------
 
 --
--- Table structure for table `phiendaugia`
+-- Cấu trúc bảng cho bảng `phiendaugia`
 --
 
 DROP TABLE IF EXISTS `phiendaugia`;
@@ -126,17 +102,10 @@ CREATE TABLE IF NOT EXISTS `phiendaugia` (
   KEY `maqtv` (`maqtv`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Dumping data for table `phiendaugia`
---
-
-INSERT INTO `phiendaugia` (`maphiendg`, `masp`, `maqtv`, `makh`, `trangthai`, `thoigianbd`, `thoigiankt`, `thoigianbddk`, `thoigianktdk`, `giakhoidiem`, `giatran`, `buocgia`, `giacaonhatdatduoc`, `tiencoc`, `ketquaphien`, `slnguoithamgia`) VALUES
-('1', '1', '1', '1', 0, '2025-10-25 18:43:07', '2025-10-25 18:43:07', '2025-10-25 18:43:07', '2025-10-25 18:43:07', 10000, 100000, 10000, 30000, 10000, 0, 1);
-
 -- --------------------------------------------------------
 
 --
--- Table structure for table `phientragia`
+-- Cấu trúc bảng cho bảng `phientragia`
 --
 
 DROP TABLE IF EXISTS `phientragia`;
@@ -153,18 +122,10 @@ CREATE TABLE IF NOT EXISTS `phientragia` (
   KEY `maphiendg` (`maphiendg`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Dumping data for table `phientragia`
---
-
-INSERT INTO `phientragia` (`maphientg`, `makh`, `maphiendg`, `sotien`, `solan`, `thoigian`, `thoigiancho`) VALUES
-('TG30762969', 'KH66115668', '1', 30000, 1, '2025-10-29 17:25:00', '2025-10-29 17:25:20'),
-('TG60931241', 'KH18401112', '1', 20000, 1, '2025-10-29 17:24:45', '2025-10-29 17:25:05');
-
 -- --------------------------------------------------------
 
 --
--- Table structure for table `phieuthanhtoan`
+-- Cấu trúc bảng cho bảng `phieuthanhtoan`
 --
 
 DROP TABLE IF EXISTS `phieuthanhtoan`;
@@ -182,7 +143,7 @@ CREATE TABLE IF NOT EXISTS `phieuthanhtoan` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `phieuthanhtoantiencoc`
+-- Cấu trúc bảng cho bảng `phieuthanhtoantiencoc`
 --
 
 DROP TABLE IF EXISTS `phieuthanhtoantiencoc`;
@@ -200,7 +161,7 @@ CREATE TABLE IF NOT EXISTS `phieuthanhtoantiencoc` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `sanpham`
+-- Cấu trúc bảng cho bảng `sanpham`
 --
 
 DROP TABLE IF EXISTS `sanpham`;
@@ -209,33 +170,36 @@ CREATE TABLE IF NOT EXISTS `sanpham` (
   `madm` char(10) NOT NULL,
   `maqtv` char(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `makh` char(10) NOT NULL,
+  `matp` char(10) NOT NULL,
   `tinhtrangsp` varchar(50) NOT NULL,
   `tensp` varchar(50) NOT NULL,
   `trangthai` tinyint NOT NULL,
   PRIMARY KEY (`masp`),
   KEY `madm` (`madm`),
   KEY `maqtv` (`maqtv`),
-  KEY `makh` (`makh`)
+  KEY `makh` (`makh`),
+  KEY `sanpham_ibfk_4` (`matp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `sanpham`
+-- Đang đổ dữ liệu cho bảng `sanpham`
 --
 
-INSERT INTO `sanpham` (`masp`, `madm`, `maqtv`, `makh`, `tinhtrangsp`, `tensp`, `trangthai`) VALUES
-('1', '1', '1', '1', 'Còn tốt', 'Gỗ xưa', 0),
-('SP12427644', '1', NULL, 'KH18401112', '1000 tuổi', 'Thiên lôi trúcccccc', 0),
-('SP93801173', '1', NULL, 'KH18401112', '1000 tuổi', 'Thiên lôi trúcccccc', 0);
+INSERT INTO `sanpham` (`masp`, `madm`, `maqtv`, `makh`, `matp`, `tinhtrangsp`, `tensp`, `trangthai`) VALUES
+('SP01466166', 'DM00000001', NULL, 'KH08560518', 'TP00000001', 'Còn tốt hơi hơi', 'Gỗ xưa 2', 0),
+('SP06976566', 'DM00000001', 'QT00000001', 'KH08560518', 'TP00000001', 'Còn tốt ác', 'Gỗ xưa', 1),
+('SP37153302', 'DM00000001', NULL, 'KH08560518', 'TP00000001', 'Còn tốt', 'Gỗ xưa 3', 0);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `taikhoan`
+-- Cấu trúc bảng cho bảng `taikhoan`
 --
 
 DROP TABLE IF EXISTS `taikhoan`;
 CREATE TABLE IF NOT EXISTS `taikhoan` (
   `matk` char(10) NOT NULL,
+  `matp` char(10) NOT NULL,
   `ho` varchar(10) NOT NULL,
   `tenlot` varchar(10) NOT NULL,
   `ten` varchar(10) NOT NULL,
@@ -245,22 +209,22 @@ CREATE TABLE IF NOT EXISTS `taikhoan` (
   `sdt` char(11) NOT NULL,
   `matkhau` char(100) NOT NULL,
   `trangthaidangnhap` tinyint NOT NULL,
-  PRIMARY KEY (`matk`)
+  PRIMARY KEY (`matk`),
+  KEY `fktaikhoanthanhpho` (`matp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `taikhoan`
+-- Đang đổ dữ liệu cho bảng `taikhoan`
 --
 
-INSERT INTO `taikhoan` (`matk`, `ho`, `tenlot`, `ten`, `email`, `diachi`, `diachigiaohang`, `sdt`, `matkhau`, `trangthaidangnhap`) VALUES
-('1', 'nguyen', 'cong', 'tan', 'congtan@gmail.com', 'Ton Dan', 'Ton Dan', '0937461234', '123456', 1),
-('KH18401112', 'nguyen', 'chi', 'thien', 'chithien@gmail.com', 'Quan 7', 'Quan 4', '0979286060', '$2a$10$1Z8p.X7qMSyw/MH46nnhWe9spra6w1/QgUg3DU4wV1geraInPkHla', 0),
-('KH66115668', 'nguyen', 'chi', 'thien', 'chithien1@gmail.com', 'Quan 8', 'Quan 9', '093746123', '$2a$10$3TnqLwWJb4qPJ9Bo3WHWA.iuJO6Mbop4xZFISQP.SniR2muOpCKKm', 0);
+INSERT INTO `taikhoan` (`matk`, `matp`, `ho`, `tenlot`, `ten`, `email`, `diachi`, `diachigiaohang`, `sdt`, `matkhau`, `trangthaidangnhap`) VALUES
+('KH08560518', 'TP00000001', 'nguyen', 'chi', 'thien', 'chithien@gmail.com', 'Quan 8', 'Quan 9', '093746123', '$2a$10$pVJ90I.jSzYlJE1qSwmw3.8pMITV79xLqP6zzi4HTk2QHrfm.Xq.a', 0),
+('KH32784375', 'TP00000002', 'nguyen', 'cong', 'tan', 'congtan@gmail.com', 'Quan Cầu Giấy', 'Quan 9', '093746123', '$2a$10$QpA8c0LxaWZQdMUHWcUWoOyWI2p7E1yyPkVr24SwS2jtCDsQhlXEK', 0);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `taikhoanquantri`
+-- Cấu trúc bảng cho bảng `taikhoanquantri`
 --
 
 DROP TABLE IF EXISTS `taikhoanquantri`;
@@ -276,16 +240,37 @@ CREATE TABLE IF NOT EXISTS `taikhoanquantri` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `taikhoanquantri`
+-- Đang đổ dữ liệu cho bảng `taikhoanquantri`
 --
 
 INSERT INTO `taikhoanquantri` (`matk`, `ho`, `tenlot`, `ten`, `email`, `sdt`, `matkhau`) VALUES
-('1', 'nguyen', 'cong', 'tan', 'congtan123@gmail.com', '0937465678', '$2a$10$reRYZ3jbnO1qhH.Fb0/QU.kDCAT1OG.dP7aNNcoYvKMpsqhR6CkzS');
+('QT00000001', 'nguyen', 'cong', 'tan', 'congtan123@gmail.com', '0937465678', '$2a$10$reRYZ3jbnO1qhH.Fb0/QU.kDCAT1OG.dP7aNNcoYvKMpsqhR6CkzS');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `thongbao`
+-- Cấu trúc bảng cho bảng `thanhpho`
+--
+
+DROP TABLE IF EXISTS `thanhpho`;
+CREATE TABLE IF NOT EXISTS `thanhpho` (
+  `matp` char(10) NOT NULL,
+  `tentp` varchar(50) NOT NULL,
+  PRIMARY KEY (`matp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `thanhpho`
+--
+
+INSERT INTO `thanhpho` (`matp`, `tentp`) VALUES
+('TP00000001', 'Hồ Chí Minh'),
+('TP00000002', 'Hà Nội');
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `thongbao`
 --
 
 DROP TABLE IF EXISTS `thongbao`;
@@ -302,23 +287,23 @@ CREATE TABLE IF NOT EXISTS `thongbao` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Constraints for dumped tables
+-- Các ràng buộc cho các bảng đã đổ
 --
 
 --
--- Constraints for table `baocao`
+-- Các ràng buộc cho bảng `baocao`
 --
 ALTER TABLE `baocao`
   ADD CONSTRAINT `baocao_ibfk_1` FOREIGN KEY (`maqtv`) REFERENCES `taikhoanquantri` (`matk`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
--- Constraints for table `hinhanh`
+-- Các ràng buộc cho bảng `hinhanh`
 --
 ALTER TABLE `hinhanh`
   ADD CONSTRAINT `hinhanh_ibfk_1` FOREIGN KEY (`masp`) REFERENCES `sanpham` (`masp`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
--- Constraints for table `phiendaugia`
+-- Các ràng buộc cho bảng `phiendaugia`
 --
 ALTER TABLE `phiendaugia`
   ADD CONSTRAINT `phiendaugia_ibfk_1` FOREIGN KEY (`masp`) REFERENCES `sanpham` (`masp`) ON DELETE RESTRICT ON UPDATE RESTRICT,
@@ -326,36 +311,43 @@ ALTER TABLE `phiendaugia`
   ADD CONSTRAINT `phiendaugia_ibfk_3` FOREIGN KEY (`makh`) REFERENCES `taikhoan` (`matk`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
--- Constraints for table `phientragia`
+-- Các ràng buộc cho bảng `phientragia`
 --
 ALTER TABLE `phientragia`
   ADD CONSTRAINT `phientragia_ibfk_1` FOREIGN KEY (`makh`) REFERENCES `taikhoan` (`matk`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   ADD CONSTRAINT `phientragia_ibfk_2` FOREIGN KEY (`maphiendg`) REFERENCES `phiendaugia` (`maphiendg`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
--- Constraints for table `phieuthanhtoan`
+-- Các ràng buộc cho bảng `phieuthanhtoan`
 --
 ALTER TABLE `phieuthanhtoan`
   ADD CONSTRAINT `phieuthanhtoan_ibfk_1` FOREIGN KEY (`maphiendg`) REFERENCES `phiendaugia` (`maphiendg`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   ADD CONSTRAINT `phieuthanhtoan_ibfk_2` FOREIGN KEY (`makh`) REFERENCES `taikhoan` (`matk`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
--- Constraints for table `phieuthanhtoantiencoc`
+-- Các ràng buộc cho bảng `phieuthanhtoantiencoc`
 --
 ALTER TABLE `phieuthanhtoantiencoc`
   ADD CONSTRAINT `phieuthanhtoantiencoc_ibfk_1` FOREIGN KEY (`maphiendg`) REFERENCES `phiendaugia` (`maphiendg`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   ADD CONSTRAINT `phieuthanhtoantiencoc_ibfk_2` FOREIGN KEY (`makh`) REFERENCES `taikhoan` (`matk`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
--- Constraints for table `sanpham`
+-- Các ràng buộc cho bảng `sanpham`
 --
 ALTER TABLE `sanpham`
   ADD CONSTRAINT `sanpham_ibfk_1` FOREIGN KEY (`madm`) REFERENCES `danhmuc` (`madm`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   ADD CONSTRAINT `sanpham_ibfk_2` FOREIGN KEY (`maqtv`) REFERENCES `taikhoanquantri` (`matk`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  ADD CONSTRAINT `sanpham_ibfk_3` FOREIGN KEY (`makh`) REFERENCES `taikhoan` (`matk`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `sanpham_ibfk_3` FOREIGN KEY (`makh`) REFERENCES `taikhoan` (`matk`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  ADD CONSTRAINT `sanpham_ibfk_4` FOREIGN KEY (`matp`) REFERENCES `thanhpho` (`matp`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
--- Constraints for table `thongbao`
+-- Các ràng buộc cho bảng `taikhoan`
+--
+ALTER TABLE `taikhoan`
+  ADD CONSTRAINT `fktaikhoanthanhpho` FOREIGN KEY (`matp`) REFERENCES `thanhpho` (`matp`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+--
+-- Các ràng buộc cho bảng `thongbao`
 --
 ALTER TABLE `thongbao`
   ADD CONSTRAINT `thongbao_ibfk_1` FOREIGN KEY (`makh`) REFERENCES `taikhoan` (`matk`) ON DELETE RESTRICT ON UPDATE RESTRICT,

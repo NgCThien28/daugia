@@ -5,6 +5,7 @@ public class TaikhoanCreationRequest {
     private String tenlot;
     private String ten;
     private String email;
+    private String matp;
     private String diachi;
     private String diachigiaohang;
     private String sdt;
@@ -71,5 +72,13 @@ public class TaikhoanCreationRequest {
 
     public void setMatkhau(String matkhau) {
         this.matkhau = matkhau;
+    }
+
+    public String getMatp() {
+        return matp;
+    }
+
+    public void setMatp(String matp) {
+        this.matp = matp;
     }
 }

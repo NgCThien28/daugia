@@ -6,6 +6,7 @@ public class SanPhamCreationRequest {
     private String madm;
     private String makh;
     private String tensp;
+    private String matp;
     private String tinhtrangsp;
     private List<String> hinhAnh;
 
@@ -48,5 +49,13 @@ public class SanPhamCreationRequest {
 
     public void setHinhAnh(List<String> hinhAnh) {
         this.hinhAnh = hinhAnh;
+    }
+
+    public String getMatp() {
+        return matp;
+    }
+
+    public void setMatp(String matp) {
+        this.matp = matp;
     }
 }
