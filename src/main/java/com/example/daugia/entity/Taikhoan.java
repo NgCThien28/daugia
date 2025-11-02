@@ -53,6 +53,7 @@ public class Taikhoan {
     private String diachi;
     private String diachigiaohang;
     private String sdt;
+    @JsonIgnore
     private String matkhau;
     private TrangThaiTaiKhoan trangthaidangnhap;
 
