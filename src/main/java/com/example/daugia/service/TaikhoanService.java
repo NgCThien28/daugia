@@ -34,14 +34,10 @@ public class TaikhoanService {
         Taikhoan taikhoan = new Taikhoan();
         if(taikhoanRepository.existsByEmail(request.getEmail()))
             throw new IllegalArgumentException("Username already exists");
-        taikhoan.setThanhPho(thanhphoRepository.findById(request.getMatp())
-                .orElseThrow(() -> new IllegalArgumentException("Thanh pho khong ton tai")));
         taikhoan.setHo(request.getHo());
         taikhoan.setTenlot(request.getTenlot());
         taikhoan.setTen(request.getTen());
         taikhoan.setEmail(request.getEmail());
-        taikhoan.setDiachi(request.getDiachi());
-        taikhoan.setDiachigiaohang(request.getDiachigiaohang());
         taikhoan.setSdt(request.getSdt());
         taikhoan.setMatkhau(passwordEncoder.encode(request.getMatkhau()));
         taikhoan.setTrangthaidangnhap(TrangThaiTaiKhoan.OFFLINE);
@@ -90,10 +86,6 @@ public class TaikhoanService {
                 .orElseThrow(() -> new IllegalArgumentException("Tài khoản không tồn tại"));
         if (!passwordEncoder.matches(request.getMatkhaucu(), taikhoan.getMatkhau())) {
             throw new IllegalArgumentException("Mật khẩu hiện tại không đúng");
-        }
-
-        if (!request.getMatkhaumoi().equals(request.getXacnhanmatkhau())) {
-            throw new IllegalArgumentException("Mật khẩu mới và xác nhận mật khẩu không khớp");
         }
 
         taikhoan.setMatkhau(passwordEncoder.encode(request.getMatkhaumoi()));
