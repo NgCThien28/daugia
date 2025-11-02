@@ -74,12 +74,10 @@ public class PhieuthanhtoantiencocController {
     }
 
     @PutMapping("/update")
-    public ApiResponse<DepositDTO> update(
-            @RequestBody PhieuthanhtoantiencocCreationRequest request,
-            @RequestHeader(value = "Authorization", required = false) String header) {
+    public ApiResponse<DepositDTO> update(@RequestBody PhieuthanhtoantiencocCreationRequest request,
+                                          @RequestHeader(value = "Authorization", required = false) String header) {
         ApiResponse<DepositDTO> apiResponse = new ApiResponse<>();
         try {
-            // 🧩 Kiểm tra token
             if (header == null || !header.startsWith("Bearer ")) {
                 apiResponse.setCode(401);
                 apiResponse.setMessage("Thiếu token");

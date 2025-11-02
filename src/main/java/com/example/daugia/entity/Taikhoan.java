@@ -3,6 +3,7 @@ package com.example.daugia.entity;
 import com.example.daugia.core.enums.TrangThaiTaiKhoan;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -40,6 +41,11 @@ public class Taikhoan {
     @JsonBackReference
     private List<Phieuthanhtoan> phieuThanhToan;
 
+    @ManyToOne
+    @JoinColumn(name = "matp")
+    @JsonManagedReference
+    private Thanhpho thanhPho;
+
     private String ho;
     private String tenlot;
     private String ten;
@@ -47,7 +53,6 @@ public class Taikhoan {
     private String diachi;
     private String diachigiaohang;
     private String sdt;
-    @JsonIgnore
     private String matkhau;
     private TrangThaiTaiKhoan trangthaidangnhap;
 
@@ -177,5 +182,13 @@ public class Taikhoan {
 
     public void setTrangthaidangnhap(TrangThaiTaiKhoan trangthaidangnhap) {
         this.trangthaidangnhap = trangthaidangnhap;
+    }
+
+    public Thanhpho getThanhPho() {
+        return thanhPho;
+    }
+
+    public void setThanhPho(Thanhpho thanhPho) {
+        this.thanhPho = thanhPho;
     }
 }
