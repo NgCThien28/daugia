@@ -1,9 +1,9 @@
 package com.example.daugia.service;
 
 import com.example.daugia.core.enums.TrangThaiTaiKhoan;
+import com.example.daugia.dto.request.TaiKhoanChangePasswordRequest;
 import com.example.daugia.dto.request.TaikhoanCreationRequest;
 import com.example.daugia.entity.Taikhoan;
-import com.example.daugia.entity.Thanhpho;
 import com.example.daugia.repository.TaikhoanRepository;
 import com.example.daugia.repository.ThanhphoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +68,36 @@ public class TaikhoanService {
         Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản"));
         taikhoan.setTrangthaidangnhap(TrangThaiTaiKhoan.OFFLINE);
+        taikhoanRepository.save(taikhoan);
+    }
+
+    public Taikhoan updateInfo (TaikhoanCreationRequest request, String email) {
+        Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Tài khoản không tồn tại"));
+        taikhoan.setThanhPho(thanhphoRepository.findById(request.getMatp())
+                .orElseThrow(() -> new IllegalArgumentException("Thành phố không tồn tại")));
+        taikhoan.setHo(request.getHo());
+        taikhoan.setTenlot(request.getTenlot());
+        taikhoan.setTen(request.getTen());
+        taikhoan.setDiachi(request.getDiachi());
+        taikhoan.setDiachigiaohang(request.getDiachigiaohang());
+        taikhoan.setSdt(request.getSdt());
+        return taikhoanRepository.save(taikhoan);
+    }
+
+    public void changePassword (TaiKhoanChangePasswordRequest request, String email) {
+        Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Tài khoản không tồn tại"));
+        if (!passwordEncoder.matches(request.getMatkhaucu(), taikhoan.getMatkhau())) {
+            throw new IllegalArgumentException("Mật khẩu hiện tại không đúng");
+        }
+
+        if (!request.getMatkhaumoi().equals(request.getXacnhanmatkhau())) {
+            throw new IllegalArgumentException("Mật khẩu mới và xác nhận mật khẩu không khớp");
+        }
+
+        taikhoan.setMatkhau(passwordEncoder.encode(request.getMatkhaumoi()));
+
         taikhoanRepository.save(taikhoan);
     }
 }
