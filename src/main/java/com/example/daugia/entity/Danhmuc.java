@@ -1,6 +1,6 @@
 package com.example.daugia.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -15,7 +15,7 @@ public class Danhmuc {
     private String madm;
 
     @OneToMany(mappedBy = "danhMuc", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @JsonBackReference
     private List<Sanpham> sanPham;
 
     private String tendm;

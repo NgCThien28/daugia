@@ -6,7 +6,6 @@ import com.example.daugia.dto.response.CityDTO;
 import com.example.daugia.dto.response.ImageDTO;
 import com.example.daugia.dto.response.ProductDTO;
 import com.example.daugia.dto.response.UserShortDTO;
-import com.example.daugia.entity.Hinhanh;
 import com.example.daugia.entity.Sanpham;
 import com.example.daugia.entity.Taikhoan;
 import com.example.daugia.repository.*;
@@ -80,19 +79,26 @@ public class SanphamService {
         ProductDTO productDTO = new ProductDTO(sp.getMasp(), userShortDTO,cityDTO, hinhAnh, sp.getTinhtrangsp(),
                 sp.getTensp(), sp.getTrangthai().getValue());
 
-        if (request.getHinhAnh() != null && !request.getHinhAnh().isEmpty()) {
-            for (String tenAnh : request.getHinhAnh()) {
-                Hinhanh ha = new Hinhanh();
-                ha.setTenanh(tenAnh);
-                ha.setSanPham(sp);
-                hinhanhRepository.save(ha);
-                ImageDTO imageDTO = new ImageDTO();
-                imageDTO.setTenanh(tenAnh);
-//                imageDTO.setMaanh(ha.getMaanh());
-                hinhAnh.add(imageDTO);
-            }
-        }
+        return productDTO;
+    }
 
+    public ProductDTO update (SanPhamCreationRequest request) {
+        Sanpham sanpham = sanphamRepository.findById(request.getMasp())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm"));
+        sanpham.setDanhMuc(danhmucRepository.findById(request.getMadm())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy danh mục sản phẩm")));
+        sanpham.setThanhPho(thanhphoRepository.findById(request.getMatp())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thành phố")));
+        sanpham.setTensp(request.getTensp());
+        sanpham.setTinhtrangsp(request.getTinhtrangsp());
+
+        UserShortDTO userShortDTO = new UserShortDTO(sanpham.getTaiKhoan().getMatk());
+        CityDTO cityDTO = new CityDTO(sanpham.getThanhPho().getTentp());
+        List<ImageDTO> hinhAnh = new ArrayList<>();
+        ProductDTO productDTO = new ProductDTO(sanpham.getMasp(), userShortDTO,cityDTO, hinhAnh, sanpham.getTinhtrangsp(),
+                sanpham.getTensp(), sanpham.getTrangthai().getValue());
+
+        sanphamRepository.save(sanpham);
         return productDTO;
     }
 }

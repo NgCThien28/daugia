@@ -3,12 +3,21 @@ package com.example.daugia.dto.request;
 import java.util.List;
 
 public class SanPhamCreationRequest {
+    private String masp;
     private String madm;
     private String makh;
     private String tensp;
     private String matp;
     private String tinhtrangsp;
-    private List<String> hinhAnh;
+    private List<String> hinhanh;
+
+    public String getMasp() {
+        return masp;
+    }
+
+    public void setMasp(String masp) {
+        this.masp = masp;
+    }
 
     public String getMadm() {
         return madm;
@@ -42,13 +51,12 @@ public class SanPhamCreationRequest {
         this.tinhtrangsp = tinhtrangsp;
     }
 
-
-    public List<String> getHinhAnh() {
-        return hinhAnh;
+    public List<String> getHinhanh() {
+        return hinhanh;
     }
 
-    public void setHinhAnh(List<String> hinhAnh) {
-        this.hinhAnh = hinhAnh;
+    public void setHinhanh(List<String> hinhanh) {
+        this.hinhanh = hinhanh;
     }
 
     public String getMatp() {

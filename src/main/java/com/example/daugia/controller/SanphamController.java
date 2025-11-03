@@ -106,4 +106,46 @@ public class SanphamController {
         }
         return res;
     }
+
+    @PutMapping("/update")
+    public ApiResponse<ProductDTO> update(@RequestBody SanPhamCreationRequest request,
+                                                 @RequestHeader("Authorization") String header) {
+        ApiResponse<ProductDTO> response = new ApiResponse<>();
+        try {
+            if (header == null || !header.startsWith("Bearer ")) {
+                response.setCode(401);
+                response.setMessage("Thiếu token");
+                return response;
+            }
+
+            String token = header.substring(7);
+            if (blacklistService.isBlacklisted(token)) {
+                response.setCode(401);
+                response.setMessage("Token đã bị vô hiệu hóa");
+                return response;
+            }
+
+            String email = JwtUtil.validateToken(token);
+            if (email == null) {
+                response.setCode(401);
+                response.setMessage("Token không hợp lệ hoặc hết hạn");
+                return response;
+            }
+
+            ProductDTO updatedProduct = sanphamService.update(request);
+
+            response.setCode(200);
+            response.setMessage("Cập nhật sản phẩm thành công");
+            response.setResult(updatedProduct);
+
+        } catch (IllegalArgumentException e) {
+            response.setCode(400);
+            response.setMessage("Lỗi: " + e.getMessage());
+        } catch (Exception e) {
+            response.setCode(500);
+            response.setMessage("Lỗi hệ thống: " + e.getMessage());
+        }
+
+        return response;
+    }
 }

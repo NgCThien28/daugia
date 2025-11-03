@@ -1,7 +1,6 @@
 package com.example.daugia.entity;
 
 import com.example.daugia.core.enums.TrangThaiSanPham;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -18,7 +17,7 @@ public class Sanpham {
 
     @ManyToOne
     @JoinColumn(name = "madm")
-    @JsonBackReference
+    @JsonManagedReference
     private Danhmuc danhMuc;
 
     @ManyToOne
