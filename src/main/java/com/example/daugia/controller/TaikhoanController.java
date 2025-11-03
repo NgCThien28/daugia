@@ -135,7 +135,7 @@ public class TaikhoanController {
 
         } catch (IllegalArgumentException e) {
             apiResponse.setCode(400);
-            apiResponse.setMessage("Lỗi: " + e.getMessage());
+            apiResponse.setMessage(e.getMessage());
         }
 
         return apiResponse;
