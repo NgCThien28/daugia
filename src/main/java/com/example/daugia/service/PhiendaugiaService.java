@@ -3,7 +3,9 @@ package com.example.daugia.service;
 import com.example.daugia.dto.response.AuctionDTO;
 import com.example.daugia.dto.response.UserShortDTO;
 import com.example.daugia.entity.Phiendaugia;
+import com.example.daugia.entity.Taikhoan;
 import com.example.daugia.repository.PhiendaugiaRepository;
+import com.example.daugia.repository.TaikhoanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,8 @@ import java.util.List;
 public class PhiendaugiaService {
     @Autowired
     private PhiendaugiaRepository phiendaugiaRepository;
+    @Autowired
+    private TaikhoanRepository taikhoanRepository;
 
     public List<AuctionDTO> findAll() {
         List<Phiendaugia> phienList = phiendaugiaRepository.findAll();
@@ -38,5 +42,11 @@ public class PhiendaugiaService {
                         phien.getTiencoc()
                 ))
                 .toList();
+    }
+    public List<Phiendaugia> findByUser(String email){
+        Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản"));
+        List<Phiendaugia> phiendaugiaList = phiendaugiaRepository.findByTaiKhoan_Matk(taikhoan.getMatk());
+        return phiendaugiaList;
     }
 }

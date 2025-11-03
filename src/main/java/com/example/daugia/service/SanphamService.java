@@ -8,6 +8,7 @@ import com.example.daugia.dto.response.ProductDTO;
 import com.example.daugia.dto.response.UserShortDTO;
 import com.example.daugia.entity.Hinhanh;
 import com.example.daugia.entity.Sanpham;
+import com.example.daugia.entity.Taikhoan;
 import com.example.daugia.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,12 +52,19 @@ public class SanphamService {
                 .toList();
     }
 
-    public ProductDTO create(SanPhamCreationRequest request) {
+    public List<Sanpham> findByUser(String email){
+        Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản"));
+        List<Sanpham> sanphamList = sanphamRepository.findByTaiKhoan_Matk(taikhoan.getMatk());
+        return  sanphamList;
+    }
+
+    public ProductDTO create(SanPhamCreationRequest request, String email) {
         Sanpham sp = new Sanpham();
 
         sp.setDanhMuc(danhmucRepository.findById(request.getMadm())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy danh mục")));
-        sp.setTaiKhoan(taikhoanRepository.findById(request.getMakh())
+        sp.setTaiKhoan(taikhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản khách hàng")));
         sp.setThanhPho(thanhphoRepository.findById(request.getMatp())
                 .orElseThrow(() -> new IllegalArgumentException("Khong tim thay thanh pho")));

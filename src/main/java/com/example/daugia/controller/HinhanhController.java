@@ -1,12 +1,12 @@
 package com.example.daugia.controller;
 
 import com.example.daugia.dto.request.ApiResponse;
+import com.example.daugia.dto.request.HinhanhCreationRequest;
 import com.example.daugia.entity.Hinhanh;
 import com.example.daugia.service.HinhanhService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -30,4 +30,22 @@ public class HinhanhController {
         }
         return apiResponse;
     }
+
+    @PostMapping("/upload")
+    public ApiResponse<List<Hinhanh>> uploadImages(
+            @RequestParam("masp") String masp,
+            @RequestParam("files") List<MultipartFile> files) {
+        ApiResponse<List<Hinhanh>> response = new ApiResponse<>();
+        try {
+            List<Hinhanh> saved = hinhanhService.saveFiles(masp, files);
+            response.setCode(200);
+            response.setMessage("Upload ảnh thành công");
+            response.setResult(saved);
+        } catch (Exception e) {
+            response.setCode(500);
+            response.setMessage("Upload thất bại: " + e.getMessage());
+        }
+        return response;
+    }
+
 }
