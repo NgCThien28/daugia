@@ -25,6 +25,11 @@ public class ProductDTO {
         this.trangthai = trangthai;
     }
 
+    public ProductDTO(String masp, String tensp) {
+        this.masp = masp;
+        this.tensp = tensp;
+    }
+
     public ProductDTO() {
     }
 

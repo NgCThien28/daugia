@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,61 +60,91 @@ public class HinhanhService {
 
     @Transactional
     public List<Hinhanh> updateFiles(String masp, List<MultipartFile> files) throws IOException {
-        // Tìm sản phẩm
+        // 1️⃣ Tìm sản phẩm
         Sanpham sanpham = sanphamRepository.findById(masp)
                 .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại"));
 
-        // Kiểm tra files
         if (files == null || files.isEmpty()) {
             throw new IllegalArgumentException("Không có file nào được gửi lên");
         }
 
-        // Tạo thư mục nếu chưa có
+        // 2️⃣ Đường dẫn thư mục ảnh
         String imgDir = System.getProperty("user.dir") + "/imgs";
         Path dirPath = Paths.get(imgDir);
         if (!Files.exists(dirPath)) {
             Files.createDirectories(dirPath);
         }
 
-        // Lấy danh sách hình ảnh hiện tại của sản phẩm
+        // 3️⃣ Lấy danh sách ảnh hiện tại
         List<Hinhanh> currentImages = sanpham.getHinhAnh();
         if (currentImages == null) {
             currentImages = new ArrayList<>();
             sanpham.setHinhAnh(currentImages);
         }
 
-        List<Hinhanh> updatedImages = new ArrayList<>();
+        // 4️⃣ Duyệt qua từng file được gửi từ FE
+        for (int i = 0; i < files.size(); i++) {
+            MultipartFile file = files.get(i);
+            if (file.isEmpty()) continue;
 
-        for (MultipartFile file : files) {
-            String filename = file.getOriginalFilename();
-            Path filePath = dirPath.resolve(filename);
+            String originalName = file.getOriginalFilename();
 
-            // Lưu file vào thư mục (đè lên file cũ nếu trùng tên)
-            file.transferTo(filePath.toFile());
+            // Làm sạch tên file (bỏ dấu, lowercase, thay khoảng trắng bằng '-')
+            String cleanName = Normalizer.normalize(originalName, Normalizer.Form.NFD)
+                    .replaceAll("\\p{M}", "")
+                    .replaceAll("[^a-zA-Z0-9\\.\\-]", "-")
+                    .toLowerCase();
 
-            // Kiểm tra xem đã có hình ảnh với tên này trong DB chưa
-            Hinhanh existingImage = currentImages.stream()
-                    .filter(h -> h.getTenanh().equals(filename))
-                    .findFirst()
-                    .orElse(null);
+            Path targetPath = dirPath.resolve(cleanName);
 
-            if (existingImage != null) {
-                // Nếu đã tồn tại, giữ nguyên record trong DB (file đã được đè)
-                updatedImages.add(existingImage);
+            // Nếu đã có ảnh ở vị trí này thì xóa file cũ và update record
+            if (i < currentImages.size()) {
+                Hinhanh oldImage = currentImages.get(i);
+
+                // Xóa file cũ trong thư mục nếu tồn tại
+                Path oldPath = dirPath.resolve(oldImage.getTenanh());
+                try {
+                    Files.deleteIfExists(oldPath);
+                } catch (IOException e) {
+                    System.err.println("Không thể xóa file cũ: " + oldPath);
+                }
+
+                // Lưu file mới
+                file.transferTo(targetPath.toFile());
+
+                // Cập nhật record DB
+                oldImage.setTenanh(cleanName);
+                hinhanhRepository.save(oldImage);
             } else {
-                // Nếu chưa tồn tại, tạo record mới
-                Hinhanh h = new Hinhanh();
-                h.setTenanh(filename);
-                h.setSanPham(sanpham);
-                Hinhanh savedImage = hinhanhRepository.save(h);
+                // Nếu chưa có ảnh ở vị trí này, thêm mới
+                file.transferTo(targetPath.toFile());
 
-                // Thêm vào list hiện tại của sản phẩm
-                currentImages.add(savedImage);
-                updatedImages.add(savedImage);
+                Hinhanh newImg = new Hinhanh();
+                newImg.setTenanh(cleanName);
+                newImg.setSanPham(sanpham);
+                hinhanhRepository.save(newImg);
+
+                currentImages.add(newImg);
             }
         }
 
-        return updatedImages;
+        // 5️⃣ Giữ tối đa 3 ảnh
+        if (currentImages.size() > 3) {
+            // Xóa file dư + record dư
+            for (int i = 3; i < currentImages.size(); i++) {
+                Hinhanh extra = currentImages.get(i);
+                Path extraPath = dirPath.resolve(extra.getTenanh());
+                Files.deleteIfExists(extraPath);
+                hinhanhRepository.delete(extra);
+            }
+            currentImages = currentImages.subList(0, 3);
+        }
+
+        // 6️⃣ Lưu cập nhật vào DB
+        sanpham.setHinhAnh(currentImages);
+        sanphamRepository.save(sanpham);
+
+        return currentImages;
     }
 
 }
