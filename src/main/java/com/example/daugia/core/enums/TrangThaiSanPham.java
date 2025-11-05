@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum TrangThaiSanPham {
     PENDING_APPROVAL("Chờ duyệt"),
     APPROVED("Đã duyệt"),
+    AUCTION_CREATED("Đã tạo phiên"),
     CANCELLED("Đã huỷ");
 
     private final String value;

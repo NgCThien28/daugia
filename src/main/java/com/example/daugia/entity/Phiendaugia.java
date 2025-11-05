@@ -20,7 +20,7 @@ public class Phiendaugia {
     private String maphiendg;
 
     @OneToOne
-    @JoinColumn(name = "masp", nullable = false, unique = true)
+    @JoinColumn(name = "masp")
     @JsonBackReference
     private Sanpham sanPham;
 
@@ -29,12 +29,12 @@ public class Phiendaugia {
     private Phieuthanhtoan phieuThanhToan;
 
     @ManyToOne
-    @JoinColumn(name = "maqtv", insertable = false, updatable = false)
+    @JoinColumn(name = "maqtv")
     @JsonBackReference
     private Taikhoanquantri taiKhoanQuanTri;
 
     @ManyToOne
-    @JoinColumn(name = "makh", insertable = false, updatable = false)
+    @JoinColumn(name = "makh")
     @JsonManagedReference
     private Taikhoan taiKhoan;
 

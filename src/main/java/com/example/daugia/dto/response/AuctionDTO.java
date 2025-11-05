@@ -11,6 +11,7 @@ public class AuctionDTO {
     private String maphiendg;
     private UserShortDTO taiKhoanNguoiBan;
     private UserShortDTO taiKhoanQuanTri;
+    private ProductDTO sanPham;
     private TrangThaiPhienDauGia trangthai;
     private Timestamp thoigianbd;
     private Timestamp thoigiankt;
@@ -42,9 +43,10 @@ public class AuctionDTO {
         this.slnguoithamgia = slnguoithamgia;
     }
 
-    public AuctionDTO(String maphiendg, UserShortDTO taiKhoanNguoiBan, TrangThaiPhienDauGia trangthai, Timestamp thoigianbd, Timestamp thoigiankt, Timestamp thoigianbddk, Timestamp thoigianktdk, double giakhoidiem, double giatran, double buocgia, double tiencoc) {
+    public AuctionDTO(String maphiendg, UserShortDTO taiKhoanNguoiBan,ProductDTO sanPham, TrangThaiPhienDauGia trangthai, Timestamp thoigianbd, Timestamp thoigiankt, Timestamp thoigianbddk, Timestamp thoigianktdk, double giakhoidiem, double giatran, double buocgia, double tiencoc) {
         this.maphiendg = maphiendg;
         this.taiKhoanNguoiBan = taiKhoanNguoiBan;
+        this.sanPham = sanPham;
         this.trangthai = trangthai;
         this.thoigianbd = thoigianbd;
         this.thoigiankt = thoigiankt;
@@ -186,5 +188,13 @@ public class AuctionDTO {
 
     public void setSlnguoithamgia(int slnguoithamgia) {
         this.slnguoithamgia = slnguoithamgia;
+    }
+
+    public ProductDTO getSanPham() {
+        return sanPham;
+    }
+
+    public void setSanPham(ProductDTO sanPham) {
+        this.sanPham = sanPham;
     }
 }
