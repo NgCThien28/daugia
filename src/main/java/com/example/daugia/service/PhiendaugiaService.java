@@ -5,6 +5,7 @@ import com.example.daugia.core.enums.TrangThaiPhienDauGia;
 import com.example.daugia.core.enums.TrangThaiSanPham;
 import com.example.daugia.dto.request.PhiendaugiaCreationRequest;
 import com.example.daugia.dto.response.AuctionDTO;
+import com.example.daugia.dto.response.ImageDTO;
 import com.example.daugia.dto.response.ProductDTO;
 import com.example.daugia.dto.response.UserShortDTO;
 import com.example.daugia.entity.Phiendaugia;
@@ -62,6 +63,51 @@ public class PhiendaugiaService {
         List<Phiendaugia> phiendaugiaList = phiendaugiaRepository.findByTaiKhoan_Matk(taikhoan.getMatk());
         return phiendaugiaList;
     }
+
+    public List<AuctionDTO> findByStatus(TrangThaiPhienDauGia status) {
+        // Lọc danh sách các phiên theo trạng thái
+        List<Phiendaugia> phienList = phiendaugiaRepository.findByTrangthai(status);
+
+        // Nếu trạng thái cần tìm là APPROVED, chỉ trả về các phiên có trạng thái đó
+        if (status == TrangThaiPhienDauGia.APPROVED) {
+            phienList = phienList.stream()
+                    .filter(phien -> phien.getTrangthai() == TrangThaiPhienDauGia.APPROVED)
+                    .toList();
+        }
+
+        // Map sang AuctionDTO (giống findAll)
+        return phienList.stream()
+                .map(phien -> new AuctionDTO(
+                        phien.getMaphiendg(),
+                        new UserShortDTO(
+                                phien.getTaiKhoan().getMatk(),
+                                phien.getTaiKhoan().getHo(),
+                                phien.getTaiKhoan().getTenlot(),
+                                phien.getTaiKhoan().getTen(),
+                                phien.getTaiKhoan().getEmail(),
+                                phien.getTaiKhoan().getSdt()
+                        ),
+                        new ProductDTO(
+                                phien.getSanPham().getTensp(),
+                                phien.getSanPham().getMasp(),
+                                phien.getSanPham().getDanhMuc().getMadm(),
+                                phien.getSanPham().getHinhAnh().stream()
+                                        .map(ha -> new ImageDTO(ha.getMaanh(), ha.getTenanh()))
+                                        .toList()
+                        ),
+                        phien.getTrangthai(),
+                        phien.getThoigianbd(),
+                        phien.getThoigiankt(),
+                        phien.getThoigianbddk(),
+                        phien.getThoigianktdk(),
+                        phien.getGiakhoidiem(),
+                        phien.getGiatran(),
+                        phien.getBuocgia(),
+                        phien.getTiencoc()
+                ))
+                .toList();
+    }
+
 
     public AuctionDTO customAuction(Phiendaugia phiendaugia){
         UserShortDTO userShortDTO = new UserShortDTO(phiendaugia.getTaiKhoan().getMatk());

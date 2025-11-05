@@ -1,5 +1,6 @@
 package com.example.daugia.controller;
 
+import com.example.daugia.core.enums.TrangThaiPhienDauGia;
 import com.example.daugia.dto.request.ApiResponse;
 import com.example.daugia.dto.request.PhiendaugiaCreationRequest;
 import com.example.daugia.dto.response.AuctionDTO;
@@ -69,6 +70,21 @@ public class PhiendaugiaController {
             res.setMessage("Lỗi: " + e.getMessage());
         }
         return res;
+    }
+
+    @GetMapping("find-by-status")
+    public ApiResponse<List<AuctionDTO>> findByStatus() {
+        ApiResponse<List<AuctionDTO>> apiResponse = new ApiResponse<>();
+        try{
+            List<AuctionDTO> phiendaugiaList = phiendaugiaService.findByStatus(TrangThaiPhienDauGia.APPROVED);
+            apiResponse.setCode(200);
+            apiResponse.setMessage("Thanh cong");
+            apiResponse.setResult(phiendaugiaList);
+        } catch (IllegalArgumentException e) {
+            apiResponse.setCode(500);
+            apiResponse.setMessage("That bai:" + e.getMessage());
+        }
+        return apiResponse;
     }
 
     @PostMapping("/create")

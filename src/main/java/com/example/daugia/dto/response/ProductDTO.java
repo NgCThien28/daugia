@@ -8,6 +8,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class ProductDTO {
     private String masp;
+    private String madm;
     private UserShortDTO taiKhoanNguoiBan;
     private List<ImageDTO> hinhAnh;
     private CityDTO thanhpho;
@@ -23,6 +24,13 @@ public class ProductDTO {
         this.tinhtrangsp = tinhtrangsp;
         this.tensp = tensp;
         this.trangthai = trangthai;
+    }
+
+    public ProductDTO(String tensp, String masp,String madm, List<ImageDTO> hinhAnh) {
+        this.tensp = tensp;
+        this.masp = masp;
+        this.madm = madm;
+        this.hinhAnh = hinhAnh;
     }
 
     public ProductDTO(String masp, String tensp) {
@@ -79,6 +87,14 @@ public class ProductDTO {
 
     public void setTrangthai(String trangthai) {
         this.trangthai = trangthai;
+    }
+
+    public String getMadm() {
+        return madm;
+    }
+
+    public void setMadm(String madm) {
+        this.madm = madm;
     }
 
     public CityDTO getThanhpho() {
