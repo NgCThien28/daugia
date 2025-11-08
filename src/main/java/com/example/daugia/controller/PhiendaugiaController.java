@@ -36,6 +36,21 @@ public class PhiendaugiaController {
         return apiResponse;
     }
 
+    @GetMapping("/find-by-id/{id}")
+    public ApiResponse<AuctionDTO> findById(@PathVariable("id") String id) {
+        ApiResponse<AuctionDTO> apiResponse = new ApiResponse<>();
+        try{
+            AuctionDTO phiendaugia = phiendaugiaService.findById(id);
+            apiResponse.setCode(200);
+            apiResponse.setMessage("Thanh cong");
+            apiResponse.setResult(phiendaugia);
+        } catch (IllegalArgumentException e) {
+            apiResponse.setCode(500);
+            apiResponse.setMessage("That bai:" + e.getMessage());
+        }
+        return apiResponse;
+    }
+
     @GetMapping("find-by-user")
     public ApiResponse<List<Phiendaugia>> findByUser(@RequestHeader("Authorization") String header) {
         ApiResponse<List<Phiendaugia>> res = new ApiResponse<>();

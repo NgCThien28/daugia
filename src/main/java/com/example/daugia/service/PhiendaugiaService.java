@@ -4,10 +4,7 @@ import com.example.daugia.core.enums.KetQuaPhien;
 import com.example.daugia.core.enums.TrangThaiPhienDauGia;
 import com.example.daugia.core.enums.TrangThaiSanPham;
 import com.example.daugia.dto.request.PhiendaugiaCreationRequest;
-import com.example.daugia.dto.response.AuctionDTO;
-import com.example.daugia.dto.response.ImageDTO;
-import com.example.daugia.dto.response.ProductDTO;
-import com.example.daugia.dto.response.UserShortDTO;
+import com.example.daugia.dto.response.*;
 import com.example.daugia.entity.Phiendaugia;
 import com.example.daugia.entity.Sanpham;
 import com.example.daugia.entity.Taikhoan;
@@ -31,37 +28,75 @@ public class PhiendaugiaService {
     public List<AuctionDTO> findAll() {
         List<Phiendaugia> phienList = phiendaugiaRepository.findAll();
         return phienList.stream()
-                .map(phien -> new AuctionDTO(
-                        phien.getMaphiendg(),
+                .map(phiendaugia -> new AuctionDTO(
+                        phiendaugia.getMaphiendg(),
                         new UserShortDTO(
-                                phien.getTaiKhoan().getMatk(),
-                                phien.getTaiKhoan().getHo(),
-                                phien.getTaiKhoan().getTenlot(),
-                                phien.getTaiKhoan().getTen(),
-                                phien.getTaiKhoan().getEmail(),
-                                phien.getTaiKhoan().getSdt()
+                                phiendaugia.getTaiKhoan().getMatk(),
+                                phiendaugia.getTaiKhoan().getHo(),
+                                phiendaugia.getTaiKhoan().getTenlot(),
+                                phiendaugia.getTaiKhoan().getTen(),
+                                phiendaugia.getTaiKhoan().getEmail(),
+                                phiendaugia.getTaiKhoan().getSdt()
                         ),
                         new ProductDTO(
-                                phien.getSanPham().getMasp(),
-                                phien.getSanPham().getTensp()
+                                phiendaugia.getSanPham().getTensp(),
+                                phiendaugia.getSanPham().getMasp(),
+                                phiendaugia.getSanPham().getDanhMuc().getMadm(),
+                                new CityDTO(phiendaugia.getSanPham().getThanhPho().getTentp()),
+                                phiendaugia.getSanPham().getHinhAnh().stream()
+                                        .map(ha -> new ImageDTO(ha.getMaanh(), ha.getTenanh()))
+                                        .toList()
                         ),
-                        phien.getTrangthai(),
-                        phien.getThoigianbd(),
-                        phien.getThoigiankt(),
-                        phien.getThoigianbddk(),
-                        phien.getThoigianktdk(),
-                        phien.getGiakhoidiem(),
-                        phien.getGiatran(),
-                        phien.getBuocgia(),
-                        phien.getTiencoc()
+                        phiendaugia.getTrangthai(),
+                        phiendaugia.getThoigianbd(),
+                        phiendaugia.getThoigiankt(),
+                        phiendaugia.getThoigianbddk(),
+                        phiendaugia.getThoigianktdk(),
+                        phiendaugia.getGiakhoidiem(),
+                        phiendaugia.getGiatran(),
+                        phiendaugia.getBuocgia(),
+                        phiendaugia.getTiencoc()
                 ))
                 .toList();
     }
     public List<Phiendaugia> findByUser(String email){
         Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản"));
-        List<Phiendaugia> phiendaugiaList = phiendaugiaRepository.findByTaiKhoan_Matk(taikhoan.getMatk());
-        return phiendaugiaList;
+        return phiendaugiaRepository.findByTaiKhoan_Matk(taikhoan.getMatk());
+    }
+    public AuctionDTO findById(String id) {
+        Phiendaugia phiendaugia = phiendaugiaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phien dau gia"));
+        return new AuctionDTO(
+                phiendaugia.getMaphiendg(),
+                new UserShortDTO(
+                        phiendaugia.getTaiKhoan().getMatk(),
+                        phiendaugia.getTaiKhoan().getHo(),
+                        phiendaugia.getTaiKhoan().getTenlot(),
+                        phiendaugia.getTaiKhoan().getTen(),
+                        phiendaugia.getTaiKhoan().getEmail(),
+                        phiendaugia.getTaiKhoan().getSdt(),
+                        phiendaugia.getTaiKhoan().getDiachi()
+                ),
+                new ProductDTO(
+                        phiendaugia.getSanPham().getTensp(),
+                        phiendaugia.getSanPham().getMasp(),
+                        phiendaugia.getSanPham().getDanhMuc().getMadm(),
+                        new CityDTO(phiendaugia.getSanPham().getThanhPho().getTentp()),
+                        phiendaugia.getSanPham().getHinhAnh().stream()
+                                .map(ha -> new ImageDTO(ha.getMaanh(), ha.getTenanh()))
+                                .toList()
+                ),
+                phiendaugia.getTrangthai(),
+                phiendaugia.getThoigianbd(),
+                phiendaugia.getThoigiankt(),
+                phiendaugia.getThoigianbddk(),
+                phiendaugia.getThoigianktdk(),
+                phiendaugia.getGiakhoidiem(),
+                phiendaugia.getGiatran(),
+                phiendaugia.getBuocgia(),
+                phiendaugia.getTiencoc()
+        );
     }
 
     public List<AuctionDTO> findByStatus(TrangThaiPhienDauGia status) {
@@ -71,39 +106,40 @@ public class PhiendaugiaService {
         // Nếu trạng thái cần tìm là APPROVED, chỉ trả về các phiên có trạng thái đó
         if (status == TrangThaiPhienDauGia.APPROVED) {
             phienList = phienList.stream()
-                    .filter(phien -> phien.getTrangthai() == TrangThaiPhienDauGia.APPROVED)
+                    .filter(phiendaugia -> phiendaugia.getTrangthai() == TrangThaiPhienDauGia.APPROVED)
                     .toList();
         }
 
         // Map sang AuctionDTO (giống findAll)
         return phienList.stream()
-                .map(phien -> new AuctionDTO(
-                        phien.getMaphiendg(),
+                .map(phiendaugia -> new AuctionDTO(
+                        phiendaugia.getMaphiendg(),
                         new UserShortDTO(
-                                phien.getTaiKhoan().getMatk(),
-                                phien.getTaiKhoan().getHo(),
-                                phien.getTaiKhoan().getTenlot(),
-                                phien.getTaiKhoan().getTen(),
-                                phien.getTaiKhoan().getEmail(),
-                                phien.getTaiKhoan().getSdt()
+                                phiendaugia.getTaiKhoan().getMatk(),
+                                phiendaugia.getTaiKhoan().getHo(),
+                                phiendaugia.getTaiKhoan().getTenlot(),
+                                phiendaugia.getTaiKhoan().getTen(),
+                                phiendaugia.getTaiKhoan().getEmail(),
+                                phiendaugia.getTaiKhoan().getSdt()
                         ),
                         new ProductDTO(
-                                phien.getSanPham().getTensp(),
-                                phien.getSanPham().getMasp(),
-                                phien.getSanPham().getDanhMuc().getMadm(),
-                                phien.getSanPham().getHinhAnh().stream()
+                                phiendaugia.getSanPham().getTensp(),
+                                phiendaugia.getSanPham().getMasp(),
+                                phiendaugia.getSanPham().getDanhMuc().getMadm(),
+                                new CityDTO(phiendaugia.getSanPham().getThanhPho().getTentp()),
+                                phiendaugia.getSanPham().getHinhAnh().stream()
                                         .map(ha -> new ImageDTO(ha.getMaanh(), ha.getTenanh()))
                                         .toList()
                         ),
-                        phien.getTrangthai(),
-                        phien.getThoigianbd(),
-                        phien.getThoigiankt(),
-                        phien.getThoigianbddk(),
-                        phien.getThoigianktdk(),
-                        phien.getGiakhoidiem(),
-                        phien.getGiatran(),
-                        phien.getBuocgia(),
-                        phien.getTiencoc()
+                        phiendaugia.getTrangthai(),
+                        phiendaugia.getThoigianbd(),
+                        phiendaugia.getThoigiankt(),
+                        phiendaugia.getThoigianbddk(),
+                        phiendaugia.getThoigianktdk(),
+                        phiendaugia.getGiakhoidiem(),
+                        phiendaugia.getGiatran(),
+                        phiendaugia.getBuocgia(),
+                        phiendaugia.getTiencoc()
                 ))
                 .toList();
     }
@@ -115,7 +151,7 @@ public class PhiendaugiaService {
                 phiendaugia.getSanPham().getMasp(),
                 phiendaugia.getSanPham().getTensp()
         );
-        AuctionDTO auctionDTO = new AuctionDTO(
+        return new AuctionDTO(
                 phiendaugia.getMaphiendg(),
                 userShortDTO,productDTO,
                 phiendaugia.getTrangthai(),
@@ -128,7 +164,6 @@ public class PhiendaugiaService {
                 phiendaugia.getBuocgia(),
                 phiendaugia.getTiencoc()
         );
-        return auctionDTO;
     }
 
     public AuctionDTO create(PhiendaugiaCreationRequest request, String email) {
@@ -155,7 +190,6 @@ public class PhiendaugiaService {
         phiendaugia.setKetquaphien(KetQuaPhien.PENDING_APPROVAL);
         phiendaugia.setTrangthai(TrangThaiPhienDauGia.PENDING_APPROVAL);
         phiendaugiaRepository.save(phiendaugia);
-        AuctionDTO auction = customAuction(phiendaugia);
-        return auction;
+        return customAuction(phiendaugia);
     }
 }

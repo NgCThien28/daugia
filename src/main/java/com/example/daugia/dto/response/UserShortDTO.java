@@ -10,7 +10,7 @@ public class UserShortDTO {
     private String ten;
     private String email;
     private String sdt;
-
+    private String diachi;
     public UserShortDTO(String matk, String ho, String tenlot, String ten, String email, String sdt) {
         this.matk = matk;
         this.ho = ho;
@@ -18,6 +18,16 @@ public class UserShortDTO {
         this.ten = ten;
         this.email = email;
         this.sdt = sdt;
+    }
+
+    public UserShortDTO(String matk, String ho, String tenlot, String ten, String email, String sdt, String diachi) {
+        this.matk = matk;
+        this.ho = ho;
+        this.tenlot = tenlot;
+        this.ten = ten;
+        this.email = email;
+        this.sdt = sdt;
+        this.diachi = diachi;
     }
 
     public UserShortDTO(String ho, String tenlot, String ten) {
@@ -79,5 +89,13 @@ public class UserShortDTO {
 
     public void setSdt(String sdt) {
         this.sdt = sdt;
+    }
+
+    public String getDiachi() {
+        return diachi;
+    }
+
+    public void setDiachi(String diachi) {
+        this.diachi = diachi;
     }
 }
