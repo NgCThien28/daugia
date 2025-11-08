@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1:3306
--- Thời gian đã tạo: Th10 02, 2025 lúc 04:47 PM
+-- Thời gian đã tạo: Th10 08, 2025 lúc 09:44 PM
 -- Phiên bản máy phục vụ: 9.1.0
 -- Phiên bản PHP: 8.3.14
 
@@ -55,7 +55,9 @@ CREATE TABLE IF NOT EXISTS `danhmuc` (
 --
 
 INSERT INTO `danhmuc` (`madm`, `tendm`) VALUES
-('DM00000001', 'Gỗ');
+('DM00000001', 'Gỗ'),
+('DM00000002', 'Bất Động Sản'),
+('DM00000003', 'Điện Tử');
 
 -- --------------------------------------------------------
 
@@ -72,6 +74,28 @@ CREATE TABLE IF NOT EXISTS `hinhanh` (
   KEY `masp` (`masp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Đang đổ dữ liệu cho bảng `hinhanh`
+--
+
+INSERT INTO `hinhanh` (`maanh`, `masp`, `tenanh`) VALUES
+('HA11338300', 'SP21771289', 'anh-chup-man-hinh.png'),
+('HA13749156', 'SP21771289', 'anh-chup-man-hinh-3.png'),
+('HA14037273', 'SP68242302', 'logo-google.png'),
+('HA33639976', 'SP26332002', 'ahuhu.jpg'),
+('HA44520546', 'SP24455817', 'anh-cua-toi.jpg'),
+('HA44531072', 'SP15966963', 'logo-google.png'),
+('HA51042429', 'SP59276013', 'logo.png'),
+('HA54546375', 'SP21771289', 'erd.png'),
+('HA63276403', 'SP24455817', 'erd.png'),
+('HA64463810', 'SP26332002', 'anh-cua-toi.jpg'),
+('HA65003993', 'SP26332002', '2.png'),
+('HA67849721', 'SP25282533', 'logo-google.png'),
+('HA78994585', 'SP98071333', 'logo.png'),
+('HA82736448', 'SP17304242', 'pastel-sunset-lake.jpg'),
+('HA83666486', 'SP59276013', 'logo-google.png'),
+('HA94131029', 'SP24455817', '2.png');
+
 -- --------------------------------------------------------
 
 --
@@ -82,7 +106,7 @@ DROP TABLE IF EXISTS `phiendaugia`;
 CREATE TABLE IF NOT EXISTS `phiendaugia` (
   `maphiendg` char(10) NOT NULL,
   `masp` char(10) NOT NULL,
-  `maqtv` char(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `maqtv` char(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `makh` char(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `trangthai` tinyint NOT NULL,
   `thoigianbd` timestamp NOT NULL,
@@ -101,6 +125,21 @@ CREATE TABLE IF NOT EXISTS `phiendaugia` (
   KEY `makh` (`makh`),
   KEY `maqtv` (`maqtv`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `phiendaugia`
+--
+
+INSERT INTO `phiendaugia` (`maphiendg`, `masp`, `maqtv`, `makh`, `trangthai`, `thoigianbd`, `thoigiankt`, `thoigianbddk`, `thoigianktdk`, `giakhoidiem`, `giatran`, `buocgia`, `giacaonhatdatduoc`, `tiencoc`, `ketquaphien`, `slnguoithamgia`) VALUES
+('DG00000001', 'SP01466166', 'QT00000001', 'KH08560518', 1, '2025-11-05 18:41:43', '2025-11-05 18:41:43', '2025-11-05 18:41:43', '2025-11-05 18:41:43', 10000, 100000, 10000, 90000, 10000, 0, 0),
+('DG01609968', 'SP98071333', NULL, 'KH29009892', 1, '2025-11-23 19:41:00', '2025-11-24 19:41:00', '2025-11-21 19:40:00', '2025-11-22 19:41:00', 10000, 100000, 1000, 0, 20000, 0, 0),
+('DG18523456', 'SP15966963', NULL, 'KH29009892', 1, '2025-11-08 17:38:03', '2025-11-08 17:38:03', '2025-11-08 17:38:03', '2025-11-08 17:38:03', 1000000, 1000, 10000, 0, 10, 0, 0),
+('DG24091114', 'SP25282533', NULL, 'KH29009892', 1, '2025-11-05 20:01:00', '2025-11-05 20:10:00', '2025-11-05 19:59:00', '2025-11-05 20:00:00', 1000000, 100000, 10000, 0, 100000, 0, 0),
+('DG29423628', 'SP59276013', NULL, 'KH29009892', 1, '2025-12-03 02:22:00', '2025-12-04 02:22:00', '2025-12-01 02:22:00', '2025-12-02 02:22:00', 10, 50, 50, 0, 50, 0, 0),
+('DG69813006', 'SP21771289', NULL, 'KH13658066', 1, '2025-11-09 00:25:00', '2025-11-10 00:25:00', '2025-11-07 00:25:00', '2025-11-08 00:25:00', 2, 2, 2, 0, 2, 0, 0),
+('DG84211597', 'SP26332002', NULL, 'KH13658066', 1, '2025-11-21 00:25:00', '2025-11-22 00:25:00', '2025-11-19 00:25:00', '2025-11-20 00:25:00', 3, 3, 3, 0, 3, 0, 0),
+('DG96730332', 'SP24455817', NULL, 'KH29009892', 1, '2025-11-24 00:28:00', '2025-11-25 00:29:00', '2025-11-22 00:28:00', '2025-11-23 00:28:00', 1, 1, 1, 0, 1, 0, 0),
+('DG99509736', 'SP68242302', NULL, 'KH29009892', 1, '2025-12-10 02:30:00', '2025-12-11 02:30:00', '2025-12-08 02:29:00', '2025-12-09 02:30:00', 1, 1, 1, 0, 1, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -188,7 +227,15 @@ CREATE TABLE IF NOT EXISTS `sanpham` (
 INSERT INTO `sanpham` (`masp`, `madm`, `maqtv`, `makh`, `matp`, `tinhtrangsp`, `tensp`, `trangthai`) VALUES
 ('SP01466166', 'DM00000001', NULL, 'KH08560518', 'TP00000001', 'Còn tốt hơi hơi', 'Gỗ xưa 2', 0),
 ('SP06976566', 'DM00000001', 'QT00000001', 'KH08560518', 'TP00000001', 'Còn tốt ác', 'Gỗ xưa', 1),
-('SP37153302', 'DM00000001', NULL, 'KH08560518', 'TP00000001', 'Còn tốt', 'Gỗ xưa 3', 0);
+('SP15966963', 'DM00000003', NULL, 'KH29009892', 'TP00000002', 'Hàng sản xuất 1975', 'Điện thoại bàn cổ', 2),
+('SP17304242', 'DM00000002', NULL, 'KH29009892', 'TP00000001', 'Nhà mới', 'Nhà B', 0),
+('SP21771289', 'DM00000002', NULL, 'KH13658066', 'TP00000001', 'Mới xây chưa vào ở', 'Nhà A', 2),
+('SP24455817', 'DM00000001', NULL, 'KH29009892', 'TP00000002', '10000 tuổi', 'Gỗ xưa', 2),
+('SP25282533', 'DM00000003', NULL, 'KH29009892', 'TP00000001', 'New', 'Bàn phím cơ mạ vàng', 2),
+('SP26332002', 'DM00000002', NULL, 'KH13658066', 'TP00000002', 'aaa', 'Nhà AA', 2),
+('SP59276013', 'DM00000003', NULL, 'KH29009892', 'TP00000001', 'Hàng Lướt', 'Realme Q3 Pro', 2),
+('SP68242302', 'DM00000003', NULL, 'KH29009892', 'TP00000002', 'aaaa', 'Điện thoại Samsung ', 2),
+('SP98071333', 'DM00000003', NULL, 'KH29009892', 'TP00000001', 'Hàng new seal', 'Điện thoại Nokia', 2);
 
 -- --------------------------------------------------------
 
@@ -199,13 +246,13 @@ INSERT INTO `sanpham` (`masp`, `madm`, `maqtv`, `makh`, `matp`, `tinhtrangsp`, `
 DROP TABLE IF EXISTS `taikhoan`;
 CREATE TABLE IF NOT EXISTS `taikhoan` (
   `matk` char(10) NOT NULL,
-  `matp` char(10) NOT NULL,
+  `matp` char(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `ho` varchar(10) NOT NULL,
   `tenlot` varchar(10) NOT NULL,
   `ten` varchar(10) NOT NULL,
   `email` char(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `diachi` varchar(50) NOT NULL,
-  `diachigiaohang` varchar(50) NOT NULL,
+  `diachi` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `diachigiaohang` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `sdt` char(11) NOT NULL,
   `matkhau` char(100) NOT NULL,
   `trangthaidangnhap` tinyint NOT NULL,
@@ -219,7 +266,10 @@ CREATE TABLE IF NOT EXISTS `taikhoan` (
 
 INSERT INTO `taikhoan` (`matk`, `matp`, `ho`, `tenlot`, `ten`, `email`, `diachi`, `diachigiaohang`, `sdt`, `matkhau`, `trangthaidangnhap`) VALUES
 ('KH08560518', 'TP00000001', 'nguyen', 'chi', 'thien', 'chithien@gmail.com', 'Quan 8', 'Quan 9', '093746123', '$2a$10$pVJ90I.jSzYlJE1qSwmw3.8pMITV79xLqP6zzi4HTk2QHrfm.Xq.a', 0),
-('KH32784375', 'TP00000002', 'nguyen', 'cong', 'tan', 'congtan@gmail.com', 'Quan Cầu Giấy', 'Quan 9', '093746123', '$2a$10$QpA8c0LxaWZQdMUHWcUWoOyWI2p7E1yyPkVr24SwS2jtCDsQhlXEK', 0);
+('KH13658066', NULL, 'Nguyễn', 'Văn', 'A', 'vana@gmail.com', NULL, NULL, '0912345678', '$2a$10$MXM32hQbURtxepyh.xh1Ee273BzAA1JZJova/4hm8nC9aOdx8wnzS', 0),
+('KH29009892', 'TP00000001', 'Phan', 'Nhựt', 'Tân', 'nhuttan@gmail.com', 'Cao Lỗ, phường 4, quận 8, thành phố Hồ Chí Minh', 'Quận 4', '0912345678', '$2a$10$RA9OI6knJFNbyYt/d9FnV.wNY4.pTAk80Sjb4koqmuH1FrbVV2Xre', 0),
+('KH32784375', 'TP00000002', 'nguyen', 'cong', 'tan', 'congtan@gmail.com', 'Quan Cầu Giấy', 'Quan 9', '093746123', '$2a$10$QpA8c0LxaWZQdMUHWcUWoOyWI2p7E1yyPkVr24SwS2jtCDsQhlXEK', 1),
+('KH99329061', NULL, 'nguyen', 'cong', 'tan', 'congtan2@gmail.com', NULL, NULL, '093746123', '$2a$10$yILrkkyfLh/nAW9r8yBxmeCBzd.k4KrRJvreijq8bUDy2Q9XawWGG', 1);
 
 -- --------------------------------------------------------
 
