@@ -126,7 +126,8 @@ public class PhiendaugiaService {
                                 phiendaugia.getSanPham().getTensp(),
                                 phiendaugia.getSanPham().getMasp(),
                                 phiendaugia.getSanPham().getDanhMuc().getMadm(),
-                                new CityDTO(phiendaugia.getSanPham().getThanhPho().getTentp()),
+                                new CityDTO(phiendaugia.getSanPham().getThanhPho().getMatp(),
+                                        phiendaugia.getSanPham().getThanhPho().getTentp()),
                                 phiendaugia.getSanPham().getHinhAnh().stream()
                                         .map(ha -> new ImageDTO(ha.getMaanh(), ha.getTenanh()))
                                         .toList()
