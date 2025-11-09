@@ -4,6 +4,7 @@ import com.example.daugia.core.enums.KetQuaPhien;
 import com.example.daugia.core.enums.TrangThaiPhienDauGia;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 public class PhiendaugiaCreationRequest {
@@ -16,10 +17,10 @@ public class PhiendaugiaCreationRequest {
     private Timestamp thoigianbddk;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp thoigianktdk;
-    private double giakhoidiem;
-    private double giatran;
-    private double buocgia;
-    private double tiencoc;
+    private BigDecimal giakhoidiem;
+    private BigDecimal giatran;
+    private BigDecimal buocgia;
+    private BigDecimal tiencoc;
     private KetQuaPhien ketquaphien;
 
     public String getMasp() {
@@ -62,35 +63,35 @@ public class PhiendaugiaCreationRequest {
         this.thoigianktdk = thoigianktdk;
     }
 
-    public double getGiakhoidiem() {
+    public BigDecimal getGiakhoidiem() {
         return giakhoidiem;
     }
 
-    public void setGiakhoidiem(double giakhoidiem) {
+    public void setGiakhoidiem(BigDecimal giakhoidiem) {
         this.giakhoidiem = giakhoidiem;
     }
 
-    public double getGiatran() {
+    public BigDecimal getGiatran() {
         return giatran;
     }
 
-    public void setGiatran(double giatran) {
+    public void setGiatran(BigDecimal giatran) {
         this.giatran = giatran;
     }
 
-    public double getBuocgia() {
+    public BigDecimal getBuocgia() {
         return buocgia;
     }
 
-    public void setBuocgia(double buocgia) {
+    public void setBuocgia(BigDecimal buocgia) {
         this.buocgia = buocgia;
     }
 
-    public double getTiencoc() {
+    public BigDecimal getTiencoc() {
         return tiencoc;
     }
 
-    public void setTiencoc(double tiencoc) {
+    public void setTiencoc(BigDecimal tiencoc) {
         this.tiencoc = tiencoc;
     }
 

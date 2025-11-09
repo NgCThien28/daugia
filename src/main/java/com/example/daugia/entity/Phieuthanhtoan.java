@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Entity
@@ -27,6 +28,9 @@ public class Phieuthanhtoan {
 
     private Timestamp thoigianthanhtoan;
     private TrangThaiPhieuThanhToan trangthai;
+    private String vnptransactionno;
+    private String bankcode;
+    private String raw;
 
     public String getMatt() {
         return matt;
@@ -66,5 +70,29 @@ public class Phieuthanhtoan {
 
     public void setTrangthai(TrangThaiPhieuThanhToan trangthai) {
         this.trangthai = trangthai;
+    }
+
+    public String getVnptransactionno() {
+        return vnptransactionno;
+    }
+
+    public void setVnptransactionno(String vnptransactionno) {
+        this.vnptransactionno = vnptransactionno;
+    }
+
+    public String getBankcode() {
+        return bankcode;
+    }
+
+    public void setBankcode(String bankcode) {
+        this.bankcode = bankcode;
+    }
+
+    public String getRaw() {
+        return raw;
+    }
+
+    public void setRaw(String raw) {
+        this.raw = raw;
     }
 }

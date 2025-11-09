@@ -2,6 +2,7 @@ package com.example.daugia.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -9,12 +10,12 @@ public class BiddingDTO {
     private String maphientg;
     private UserShortDTO taiKhoanNguoiRaGia;
     private AuctionDTO phienDauGia;
-    private double sotien;
+    private BigDecimal sotien;
     private int solan;
     private Timestamp thoigian;
     private Timestamp thoigiancho;
 
-    public BiddingDTO(String maphientg, UserShortDTO taiKhoanNguoiRaGia,AuctionDTO phienDauGia, double sotien, int solan, Timestamp thoigian, Timestamp thoigiancho) {
+    public BiddingDTO(String maphientg, UserShortDTO taiKhoanNguoiRaGia,AuctionDTO phienDauGia, BigDecimal sotien, int solan, Timestamp thoigian, Timestamp thoigiancho) {
         this.maphientg = maphientg;
         this.taiKhoanNguoiRaGia = taiKhoanNguoiRaGia;
         this.phienDauGia = phienDauGia;
@@ -51,11 +52,11 @@ public class BiddingDTO {
         this.phienDauGia = phienDauGia;
     }
 
-    public double getSotien() {
+    public BigDecimal getSotien() {
         return sotien;
     }
 
-    public void setSotien(double sotien) {
+    public void setSotien(BigDecimal sotien) {
         this.sotien = sotien;
     }
 

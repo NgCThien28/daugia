@@ -9,9 +9,12 @@ import com.example.daugia.entity.Taikhoan;
 import com.example.daugia.repository.PhiendaugiaRepository;
 import com.example.daugia.repository.PhientragiaRepository;
 import com.example.daugia.repository.TaikhoanRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
@@ -41,37 +44,56 @@ public class PhientragiaService {
                 .toList();
     }
 
+    @Transactional
     public BiddingDTO createBid(String maphienDauGia, String makh, int solan) {
-        if (solan < 1)
+        if (solan < 1) {
             throw new IllegalArgumentException("Số lần trả giá phải lớn hơn hoặc bằng 1");
+        }
 
+        // Gợi ý: nếu có thể, dùng repo với PESSIMISTIC_WRITE lock để tránh tranh chấp:
+        // Phiendaugia phien = phiendaugiaRepository.findByIdForUpdate(maphienDauGia)
         Phiendaugia phien = phiendaugiaRepository.findById(maphienDauGia)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phiên đấu giá"));
         Taikhoan user = taikhoanRepository.findById(makh)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng"));
 
-        // Kiểm tra xem user có đang bị "khóa chờ" không
-        Optional<Phientragia> lastBid = phientragiaRepository.findTopByTaiKhoan_MatkAndPhienDauGia_MaphiendgOrderByThoigianDesc(makh, maphienDauGia);
+        // Kiểm tra thời gian phiên
+        Timestamp now = Timestamp.from(Instant.now());
+        if (phien.getThoigianbd() != null && now.before(phien.getThoigianbd())) {
+            throw new IllegalArgumentException("Phiên chưa bắt đầu, không thể trả giá.");
+        }
+        if (phien.getThoigiankt() != null && now.after(phien.getThoigiankt())) {
+            throw new IllegalArgumentException("Phiên đã kết thúc, không thể trả giá.");
+        }
+
+        // Kiểm tra "khóa chờ"
+        Optional<Phientragia> lastBid = phientragiaRepository
+                .findTopByTaiKhoan_MatkAndPhienDauGia_MaphiendgOrderByThoigianDesc(makh, maphienDauGia);
         if (lastBid.isPresent()) {
-            Timestamp now = Timestamp.from(Instant.now());
-            if (lastBid.get().getThoigiancho().after(now)) {
+            Timestamp lockUntil = lastBid.get().getThoigiancho();
+            if (lockUntil != null && lockUntil.after(now)) {
                 throw new IllegalArgumentException("Bạn phải đợi hết thời gian chờ mới được trả giá lại!");
             }
         }
 
-        Timestamp now = Timestamp.from(Instant.now());
+        // Tính thời gian chờ mới (20s)
         Timestamp waitUntil = Timestamp.from(now.toInstant().plusSeconds(20));
 
-        double giacaonhat = phien.getGiacaonhatdatduoc();
-        double newPrice;
+        // Tính giá mới bằng BigDecimal
+        BigDecimal giaKhoiDiem = requireNonNull(phien.getGiakhoidiem(), "Thiếu giá khởi điểm");
+        BigDecimal buocGia = requireNonNull(phien.getBuocgia(), "Thiếu bước giá");
+        BigDecimal giaCaoNhat = Optional.ofNullable(phien.getGiacaonhatdatduoc()).orElse(BigDecimal.ZERO);
 
-        if (giacaonhat <= phien.getGiakhoidiem()) {
-            // lần đầu tiên
-            newPrice = phien.getGiakhoidiem() + (solan * phien.getBuocgia());
-        } else {
-            // lần sau
-            newPrice = giacaonhat + (solan * phien.getBuocgia());
-        }
+        // tổng tăng = buocGia * solan
+        BigDecimal tangThem = buocGia.multiply(BigDecimal.valueOf(solan));
+
+        // "Lần đầu" nếu chưa có giá hoặc giá cao nhất <= giá khởi điểm
+        boolean lanDau = (giaCaoNhat.compareTo(giaKhoiDiem) <= 0);
+
+        BigDecimal newPrice = (lanDau ? giaKhoiDiem : giaCaoNhat).add(tangThem);
+
+        // (Tuỳ chọn) chuẩn hoá scale theo bước giá hoặc 0 chữ số thập phân
+        newPrice = newPrice.setScale(Math.max(0, buocGia.scale()), RoundingMode.HALF_UP);
 
         // Cập nhật giá cao nhất
         phien.setGiacaonhatdatduoc(newPrice);
@@ -96,5 +118,10 @@ public class PhientragiaService {
                 ptg.getThoigian(),
                 ptg.getThoigiancho()
         );
+    }
+
+    private static <T> T requireNonNull(T val, String msg) {
+        if (val == null) throw new IllegalArgumentException(msg);
+        return val;
     }
 }
