@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1:3306
--- Thời gian đã tạo: Th10 08, 2025 lúc 09:44 PM
+-- Thời gian đã tạo: Th10 09, 2025 lúc 07:32 AM
 -- Phiên bản máy phục vụ: 9.1.0
 -- Phiên bản PHP: 8.3.14
 
@@ -79,19 +79,20 @@ CREATE TABLE IF NOT EXISTS `hinhanh` (
 --
 
 INSERT INTO `hinhanh` (`maanh`, `masp`, `tenanh`) VALUES
+('HA00000001', 'SP98071333', 'nokia-chiec-la-2.png'),
+('HA00000002', 'SP15966963', 'dien-thoai-ban-co-2.png'),
+('HA00000003', 'SP25282533', 'ban-phim-co-ma-vang-2.png'),
+('HA00000004', 'SP25282533', 'ban-phim-co-ma-vang-3.png'),
 ('HA11338300', 'SP21771289', 'anh-chup-man-hinh.png'),
 ('HA13749156', 'SP21771289', 'anh-chup-man-hinh-3.png'),
 ('HA14037273', 'SP68242302', 'logo-google.png'),
-('HA33639976', 'SP26332002', 'ahuhu.jpg'),
-('HA44520546', 'SP24455817', 'anh-cua-toi.jpg'),
-('HA44531072', 'SP15966963', 'logo-google.png'),
+('HA44531072', 'SP15966963', 'dien-thoai-ban-co-1.png'),
 ('HA51042429', 'SP59276013', 'logo.png'),
 ('HA54546375', 'SP21771289', 'erd.png'),
 ('HA63276403', 'SP24455817', 'erd.png'),
-('HA64463810', 'SP26332002', 'anh-cua-toi.jpg'),
 ('HA65003993', 'SP26332002', '2.png'),
-('HA67849721', 'SP25282533', 'logo-google.png'),
-('HA78994585', 'SP98071333', 'logo.png'),
+('HA67849721', 'SP25282533', 'ban-phim-co-ma-vang-1.png'),
+('HA78994585', 'SP98071333', 'nokia-chiec-la-1.png'),
 ('HA82736448', 'SP17304242', 'pastel-sunset-lake.jpg'),
 ('HA83666486', 'SP59276013', 'logo-google.png'),
 ('HA94131029', 'SP24455817', '2.png');
