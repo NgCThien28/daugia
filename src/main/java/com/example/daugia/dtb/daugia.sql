@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1:3306
--- Thời gian đã tạo: Th10 09, 2025 lúc 07:32 AM
+-- Thời gian đã tạo: Th10 09, 2025 lúc 07:56 PM
 -- Phiên bản máy phục vụ: 9.1.0
 -- Phiên bản PHP: 8.3.14
 
@@ -132,7 +132,7 @@ CREATE TABLE IF NOT EXISTS `phiendaugia` (
 --
 
 INSERT INTO `phiendaugia` (`maphiendg`, `masp`, `maqtv`, `makh`, `trangthai`, `thoigianbd`, `thoigiankt`, `thoigianbddk`, `thoigianktdk`, `giakhoidiem`, `giatran`, `buocgia`, `giacaonhatdatduoc`, `tiencoc`, `ketquaphien`, `slnguoithamgia`) VALUES
-('DG00000001', 'SP01466166', 'QT00000001', 'KH08560518', 1, '2025-11-05 18:41:43', '2025-11-05 18:41:43', '2025-11-05 18:41:43', '2025-11-05 18:41:43', 10000, 100000, 10000, 90000, 10000, 0, 0),
+('DG00000001', 'SP01466166', 'QT00000001', 'KH08560518', 1, '2025-11-05 18:41:43', '2025-11-05 18:41:43', '2025-11-05 18:41:43', '2025-11-05 18:41:43', 10000, 100000, 10000, 90000, 10000, 0, 1),
 ('DG01609968', 'SP98071333', NULL, 'KH29009892', 1, '2025-11-23 19:41:00', '2025-11-24 19:41:00', '2025-11-21 19:40:00', '2025-11-22 19:41:00', 10000, 100000, 1000, 0, 20000, 0, 0),
 ('DG18523456', 'SP15966963', NULL, 'KH29009892', 1, '2025-11-08 17:38:03', '2025-11-08 17:38:03', '2025-11-08 17:38:03', '2025-11-08 17:38:03', 1000000, 1000, 10000, 0, 10, 0, 0),
 ('DG24091114', 'SP25282533', NULL, 'KH29009892', 1, '2025-11-05 20:01:00', '2025-11-05 20:10:00', '2025-11-05 19:59:00', '2025-11-05 20:00:00', 1000000, 100000, 10000, 0, 100000, 0, 0),
@@ -175,6 +175,9 @@ CREATE TABLE IF NOT EXISTS `phieuthanhtoan` (
   `makh` char(10) NOT NULL,
   `thoigianthanhtoan` timestamp NOT NULL,
   `trangthai` tinyint NOT NULL,
+  `vnptransactionno` char(20) DEFAULT NULL,
+  `bankcode` char(10) DEFAULT NULL,
+  `raw` char(100) DEFAULT NULL,
   PRIMARY KEY (`matt`),
   KEY `maphiendg` (`maphiendg`),
   KEY `makh` (`makh`)
@@ -193,10 +196,20 @@ CREATE TABLE IF NOT EXISTS `phieuthanhtoantiencoc` (
   `makh` char(10) NOT NULL,
   `thoigianthanhtoan` timestamp NOT NULL,
   `trangthai` tinyint NOT NULL,
+  `vnptransactionno` char(20) DEFAULT NULL,
+  `bankcode` char(10) DEFAULT NULL,
+  `raw` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   PRIMARY KEY (`matc`),
   KEY `maphiendg` (`maphiendg`),
   KEY `makh` (`makh`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `phieuthanhtoantiencoc`
+--
+
+INSERT INTO `phieuthanhtoantiencoc` (`matc`, `maphiendg`, `makh`, `thoigianthanhtoan`, `trangthai`, `vnptransactionno`, `bankcode`, `raw`) VALUES
+('TC69790685', 'DG00000001', 'KH08560518', '2025-11-16 19:07:20', 1, '15249074', 'NCB', '{\"vnp_BankCode\":\"NCB\",\"vnp_PayDate\":\"20251110023704\",\"vnp_TransactionNo\":\"15249074\",\"vnp_TmnCode\":\"XU5Y6Y7X\",\"vnp_OrderInfo\":\"Thanh+toan+tien+coc+matc%3DTC69790685\",\"vnp_TxnRef\":\"45996364\",\"vnp_Amount\":\"1000000\",\"vnp_CardType\":\"ATM\",\"vnp_TransactionStatus\":\"00\",\"vnp_BankTranNo\":\"VNP15249074\",\"vnp_ResponseCode\":\"00\"}');
 
 -- --------------------------------------------------------
 
@@ -267,7 +280,7 @@ CREATE TABLE IF NOT EXISTS `taikhoan` (
 
 INSERT INTO `taikhoan` (`matk`, `matp`, `ho`, `tenlot`, `ten`, `email`, `diachi`, `diachigiaohang`, `sdt`, `matkhau`, `trangthaidangnhap`) VALUES
 ('KH08560518', 'TP00000001', 'nguyen', 'chi', 'thien', 'chithien@gmail.com', 'Quan 8', 'Quan 9', '093746123', '$2a$10$pVJ90I.jSzYlJE1qSwmw3.8pMITV79xLqP6zzi4HTk2QHrfm.Xq.a', 0),
-('KH13658066', NULL, 'Nguyễn', 'Văn', 'A', 'vana@gmail.com', NULL, NULL, '0912345678', '$2a$10$MXM32hQbURtxepyh.xh1Ee273BzAA1JZJova/4hm8nC9aOdx8wnzS', 0),
+('KH13658066', NULL, 'Nguyễn', 'Văn', 'A', 'vana@gmail.com', 'Cao Lỗ, phường 4, quận 8, thành phố Hồ Chí Minh', NULL, '0912345678', '$2a$10$MXM32hQbURtxepyh.xh1Ee273BzAA1JZJova/4hm8nC9aOdx8wnzS', 0),
 ('KH29009892', 'TP00000001', 'Phan', 'Nhựt', 'Tân', 'nhuttan@gmail.com', 'Cao Lỗ, phường 4, quận 8, thành phố Hồ Chí Minh', 'Quận 4', '0912345678', '$2a$10$RA9OI6knJFNbyYt/d9FnV.wNY4.pTAk80Sjb4koqmuH1FrbVV2Xre', 0),
 ('KH32784375', 'TP00000002', 'nguyen', 'cong', 'tan', 'congtan@gmail.com', 'Quan Cầu Giấy', 'Quan 9', '093746123', '$2a$10$QpA8c0LxaWZQdMUHWcUWoOyWI2p7E1yyPkVr24SwS2jtCDsQhlXEK', 1),
 ('KH99329061', NULL, 'nguyen', 'cong', 'tan', 'congtan2@gmail.com', NULL, NULL, '093746123', '$2a$10$yILrkkyfLh/nAW9r8yBxmeCBzd.k4KrRJvreijq8bUDy2Q9XawWGG', 1);
