@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -51,11 +52,11 @@ public class Phiendaugia {
     private Timestamp thoigiankt;
     private Timestamp thoigianbddk;
     private Timestamp thoigianktdk;
-    private double giakhoidiem;
-    private double giatran;
-    private double buocgia;
-    private double giacaonhatdatduoc;
-    private double tiencoc;
+    private BigDecimal giakhoidiem;
+    private BigDecimal giatran;
+    private BigDecimal buocgia;
+    private BigDecimal giacaonhatdatduoc;
+    private BigDecimal tiencoc;
     private KetQuaPhien ketquaphien;
     private int slnguoithamgia;
 
@@ -155,43 +156,43 @@ public class Phiendaugia {
         this.thoigianktdk = thoigianktdk;
     }
 
-    public double getGiakhoidiem() {
+    public BigDecimal getGiakhoidiem() {
         return giakhoidiem;
     }
 
-    public void setGiakhoidiem(double giakhoidiem) {
+    public void setGiakhoidiem(BigDecimal giakhoidiem) {
         this.giakhoidiem = giakhoidiem;
     }
 
-    public double getGiatran() {
+    public BigDecimal getGiatran() {
         return giatran;
     }
 
-    public void setGiatran(double giatran) {
+    public void setGiatran(BigDecimal giatran) {
         this.giatran = giatran;
     }
 
-    public double getBuocgia() {
+    public BigDecimal getBuocgia() {
         return buocgia;
     }
 
-    public void setBuocgia(double buocgia) {
+    public void setBuocgia(BigDecimal buocgia) {
         this.buocgia = buocgia;
     }
 
-    public double getGiacaonhatdatduoc() {
+    public BigDecimal getGiacaonhatdatduoc() {
         return giacaonhatdatduoc;
     }
 
-    public void setGiacaonhatdatduoc(double giacaonhatdatduoc) {
+    public void setGiacaonhatdatduoc(BigDecimal giacaonhatdatduoc) {
         this.giacaonhatdatduoc = giacaonhatdatduoc;
     }
 
-    public double getTiencoc() {
+    public BigDecimal getTiencoc() {
         return tiencoc;
     }
 
-    public void setTiencoc(double tiencoc) {
+    public void setTiencoc(BigDecimal tiencoc) {
         this.tiencoc = tiencoc;
     }
 

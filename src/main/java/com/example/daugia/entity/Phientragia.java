@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Entity
@@ -24,7 +25,7 @@ public class Phientragia {
     @JsonBackReference
     private Phiendaugia phienDauGia;
 
-    private double sotien;
+    private BigDecimal sotien;
     private int solan;
     private Timestamp thoigian;
     private Timestamp thoigiancho;
@@ -53,11 +54,11 @@ public class Phientragia {
         this.phienDauGia = phienDauGia;
     }
 
-    public double getSotien() {
+    public BigDecimal getSotien() {
         return sotien;
     }
 
-    public void setSotien(double sotien) {
+    public void setSotien(BigDecimal sotien) {
         this.sotien = sotien;
     }
 

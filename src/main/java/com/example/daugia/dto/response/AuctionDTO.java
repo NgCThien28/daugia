@@ -4,6 +4,7 @@ import com.example.daugia.core.enums.KetQuaPhien;
 import com.example.daugia.core.enums.TrangThaiPhienDauGia;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -17,15 +18,15 @@ public class AuctionDTO {
     private Timestamp thoigiankt;
     private Timestamp thoigianbddk;
     private Timestamp thoigianktdk;
-    private double giakhoidiem;
-    private double giatran;
-    private double buocgia;
-    private double giacaonhatdatduoc;
-    private double tiencoc;
+    private BigDecimal giakhoidiem;
+    private BigDecimal giatran;
+    private BigDecimal buocgia;
+    private BigDecimal giacaonhatdatduoc;
+    private BigDecimal tiencoc;
     private KetQuaPhien ketquaphien;
     private int slnguoithamgia;
 
-    public AuctionDTO(String maphiendg, UserShortDTO taiKhoanNguoiBan, UserShortDTO taiKhoanQuanTri, TrangThaiPhienDauGia trangthai, Timestamp thoigianbd, Timestamp thoigiankt, Timestamp thoigianbddk, Timestamp thoigianktdk, double giakhoidiem, double giatran, double buocgia, double giacaonhatdatduoc, double tiencoc, KetQuaPhien ketquaphien, int slnguoithamgia) {
+    public AuctionDTO(String maphiendg, UserShortDTO taiKhoanNguoiBan, UserShortDTO taiKhoanQuanTri, TrangThaiPhienDauGia trangthai, Timestamp thoigianbd, Timestamp thoigiankt, Timestamp thoigianbddk, Timestamp thoigianktdk, BigDecimal giakhoidiem, BigDecimal giatran, BigDecimal buocgia, BigDecimal giacaonhatdatduoc, BigDecimal tiencoc, KetQuaPhien ketquaphien, int slnguoithamgia) {
         this.maphiendg = maphiendg;
         this.taiKhoanNguoiBan = taiKhoanNguoiBan;
         this.taiKhoanQuanTri = taiKhoanQuanTri;
@@ -43,7 +44,7 @@ public class AuctionDTO {
         this.slnguoithamgia = slnguoithamgia;
     }
 
-    public AuctionDTO(String maphiendg, UserShortDTO taiKhoanNguoiBan,ProductDTO sanPham, TrangThaiPhienDauGia trangthai, Timestamp thoigianbd, Timestamp thoigiankt, Timestamp thoigianbddk, Timestamp thoigianktdk, double giakhoidiem, double giatran, double buocgia, double tiencoc) {
+    public AuctionDTO(String maphiendg, UserShortDTO taiKhoanNguoiBan,ProductDTO sanPham, TrangThaiPhienDauGia trangthai, Timestamp thoigianbd, Timestamp thoigiankt, Timestamp thoigianbddk, Timestamp thoigianktdk, BigDecimal giakhoidiem, BigDecimal giatran, BigDecimal buocgia, BigDecimal tiencoc) {
         this.maphiendg = maphiendg;
         this.taiKhoanNguoiBan = taiKhoanNguoiBan;
         this.sanPham = sanPham;
@@ -62,9 +63,14 @@ public class AuctionDTO {
         this.maphiendg = maphiendg;
     }
 
-    public AuctionDTO(String maphiendg, double giacaonhatdatduoc) {
+    public AuctionDTO(String maphiendg, BigDecimal giacaonhatdatduoc) {
         this.maphiendg = maphiendg;
         this.giacaonhatdatduoc = giacaonhatdatduoc;
+    }
+
+    public AuctionDTO(BigDecimal tiencoc, String maphiendg) {
+        this.tiencoc = tiencoc;
+        this.maphiendg = maphiendg;
     }
 
     public AuctionDTO() {
@@ -134,43 +140,43 @@ public class AuctionDTO {
         this.thoigianktdk = thoigianktdk;
     }
 
-    public double getGiakhoidiem() {
+    public BigDecimal getGiakhoidiem() {
         return giakhoidiem;
     }
 
-    public void setGiakhoidiem(double giakhoidiem) {
+    public void setGiakhoidiem(BigDecimal giakhoidiem) {
         this.giakhoidiem = giakhoidiem;
     }
 
-    public double getGiatran() {
+    public BigDecimal getGiatran() {
         return giatran;
     }
 
-    public void setGiatran(double giatran) {
+    public void setGiatran(BigDecimal giatran) {
         this.giatran = giatran;
     }
 
-    public double getBuocgia() {
+    public BigDecimal getBuocgia() {
         return buocgia;
     }
 
-    public void setBuocgia(double buocgia) {
+    public void setBuocgia(BigDecimal buocgia) {
         this.buocgia = buocgia;
     }
 
-    public double getGiacaonhatdatduoc() {
+    public BigDecimal getGiacaonhatdatduoc() {
         return giacaonhatdatduoc;
     }
 
-    public void setGiacaonhatdatduoc(double giacaonhatdatduoc) {
+    public void setGiacaonhatdatduoc(BigDecimal giacaonhatdatduoc) {
         this.giacaonhatdatduoc = giacaonhatdatduoc;
     }
 
-    public double getTiencoc() {
+    public BigDecimal getTiencoc() {
         return tiencoc;
     }
 
-    public void setTiencoc(double tiencoc) {
+    public void setTiencoc(BigDecimal tiencoc) {
         this.tiencoc = tiencoc;
     }
 
