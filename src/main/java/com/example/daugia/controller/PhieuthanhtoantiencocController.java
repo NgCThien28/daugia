@@ -9,6 +9,7 @@ import com.example.daugia.service.BlacklistService;
 import com.example.daugia.service.PhieuthanhtoantiencocService;
 import com.example.daugia.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,6 +54,39 @@ public class PhieuthanhtoantiencocController {
         }
         return apiResponse;
     }
+    
+    @GetMapping("/find-by-user")
+    public ApiResponse<List<DepositDTO>> findByUser(@RequestHeader("Authorization") String header) {
+        ApiResponse<List<DepositDTO>> apiResponse = new ApiResponse<>();
+        try {
+            if (header == null || !header.startsWith("Bearer ")) {
+                apiResponse.setCode(401);
+                apiResponse.setMessage("Thiếu token");
+                return apiResponse;
+            }
+
+            String token = header.substring(7);
+            if (blacklistService.isBlacklisted(token)) {
+                apiResponse.setCode(400);
+                apiResponse.setMessage("Token đã bị vô hiệu hóa, không thể tạo phieu");
+                return apiResponse;
+            }
+
+            String email = JwtUtil.validateToken(token);
+
+            if (email == null) {
+                apiResponse.setCode(401);
+                apiResponse.setMessage("Token không hợp lệ hoặc hết hạn");
+                return apiResponse;
+            }
+            apiResponse.setResult(phieuthanhtoantiencocService.findByUser(email));
+            apiResponse.setCode(200);
+            apiResponse.setMessage("Thanh cong");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return apiResponse;
+    }
 
     @PostMapping("/create")
     public ApiResponse<DepositDTO> create(@RequestBody PhieuthanhtoantiencocCreationRequest request,
@@ -84,16 +118,16 @@ public class PhieuthanhtoantiencocController {
             apiResponse.setMessage("Thanh cong");
         } catch (IllegalArgumentException e) {
             apiResponse.setCode(400);
-            apiResponse.setMessage("Dữ liệu không hợp lệ: " + e.getMessage());
+            apiResponse.setMessage(e.getMessage());
 
         } catch (IllegalStateException e) {
             apiResponse.setCode(409);
-            apiResponse.setMessage("Không thể tạo phiếu: " + e.getMessage());
+            apiResponse.setMessage(e.getMessage());
 
         } catch (Exception e) {
             e.printStackTrace();
             apiResponse.setCode(500);
-            apiResponse.setMessage("Lỗi hệ thống: " + e.getMessage());
+            apiResponse.setMessage("Lỗi hệ thống xin đợi trong giây lát");
         }
         return apiResponse;
     }
@@ -117,7 +151,7 @@ public class PhieuthanhtoantiencocController {
     }
 
     @GetMapping("/vnpay-return")
-    public ApiResponse<String> orderReturn(HttpServletRequest request) {
+    public ApiResponse<String> orderReturn(HttpServletRequest request, HttpServletResponse response) {
         ApiResponse<String> apiResponse = new ApiResponse<>();
         try {
             int result = phieuthanhtoantiencocService.orderReturn(request);

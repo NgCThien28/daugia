@@ -60,12 +60,39 @@ public class PhieuthanhtoantiencocService {
         return depositDTO;
     }
 
+    public List<DepositDTO> findByUser(String email) {
+        Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản"));
+        List<Phieuthanhtoantiencoc> phieuthanhtoantiencocList = phieuthanhtoantiencocRepository.findByTaiKhoan_Matk(taikhoan.getMatk());
+        return phieuthanhtoantiencocList.stream()
+                .map(phieuthanhtoantiencoc -> new DepositDTO(
+                        phieuthanhtoantiencoc.getMatc(),
+                        new UserShortDTO(phieuthanhtoantiencoc.getTaiKhoan().getMatk()),
+                        new AuctionDTO(
+                                phieuthanhtoantiencoc.getPhienDauGia().getTiencoc(),
+                                phieuthanhtoantiencoc.getPhienDauGia().getMaphiendg()
+                        ),
+                        phieuthanhtoantiencoc.getThoigianthanhtoan(),
+                        phieuthanhtoantiencoc.getTrangthai()
+                ))
+                .toList();
+    }
+
     public DepositDTO create(PhieuthanhtoantiencocCreationRequest request, String email){
-        Phieuthanhtoantiencoc phieuthanhtoantiencoc = new Phieuthanhtoantiencoc();
+
         Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
                 .orElseThrow(()-> new IllegalArgumentException("Không tìm thấy tài khoản"));
         Phiendaugia phiendaugia = phiendaugiaRepository.findById(request.getMaphien())
                 .orElseThrow(()-> new IllegalArgumentException("Không tìm thấy phien dau gia"));
+        Optional<Phieuthanhtoantiencoc> existing =
+                phieuthanhtoantiencocRepository.findByTaiKhoan_MatkAndPhienDauGia_Maphiendg(
+                        taikhoan.getMatk(), phiendaugia.getMaphiendg()
+                );
+
+        if (existing.isPresent()) {
+            throw new IllegalArgumentException("Đã đăng ký phiên đấu giá này");
+        }
+        Phieuthanhtoantiencoc phieuthanhtoantiencoc = new Phieuthanhtoantiencoc();
         phieuthanhtoantiencoc.setTaiKhoan(taikhoan);
         phieuthanhtoantiencoc.setPhienDauGia(phiendaugia);
         Timestamp now = Timestamp.from(Instant.now());
