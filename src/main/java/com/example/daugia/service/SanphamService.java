@@ -54,8 +54,7 @@ public class SanphamService {
     public List<Sanpham> findByUser(String email){
         Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản"));
-        List<Sanpham> sanphamList = sanphamRepository.findByTaiKhoan_Matk(taikhoan.getMatk());
-        return  sanphamList;
+        return sanphamRepository.findByTaiKhoan_Matk(taikhoan.getMatk());
     }
 
     public ProductDTO create(SanPhamCreationRequest request, String email) {
@@ -76,10 +75,9 @@ public class SanphamService {
         UserShortDTO userShortDTO = new UserShortDTO(sp.getTaiKhoan().getMatk());
         CityDTO cityDTO = new CityDTO(sp.getThanhPho().getTentp());
         List<ImageDTO> hinhAnh = new ArrayList<>();
-        ProductDTO productDTO = new ProductDTO(sp.getMasp(), userShortDTO,cityDTO, hinhAnh, sp.getTinhtrangsp(),
-                sp.getTensp(), sp.getTrangthai().getValue());
 
-        return productDTO;
+        return new ProductDTO(sp.getMasp(), userShortDTO,cityDTO, hinhAnh, sp.getTinhtrangsp(),
+                sp.getTensp(), sp.getTrangthai().getValue());
     }
 
     public ProductDTO update (SanPhamCreationRequest request) {

@@ -1,7 +1,5 @@
 package com.example.daugia.dto.request;
 
-import com.example.daugia.core.enums.KetQuaPhien;
-import com.example.daugia.core.enums.TrangThaiPhienDauGia;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.math.BigDecimal;
@@ -21,7 +19,6 @@ public class PhiendaugiaCreationRequest {
     private BigDecimal giatran;
     private BigDecimal buocgia;
     private BigDecimal tiencoc;
-    private KetQuaPhien ketquaphien;
 
     public String getMasp() {
         return masp;
@@ -95,11 +92,4 @@ public class PhiendaugiaCreationRequest {
         this.tiencoc = tiencoc;
     }
 
-    public KetQuaPhien getKetquaphien() {
-        return ketquaphien;
-    }
-
-    public void setKetquaphien(KetQuaPhien ketquaphien) {
-        this.ketquaphien = ketquaphien;
-    }
 }
