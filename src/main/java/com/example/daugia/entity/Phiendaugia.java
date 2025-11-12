@@ -1,6 +1,5 @@
 package com.example.daugia.entity;
 
-import com.example.daugia.core.enums.KetQuaPhien;
 import com.example.daugia.core.enums.TrangThaiPhienDauGia;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -57,7 +56,6 @@ public class Phiendaugia {
     private BigDecimal buocgia;
     private BigDecimal giacaonhatdatduoc;
     private BigDecimal tiencoc;
-    private KetQuaPhien ketquaphien;
     private int slnguoithamgia;
 
     public String getMaphiendg() {
@@ -194,14 +192,6 @@ public class Phiendaugia {
 
     public void setTiencoc(BigDecimal tiencoc) {
         this.tiencoc = tiencoc;
-    }
-
-    public KetQuaPhien getKetquaphien() {
-        return ketquaphien;
-    }
-
-    public void setKetquaphien(KetQuaPhien ketquaphien) {
-        this.ketquaphien = ketquaphien;
     }
 
     public int getSlnguoithamgia() {

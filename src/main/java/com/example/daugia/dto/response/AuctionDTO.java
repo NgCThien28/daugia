@@ -1,6 +1,5 @@
 package com.example.daugia.dto.response;
 
-import com.example.daugia.core.enums.KetQuaPhien;
 import com.example.daugia.core.enums.TrangThaiPhienDauGia;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -23,10 +22,9 @@ public class AuctionDTO {
     private BigDecimal buocgia;
     private BigDecimal giacaonhatdatduoc;
     private BigDecimal tiencoc;
-    private KetQuaPhien ketquaphien;
     private int slnguoithamgia;
 
-    public AuctionDTO(String maphiendg, UserShortDTO taiKhoanNguoiBan, UserShortDTO taiKhoanQuanTri, TrangThaiPhienDauGia trangthai, Timestamp thoigianbd, Timestamp thoigiankt, Timestamp thoigianbddk, Timestamp thoigianktdk, BigDecimal giakhoidiem, BigDecimal giatran, BigDecimal buocgia, BigDecimal giacaonhatdatduoc, BigDecimal tiencoc, KetQuaPhien ketquaphien, int slnguoithamgia) {
+    public AuctionDTO(String maphiendg, UserShortDTO taiKhoanNguoiBan, UserShortDTO taiKhoanQuanTri, TrangThaiPhienDauGia trangthai, Timestamp thoigianbd, Timestamp thoigiankt, Timestamp thoigianbddk, Timestamp thoigianktdk, BigDecimal giakhoidiem, BigDecimal giatran, BigDecimal buocgia, BigDecimal giacaonhatdatduoc, BigDecimal tiencoc, int slnguoithamgia) {
         this.maphiendg = maphiendg;
         this.taiKhoanNguoiBan = taiKhoanNguoiBan;
         this.taiKhoanQuanTri = taiKhoanQuanTri;
@@ -40,7 +38,6 @@ public class AuctionDTO {
         this.buocgia = buocgia;
         this.giacaonhatdatduoc = giacaonhatdatduoc;
         this.tiencoc = tiencoc;
-        this.ketquaphien = ketquaphien;
         this.slnguoithamgia = slnguoithamgia;
     }
 
@@ -178,14 +175,6 @@ public class AuctionDTO {
 
     public void setTiencoc(BigDecimal tiencoc) {
         this.tiencoc = tiencoc;
-    }
-
-    public KetQuaPhien getKetquaphien() {
-        return ketquaphien;
-    }
-
-    public void setKetquaphien(KetQuaPhien ketquaphien) {
-        this.ketquaphien = ketquaphien;
     }
 
     public int getSlnguoithamgia() {

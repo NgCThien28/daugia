@@ -1,6 +1,5 @@
 package com.example.daugia.service;
 
-import com.example.daugia.core.enums.KetQuaPhien;
 import com.example.daugia.core.enums.TrangThaiPhienDauGia;
 import com.example.daugia.core.enums.TrangThaiSanPham;
 import com.example.daugia.dto.request.PhiendaugiaCreationRequest;
@@ -188,7 +187,6 @@ public class PhiendaugiaService {
         phiendaugia.setGiatran(request.getGiatran());
         phiendaugia.setBuocgia(request.getBuocgia());
         phiendaugia.setTiencoc(request.getTiencoc());
-        phiendaugia.setKetquaphien(KetQuaPhien.PENDING_APPROVAL);
         phiendaugia.setTrangthai(TrangThaiPhienDauGia.PENDING_APPROVAL);
         phiendaugiaRepository.save(phiendaugia);
         return customAuction(phiendaugia);
