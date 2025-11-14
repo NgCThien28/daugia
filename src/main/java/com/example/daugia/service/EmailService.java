@@ -4,13 +4,11 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 @Service
@@ -29,7 +27,7 @@ public class EmailService {
         // Đọc file template HTML
         String templatePath = "templates/verification-email.html";
         ClassPathResource resource = new ClassPathResource(templatePath);
-        String html = new String(Files.readAllBytes(resource.getFile().toPath()), StandardCharsets.UTF_8);
+        String html = Files.readString(resource.getFile().toPath());
 
         // Thay {{link}} bằng link thực tế
         html = html.replace("{{link}}", link);

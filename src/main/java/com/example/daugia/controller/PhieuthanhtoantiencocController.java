@@ -3,7 +3,6 @@ package com.example.daugia.controller;
 import com.example.daugia.dto.request.ApiResponse;
 import com.example.daugia.dto.request.PhieuthanhtoantiencocCreationRequest;
 import com.example.daugia.dto.response.DepositDTO;
-import com.example.daugia.entity.Phieuthanhtoantiencoc;
 import com.example.daugia.service.ActiveTokenService;
 import com.example.daugia.service.BlacklistService;
 import com.example.daugia.service.PhieuthanhtoantiencocService;
@@ -153,7 +152,7 @@ public class PhieuthanhtoantiencocController {
     }
 
     @GetMapping("/vnpay-return")
-    public ResponseEntity<?> orderReturn(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> orderReturn(HttpServletRequest request) {
         ApiResponse<String> apiResponse = new ApiResponse<>();
         try {
             int result = phieuthanhtoantiencocService.orderReturn(request);
