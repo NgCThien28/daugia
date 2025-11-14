@@ -21,11 +21,4 @@ public class WebConfig implements WebMvcConfigurer{
             }
         };
     }
-
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Mapping tất cả request /imgs/** tới folder imgs ngoài project
-        registry.addResourceHandler("/imgs/**")
-                .addResourceLocations("file:imgs/"); // chú ý "file:" và path tương đối từ root project
-    }
 }
