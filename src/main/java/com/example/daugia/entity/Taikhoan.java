@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
@@ -55,6 +56,11 @@ public class Taikhoan {
     private String sdt;
     @JsonIgnore
     private String matkhau;
+    private TrangThaiTaiKhoan xacthuctaikhoan;
+    @JsonIgnore
+    private String tokenxacthuc;
+    @JsonIgnore
+    private Timestamp tokenhethan;
     private TrangThaiTaiKhoan trangthaidangnhap;
 
     public String getMatk() {
@@ -191,5 +197,29 @@ public class Taikhoan {
 
     public void setThanhPho(Thanhpho thanhPho) {
         this.thanhPho = thanhPho;
+    }
+
+    public TrangThaiTaiKhoan getXacthuctaikhoan() {
+        return xacthuctaikhoan;
+    }
+
+    public void setXacthuctaikhoan(TrangThaiTaiKhoan xacthuctaikhoan) {
+        this.xacthuctaikhoan = xacthuctaikhoan;
+    }
+
+    public String getTokenxacthuc() {
+        return tokenxacthuc;
+    }
+
+    public void setTokenxacthuc(String tokenxacthuc) {
+        this.tokenxacthuc = tokenxacthuc;
+    }
+
+    public Timestamp getTokenhethan() {
+        return tokenhethan;
+    }
+
+    public void setTokenhethan(Timestamp tokenhethan) {
+        this.tokenhethan = tokenhethan;
     }
 }

@@ -21,6 +21,17 @@ spring:
     url: "jdbc:mysql://localhost:3306/daugia?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Ho_Chi_Minh"
     username: root
     password:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: daugiastu@gmail.com
+    password: xitxyfjucokpenwe # app password (không phải mật khẩu thật)
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
   jpa:
     show-sql: true

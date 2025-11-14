@@ -29,7 +29,7 @@ public class SanphamController {
             apiResponse.setResult(sanphamList);
         } catch (IllegalArgumentException e) {
             apiResponse.setCode(500);
-            apiResponse.setMessage("That bai:" + e.getMessage());
+            apiResponse.setMessage(e.getMessage());
         }
         return apiResponse;
     }
@@ -65,7 +65,7 @@ public class SanphamController {
             res.setMessage("Thanh cong");
         } catch (Exception e) {
             res.setCode(500);
-            res.setMessage("Lỗi: " + e.getMessage());
+            res.setMessage(e.getMessage());
         }
         return res;
     }
@@ -102,7 +102,7 @@ public class SanphamController {
             res.setMessage("Tạo thành công");
         } catch (Exception e) {
             res.setCode(500);
-            res.setMessage("Lỗi: " + e.getMessage());
+            res.setMessage(e.getMessage());
         }
         return res;
     }

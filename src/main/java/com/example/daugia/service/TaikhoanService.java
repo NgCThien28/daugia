@@ -6,10 +6,12 @@ import com.example.daugia.dto.request.TaikhoanCreationRequest;
 import com.example.daugia.entity.Taikhoan;
 import com.example.daugia.repository.TaikhoanRepository;
 import com.example.daugia.repository.ThanhphoRepository;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -20,6 +22,8 @@ public class TaikhoanService {
     private ThanhphoRepository thanhphoRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private EmailService emailService;
 
     public List<Taikhoan> findAll(){
         return taikhoanRepository.findAll();
@@ -30,18 +34,48 @@ public class TaikhoanService {
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng"));
     }
 
-    public Taikhoan createUser(TaikhoanCreationRequest request){
-        Taikhoan taikhoan = new Taikhoan();
-        if(taikhoanRepository.existsByEmail(request.getEmail()))
-            throw new IllegalArgumentException("Username already exists");
-        taikhoan.setHo(request.getHo());
-        taikhoan.setTenlot(request.getTenlot());
-        taikhoan.setTen(request.getTen());
-        taikhoan.setEmail(request.getEmail());
-        taikhoan.setSdt(request.getSdt());
-        taikhoan.setMatkhau(passwordEncoder.encode(request.getMatkhau()));
-        taikhoan.setTrangthaidangnhap(TrangThaiTaiKhoan.OFFLINE);
-        return taikhoanRepository.save(taikhoan);
+    public Taikhoan createUser(TaikhoanCreationRequest request) throws MessagingException, IOException {
+        if (taikhoanRepository.existsByEmail(request.getEmail()))
+            throw new IllegalArgumentException("Email đã được sử dụng");
+
+        Taikhoan tk = new Taikhoan();
+        tk.setHo(request.getHo());
+        tk.setTenlot(request.getTenlot());
+        tk.setTen(request.getTen());
+        tk.setEmail(request.getEmail());
+        tk.setSdt(request.getSdt());
+        tk.setMatkhau(passwordEncoder.encode(request.getMatkhau()));
+        tk.setTrangthaidangnhap(TrangThaiTaiKhoan.OFFLINE);
+        tk.setXacthuctaikhoan(TrangThaiTaiKhoan.INACTIVE);
+
+        // Sinh token xác thực
+        String token = java.util.UUID.randomUUID().toString();
+        tk.setTokenxacthuc(token);
+        tk.setTokenhethan(new java.sql.Timestamp(System.currentTimeMillis() + 24 * 60 * 60 * 1000)); // 24h
+
+        Taikhoan saved = taikhoanRepository.save(tk);
+
+        // Gửi mail xác thực
+        String verifyLink = "http://localhost:8082/api/users/verify?token=" + token;
+        emailService.sendVerificationEmail(saved.getEmail(), verifyLink);
+
+        return saved;
+    }
+
+    public boolean verifyUser(String token) {
+        Taikhoan user = taikhoanRepository.findByTokenxacthuc(token)
+                .orElseThrow(() -> new IllegalArgumentException("Token không hợp lệ"));
+
+        if (user.getTokenhethan().before(new java.sql.Timestamp(System.currentTimeMillis()))) {
+            throw new IllegalArgumentException("Token đã hết hạn");
+        }
+
+        user.setXacthuctaikhoan(TrangThaiTaiKhoan.ACTIVE);
+        user.setTokenxacthuc(null);
+        user.setTokenhethan(null);
+        taikhoanRepository.save(user);
+
+        return true;
     }
 
     public Taikhoan login(String email, String rawPassword) {

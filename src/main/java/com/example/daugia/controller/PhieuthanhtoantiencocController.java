@@ -11,6 +11,8 @@ import com.example.daugia.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -151,13 +153,14 @@ public class PhieuthanhtoantiencocController {
     }
 
     @GetMapping("/vnpay-return")
-    public ApiResponse<String> orderReturn(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> orderReturn(HttpServletRequest request, HttpServletResponse response) {
         ApiResponse<String> apiResponse = new ApiResponse<>();
         try {
             int result = phieuthanhtoantiencocService.orderReturn(request);
             if (result == 1) {
-                apiResponse.setCode(200);
-                apiResponse.setMessage("Thanh toán thành công");
+                 return ResponseEntity.status(HttpStatus.FOUND)
+                        .header("Location", "http://localhost:5173/payment-success")
+                        .build();
             } else if (result == 0) {
                 apiResponse.setCode(400);
                 apiResponse.setMessage("Thanh toán thất bại hoặc bị hủy");
@@ -176,6 +179,6 @@ public class PhieuthanhtoantiencocController {
             apiResponse.setMessage("Lỗi hệ thống: " + e.getMessage());
             e.printStackTrace();
         }
-        return apiResponse;
+        return ResponseEntity.badRequest().build();
     }
 }

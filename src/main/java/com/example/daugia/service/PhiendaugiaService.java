@@ -23,6 +23,8 @@ public class PhiendaugiaService {
     private TaikhoanRepository taikhoanRepository;
     @Autowired
     private SanphamRepository sanphamRepository;
+    @Autowired
+    private AuctionSchedulerService auctionSchedulerService;
 
     public List<AuctionDTO> findAll() {
         List<Phiendaugia> phienList = phiendaugiaRepository.findAll();
@@ -98,51 +100,50 @@ public class PhiendaugiaService {
         );
     }
 
-    public List<AuctionDTO> findByStatus(TrangThaiPhienDauGia status) {
-        // Lọc danh sách các phiên theo trạng thái
-        List<Phiendaugia> phienList = phiendaugiaRepository.findByTrangthai(status);
+    public List<AuctionDTO> findByStatuses(List<TrangThaiPhienDauGia> statuses) {
+        // Lấy tất cả phiên có trạng thái thuộc danh sách
+        List<Phiendaugia> phienList = phiendaugiaRepository.findAll()
+                .stream()
+                .filter(phien -> statuses.contains(phien.getTrangthai()))
+                .toList();
 
-        // Nếu trạng thái cần tìm là APPROVED, chỉ trả về các phiên có trạng thái đó
-        if (status == TrangThaiPhienDauGia.APPROVED) {
-            phienList = phienList.stream()
-                    .filter(phiendaugia -> phiendaugia.getTrangthai() == TrangThaiPhienDauGia.APPROVED)
-                    .toList();
-        }
-
-        // Map sang AuctionDTO (giống findAll)
+        // Map sang AuctionDTO
         return phienList.stream()
-                .map(phiendaugia -> new AuctionDTO(
-                        phiendaugia.getMaphiendg(),
+                .map(phien -> new AuctionDTO(
+                        phien.getMaphiendg(),
                         new UserShortDTO(
-                                phiendaugia.getTaiKhoan().getMatk(),
-                                phiendaugia.getTaiKhoan().getHo(),
-                                phiendaugia.getTaiKhoan().getTenlot(),
-                                phiendaugia.getTaiKhoan().getTen(),
-                                phiendaugia.getTaiKhoan().getEmail(),
-                                phiendaugia.getTaiKhoan().getSdt()
+                                phien.getTaiKhoan().getMatk(),
+                                phien.getTaiKhoan().getHo(),
+                                phien.getTaiKhoan().getTenlot(),
+                                phien.getTaiKhoan().getTen(),
+                                phien.getTaiKhoan().getEmail(),
+                                phien.getTaiKhoan().getSdt()
                         ),
                         new ProductDTO(
-                                phiendaugia.getSanPham().getTensp(),
-                                phiendaugia.getSanPham().getMasp(),
-                                phiendaugia.getSanPham().getDanhMuc().getMadm(),
-                                new CityDTO(phiendaugia.getSanPham().getThanhPho().getMatp(),
-                                        phiendaugia.getSanPham().getThanhPho().getTentp()),
-                                phiendaugia.getSanPham().getHinhAnh().stream()
+                                phien.getSanPham().getTensp(),
+                                phien.getSanPham().getMasp(),
+                                phien.getSanPham().getDanhMuc().getMadm(),
+                                new CityDTO(
+                                        phien.getSanPham().getThanhPho().getMatp(),
+                                        phien.getSanPham().getThanhPho().getTentp()
+                                ),
+                                phien.getSanPham().getHinhAnh().stream()
                                         .map(ha -> new ImageDTO(ha.getMaanh(), ha.getTenanh()))
                                         .toList()
                         ),
-                        phiendaugia.getTrangthai(),
-                        phiendaugia.getThoigianbd(),
-                        phiendaugia.getThoigiankt(),
-                        phiendaugia.getThoigianbddk(),
-                        phiendaugia.getThoigianktdk(),
-                        phiendaugia.getGiakhoidiem(),
-                        phiendaugia.getGiatran(),
-                        phiendaugia.getBuocgia(),
-                        phiendaugia.getTiencoc()
+                        phien.getTrangthai(),
+                        phien.getThoigianbd(),
+                        phien.getThoigiankt(),
+                        phien.getThoigianbddk(),
+                        phien.getThoigianktdk(),
+                        phien.getGiakhoidiem(),
+                        phien.getGiatran(),
+                        phien.getBuocgia(),
+                        phien.getTiencoc()
                 ))
                 .toList();
     }
+
 
 
     public AuctionDTO customAuction(Phiendaugia phiendaugia){
@@ -189,6 +190,7 @@ public class PhiendaugiaService {
         phiendaugia.setTiencoc(request.getTiencoc());
         phiendaugia.setTrangthai(TrangThaiPhienDauGia.PENDING_APPROVAL);
         phiendaugiaRepository.save(phiendaugia);
+//        auctionSchedulerService.scheduleNewOrApprovedAuction();
         return customAuction(phiendaugia);
     }
 }
