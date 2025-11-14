@@ -12,6 +12,8 @@ server:
 
 logging:
   level:
+    root: INFO                  # root logger
+    com.example.daugia: DEBUG
     org:
       springframework:
         security: DEBUG
@@ -34,7 +36,7 @@ spring:
             enable: true
 
   jpa:
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true

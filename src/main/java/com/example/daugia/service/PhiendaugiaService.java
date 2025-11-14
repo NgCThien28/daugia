@@ -190,7 +190,7 @@ public class PhiendaugiaService {
         phiendaugia.setTiencoc(request.getTiencoc());
         phiendaugia.setTrangthai(TrangThaiPhienDauGia.PENDING_APPROVAL);
         phiendaugiaRepository.save(phiendaugia);
-//        auctionSchedulerService.scheduleNewOrApprovedAuction();
+//        auctionSchedulerService.scheduleNewOrApprovedAuction(phiendaugia.getMaphiendg());
         return customAuction(phiendaugia);
     }
 }

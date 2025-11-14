@@ -8,7 +8,6 @@ import com.example.daugia.service.BlacklistService;
 import com.example.daugia.service.PhieuthanhtoantiencocService;
 import com.example.daugia.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
