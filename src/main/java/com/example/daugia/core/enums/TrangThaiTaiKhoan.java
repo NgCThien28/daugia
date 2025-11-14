@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum TrangThaiTaiKhoan {
     ONLINE("Đang hoạt động"),
-    OFFLINE("Ngoại tuyến");
+    OFFLINE("Ngoại tuyến"),
+    INACTIVE("Chưa xác thực"),
+    ACTIVE("Đã xác thực");
 
     private final String value;
 

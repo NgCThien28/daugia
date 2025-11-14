@@ -87,20 +87,27 @@ public class PhiendaugiaController {
         return res;
     }
 
-    @GetMapping("find-by-status")
+    @GetMapping("/find-by-status")
     public ApiResponse<List<AuctionDTO>> findByStatus() {
         ApiResponse<List<AuctionDTO>> apiResponse = new ApiResponse<>();
-        try{
-            List<AuctionDTO> phiendaugiaList = phiendaugiaService.findByStatus(TrangThaiPhienDauGia.APPROVED);
+        try {
+            List<TrangThaiPhienDauGia> statuses = List.of(
+                    TrangThaiPhienDauGia.NOT_STARTED,
+                    TrangThaiPhienDauGia.IN_PROGRESS,
+                    TrangThaiPhienDauGia.SUCCESS
+            );
+
+            List<AuctionDTO> phiendaugiaList = phiendaugiaService.findByStatuses(statuses);
             apiResponse.setCode(200);
-            apiResponse.setMessage("Thanh cong");
+            apiResponse.setMessage("Thành công");
             apiResponse.setResult(phiendaugiaList);
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             apiResponse.setCode(500);
-            apiResponse.setMessage("That bai:" + e.getMessage());
+            apiResponse.setMessage("Thất bại: " + e.getMessage());
         }
         return apiResponse;
     }
+
 
     @PostMapping("/create")
     public ApiResponse<AuctionDTO> create(@RequestBody PhiendaugiaCreationRequest request,

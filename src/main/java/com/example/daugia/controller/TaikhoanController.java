@@ -8,9 +8,13 @@ import com.example.daugia.service.ActiveTokenService;
 import com.example.daugia.service.BlacklistService;
 import com.example.daugia.service.TaikhoanService;
 import com.example.daugia.util.JwtUtil;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -31,9 +35,31 @@ public class TaikhoanController {
         } catch (IllegalArgumentException e) {
             apiResponse.setCode(400); // Mã lỗi nếu tên người dùng đã tồn tại
             apiResponse.setMessage(e.getMessage());
+        } catch (MessagingException | IOException e) {
+            throw new RuntimeException(e);
         }
         return apiResponse;
     }
+
+    @GetMapping("/verify")
+    public ResponseEntity<?> verifyAccount(@RequestParam("token") String token) {
+        try {
+            boolean verified = taikhoanService.verifyUser(token);
+            if (verified) {
+                // ✅ Redirect về trang thành công bên frontend
+                return ResponseEntity.status(HttpStatus.FOUND)
+                        .header("Location", "http://localhost:5173/verify-success")
+                        .build();
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .header("Location", "http://localhost:5173/verify-fail")
+                    .build();
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+
 
     @GetMapping("/find-all")
     public ApiResponse<List<Taikhoan>> findAll(){

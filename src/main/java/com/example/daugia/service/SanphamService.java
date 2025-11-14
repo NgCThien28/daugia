@@ -1,6 +1,7 @@
 package com.example.daugia.service;
 
 import com.example.daugia.core.enums.TrangThaiSanPham;
+import com.example.daugia.core.enums.TrangThaiTaiKhoan;
 import com.example.daugia.dto.request.SanPhamCreationRequest;
 import com.example.daugia.dto.response.CityDTO;
 import com.example.daugia.dto.response.ImageDTO;
@@ -59,11 +60,14 @@ public class SanphamService {
 
     public ProductDTO create(SanPhamCreationRequest request, String email) {
         Sanpham sp = new Sanpham();
-
+        Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
+                .orElseThrow(()-> new IllegalArgumentException("Không tìm thấy tài khoản"));
+        if (taikhoan.getXacthuctaikhoan() == TrangThaiTaiKhoan.INACTIVE) {
+            throw new IllegalArgumentException("Tài khoản chưa được xác thực, vui lòng xác thực email trước khi tham gia đấu giá");
+        }
+        sp.setTaiKhoan(taikhoan);
         sp.setDanhMuc(danhmucRepository.findById(request.getMadm())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy danh mục")));
-        sp.setTaiKhoan(taikhoanRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản khách hàng")));
         sp.setThanhPho(thanhphoRepository.findById(request.getMatp())
                 .orElseThrow(() -> new IllegalArgumentException("Khong tim thay thanh pho")));
         sp.setTensp(request.getTensp());

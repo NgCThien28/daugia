@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface TaikhoanRepository extends JpaRepository<Taikhoan, String> {
     boolean existsByEmail(String email);
     Optional<Taikhoan> findByEmail(String email);
+    Optional<Taikhoan> findByTokenxacthuc(String token);
 }

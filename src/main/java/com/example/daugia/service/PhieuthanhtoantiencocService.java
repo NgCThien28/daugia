@@ -2,6 +2,7 @@ package com.example.daugia.service;
 
 import com.example.daugia.config.PaymentConfig;
 import com.example.daugia.core.enums.TrangThaiPhieuThanhToanTienCoc;
+import com.example.daugia.core.enums.TrangThaiTaiKhoan;
 import com.example.daugia.dto.request.PhieuthanhtoantiencocCreationRequest;
 import com.example.daugia.dto.response.AuctionDTO;
 import com.example.daugia.dto.response.DepositDTO;
@@ -82,6 +83,9 @@ public class PhieuthanhtoantiencocService {
 
         Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
                 .orElseThrow(()-> new IllegalArgumentException("Không tìm thấy tài khoản"));
+        if (taikhoan.getXacthuctaikhoan() == TrangThaiTaiKhoan.INACTIVE) {
+            throw new IllegalArgumentException("Tài khoản chưa được xác thực, vui lòng xác thực email trước khi tham gia đấu giá");
+        }
         Phiendaugia phiendaugia = phiendaugiaRepository.findById(request.getMaphien())
                 .orElseThrow(()-> new IllegalArgumentException("Không tìm thấy phien dau gia"));
         Optional<Phieuthanhtoantiencoc> existing =
