@@ -3,6 +3,7 @@ package com.example.daugia.service;
 import com.example.daugia.dto.request.BaoCaoCreationRequest;
 import com.example.daugia.entity.Baocao;
 import com.example.daugia.entity.Taikhoanquantri;
+import com.example.daugia.exception.NotFoundException;
 import com.example.daugia.repository.BaocaoRepository;
 import com.example.daugia.repository.TaikhoanquantriRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,38 +20,38 @@ public class BaocaoService {
     @Autowired
     private TaikhoanquantriRepository taikhoanquantriRepository;
 
-    public List<Baocao> findAll(){
+    public List<Baocao> findAll() {
         return baocaoRepository.findAll();
     }
 
     public Baocao create(BaoCaoCreationRequest request, String email) {
-        Baocao baoCao = new Baocao();
         Taikhoanquantri qtv = taikhoanquantriRepository.findByEmail(email)
-                .orElseThrow(()-> new IllegalArgumentException("Không tìm thấy tài khoản quản trị"));
-        baoCao.setTaiKhoanQuanTri(qtv);
-        baoCao.setNoidung(request.getNoidung());
-        baoCao.setThoigian(Timestamp.from(Instant.now()));
-        return baocaoRepository.save(baoCao);
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản quản trị"));
+        Baocao bc = new Baocao();
+        bc.setTaiKhoanQuanTri(qtv);
+        bc.setNoidung(request.getNoidung());
+        bc.setThoigian(Timestamp.from(Instant.now()));
+        return baocaoRepository.save(bc);
     }
 
     public Baocao update(String mabc, BaoCaoCreationRequest request, String email) {
-        Baocao baoCao = baocaoRepository.findById(mabc)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy báo cáo với mã: " + mabc));
+        Baocao bc = baocaoRepository.findById(mabc)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy báo cáo với mã: " + mabc));
+
         if (email != null) {
             Taikhoanquantri qtv = taikhoanquantriRepository.findByEmail(email)
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản quản trị: " + email));
-            baoCao.setTaiKhoanQuanTri(qtv);
+                    .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản quản trị: " + email));
+            bc.setTaiKhoanQuanTri(qtv);
         }
 
-        baoCao.setNoidung(request.getNoidung());
-        baoCao.setThoigian(Timestamp.from(Instant.now()));
-
-        return baocaoRepository.save(baoCao);
+        bc.setNoidung(request.getNoidung());
+        bc.setThoigian(Timestamp.from(Instant.now()));
+        return baocaoRepository.save(bc);
     }
 
     public void delete(String mabc) {
         if (!baocaoRepository.existsById(mabc)) {
-            throw new IllegalArgumentException("Không tìm thấy báo cáo với mã: " + mabc);
+            throw new NotFoundException("Không tìm thấy báo cáo với mã: " + mabc);
         }
         baocaoRepository.deleteById(mabc);
     }

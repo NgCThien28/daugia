@@ -2,8 +2,12 @@ package com.example.daugia.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
+@Setter
+@Getter
 @Entity
 public class Hinhanh {
     public static final String ID_PREFIX = "HA";
@@ -19,27 +23,4 @@ public class Hinhanh {
 
     private String tenanh;
 
-    public String getMaanh() {
-        return maanh;
-    }
-
-    public void setMaanh(String maanh) {
-        this.maanh = maanh;
-    }
-
-    public Sanpham getSanPham() {
-        return sanPham;
-    }
-
-    public void setSanPham(Sanpham sanPham) {
-        this.sanPham = sanPham;
-    }
-
-    public String getTenanh() {
-        return tenanh;
-    }
-
-    public void setTenanh(String tenanh) {
-        this.tenanh = tenanh;
-    }
 }

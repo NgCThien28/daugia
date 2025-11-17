@@ -1,6 +1,8 @@
 package com.example.daugia.service;
 
 import com.example.daugia.entity.Taikhoanquantri;
+import com.example.daugia.exception.NotFoundException;
+import com.example.daugia.exception.ValidationException;
 import com.example.daugia.repository.TaikhoanquantriRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,16 +22,14 @@ public class TaikhoanquantriService {
     }
 
     public Taikhoanquantri login(String email, String rawPassword) {
-        Taikhoanquantri taikhoan = taikhoanquantriRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Email không tồn tại"));
+        Taikhoanquantri admin = taikhoanquantriRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Email không tồn tại"));
 
-        if (!passwordEncoder.matches(rawPassword, taikhoan.getMatkhau())) {
-            throw new IllegalArgumentException("Mật khẩu không đúng");
+        if (!passwordEncoder.matches(rawPassword, admin.getMatkhau())) {
+            throw new ValidationException("Mật khẩu không đúng");
         }
 
-        taikhoanquantriRepository.save(taikhoan);
-
-        taikhoan.setMatkhau(null); // Ẩn mật khẩu
-        return taikhoan;
+        admin.setMatkhau(null);
+        return admin;
     }
 }

@@ -2,11 +2,15 @@ package com.example.daugia.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
+@Setter
+@Getter
 @Entity
 public class Phientragia {
     public static final String ID_PREFIX = "TG";
@@ -30,59 +34,4 @@ public class Phientragia {
     private Timestamp thoigian;
     private Timestamp thoigiancho;
 
-    public String getMaphientg() {
-        return maphientg;
-    }
-
-    public void setMaphientg(String maphientg) {
-        this.maphientg = maphientg;
-    }
-
-    public Taikhoan getTaiKhoan() {
-        return taiKhoan;
-    }
-
-    public void setTaiKhoan(Taikhoan taiKhoan) {
-        this.taiKhoan = taiKhoan;
-    }
-
-    public Phiendaugia getPhienDauGia() {
-        return phienDauGia;
-    }
-
-    public void setPhienDauGia(Phiendaugia phienDauGia) {
-        this.phienDauGia = phienDauGia;
-    }
-
-    public BigDecimal getSotien() {
-        return sotien;
-    }
-
-    public void setSotien(BigDecimal sotien) {
-        this.sotien = sotien;
-    }
-
-    public int getSolan() {
-        return solan;
-    }
-
-    public void setSolan(int solan) {
-        this.solan = solan;
-    }
-
-    public Timestamp getThoigian() {
-        return thoigian;
-    }
-
-    public void setThoigian(Timestamp thoigian) {
-        this.thoigian = thoigian;
-    }
-
-    public Timestamp getThoigiancho() {
-        return thoigiancho;
-    }
-
-    public void setThoigiancho(Timestamp thoigiancho) {
-        this.thoigiancho = thoigiancho;
-    }
 }

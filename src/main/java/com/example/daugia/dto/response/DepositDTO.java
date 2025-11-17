@@ -3,10 +3,14 @@ package com.example.daugia.dto.response;
 import com.example.daugia.core.enums.TrangThaiPhieuThanhToan;
 import com.example.daugia.core.enums.TrangThaiPhieuThanhToanTienCoc;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class DepositDTO {
     private String matc;
@@ -26,43 +30,4 @@ public class DepositDTO {
     public DepositDTO() {
     }
 
-    public String getMatc() {
-        return matc;
-    }
-
-    public void setMatc(String matc) {
-        this.matc = matc;
-    }
-
-    public UserShortDTO getTaiKhoanKhachThanhToan() {
-        return taiKhoanKhachThanhToan;
-    }
-
-    public void setTaiKhoanKhachThanhToan(UserShortDTO taiKhoanKhachThanhToan) {
-        this.taiKhoanKhachThanhToan = taiKhoanKhachThanhToan;
-    }
-
-    public AuctionDTO getPhienDauGia() {
-        return phienDauGia;
-    }
-
-    public void setPhienDauGia(AuctionDTO phienDauGia) {
-        this.phienDauGia = phienDauGia;
-    }
-
-    public Timestamp getThoigianthanhtoan() {
-        return thoigianthanhtoan;
-    }
-
-    public void setThoigianthanhtoan(Timestamp thoigianthanhtoan) {
-        this.thoigianthanhtoan = thoigianthanhtoan;
-    }
-
-    public TrangThaiPhieuThanhToanTienCoc getTrangthai() {
-        return trangthai;
-    }
-
-    public void setTrangthai(TrangThaiPhieuThanhToanTienCoc trangthai) {
-        this.trangthai = trangthai;
-    }
 }

@@ -1,8 +1,10 @@
 package com.example.daugia.controller;
 
+import com.example.daugia.core.custom.TokenValidator;
 import com.example.daugia.service.NotificationService;
 import com.example.daugia.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -13,17 +15,12 @@ public class NotificationController {
 
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private TokenValidator tokenValidator;
 
-    @GetMapping("/connect")
+    @GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter connect(@RequestParam("token") String token) {
-        if (token == null || token.isBlank()) {
-            throw new IllegalArgumentException("Thiếu token");
-        }
-        String email = JwtUtil.validateToken(token);
-        if (email == null) {
-            throw new IllegalArgumentException("Token không hợp lệ");
-        }
-
+        String email = tokenValidator.validateAndGetEmailFromToken(token);
         return notificationService.createEmitter(email);
     }
 

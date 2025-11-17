@@ -10,6 +10,9 @@ import com.example.daugia.dto.response.UserShortDTO;
 import com.example.daugia.entity.Phiendaugia;
 import com.example.daugia.entity.Phieuthanhtoantiencoc;
 import com.example.daugia.entity.Taikhoan;
+import com.example.daugia.exception.ConflictException;
+import com.example.daugia.exception.NotFoundException;
+import com.example.daugia.exception.ValidationException;
 import com.example.daugia.repository.PhiendaugiaRepository;
 import com.example.daugia.repository.PhieuthanhtoantiencocRepository;
 import com.example.daugia.repository.TaikhoanRepository;
@@ -17,6 +20,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
@@ -52,7 +57,7 @@ public class PhieuthanhtoantiencocService {
     }
     public DepositDTO findById(String id){
         Phieuthanhtoantiencoc phieuthanhtoantiencoc = phieuthanhtoantiencocRepository.findById(id)
-                .orElseThrow(()-> new IllegalArgumentException("Không tìm thấy"));
+                .orElseThrow(()-> new NotFoundException("Không tìm thấy"));
         DepositDTO depositDTO = new DepositDTO();
         depositDTO.setMatc(phieuthanhtoantiencoc.getMatc());
         depositDTO.setTrangthai(phieuthanhtoantiencoc.getTrangthai());
@@ -63,7 +68,7 @@ public class PhieuthanhtoantiencocService {
 
     public List<DepositDTO> findByUser(String email) {
         Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
         List<Phieuthanhtoantiencoc> phieuthanhtoantiencocList = phieuthanhtoantiencocRepository.findByTaiKhoan_Matk(taikhoan.getMatk());
         return phieuthanhtoantiencocList.stream()
                 .map(phieuthanhtoantiencoc -> new DepositDTO(
@@ -82,12 +87,12 @@ public class PhieuthanhtoantiencocService {
     public DepositDTO create(PhieuthanhtoantiencocCreationRequest request, String email){
 
         Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
-                .orElseThrow(()-> new IllegalArgumentException("Không tìm thấy tài khoản"));
+                .orElseThrow(()-> new NotFoundException("Không tìm thấy tài khoản"));
         if (taikhoan.getXacthuctaikhoan() == TrangThaiTaiKhoan.INACTIVE) {
-            throw new IllegalArgumentException("Tài khoản chưa được xác thực, vui lòng xác thực email trước khi tham gia đấu giá");
+            throw new ValidationException("Tài khoản chưa được xác thực, vui lòng xác thực email trước khi tham gia đấu giá");
         }
         Phiendaugia phiendaugia = phiendaugiaRepository.findById(request.getMaphien())
-                .orElseThrow(()-> new IllegalArgumentException("Không tìm thấy phien dau gia"));
+                .orElseThrow(()-> new NotFoundException("Không tìm thấy phien dau gia"));
         Optional<Phieuthanhtoantiencoc> existing =
                 phieuthanhtoantiencocRepository.findByTaiKhoan_MatkAndPhienDauGia_Maphiendg(
                         taikhoan.getMatk(), phiendaugia.getMaphiendg()
@@ -103,7 +108,7 @@ public class PhieuthanhtoantiencocService {
         Timestamp thoigianktdk = phiendaugia.getThoigianktdk();
 
         if (now.after(thoigianktdk)) {
-            throw new IllegalStateException("Đã quá thời hạn đăng ký, không thể tạo phiếu");
+            throw new ValidationException("Đã quá thời hạn đăng ký, không thể tạo phiếu");
         }
 
         // Tính thời gian thanh toán tối đa 7 ngày
@@ -119,17 +124,17 @@ public class PhieuthanhtoantiencocService {
 
     public String createOrder(HttpServletRequest request){
         Phieuthanhtoantiencoc phieu = phieuthanhtoantiencocRepository.findById(request.getParameter("matc"))
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phiếu thanh toán"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy phiếu thanh toán"));
 
         Timestamp thoigianThanhToanChoPhep = phieu.getThoigianthanhtoan();
         Timestamp now = new Timestamp(System.currentTimeMillis());
 
         // Chỉ tạo order nếu chưa quá hạn và chưa thanh toán
         if (phieu.getTrangthai().equals(TrangThaiPhieuThanhToanTienCoc.PAID)) {
-            throw new IllegalStateException("Phiếu đã được thanh toán.");
+            throw new ConflictException("Phiếu đã được thanh toán.");
         }
         if (!thoigianThanhToanChoPhep.after(now)) {
-            throw new IllegalStateException("Đã quá thời hạn thanh toán.");
+            throw new ValidationException("Đã quá thời hạn thanh toán.");
         }
 
         String vnp_Version = "2.1.0";
@@ -138,7 +143,12 @@ public class PhieuthanhtoantiencocService {
         String vnp_IpAddr = PaymentConfig.getIpAddress(request);
         String vnp_TmnCode = PaymentConfig.vnp_TmnCode;
         String orderType = "other";
-        long amount = Integer.parseInt(request.getParameter("amount"));
+        long amount;
+        try {
+            amount = Integer.parseInt(request.getParameter("amount"));
+        } catch (NumberFormatException ex) {
+            throw new ValidationException("Số tiền không hợp lệ");
+        }
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", vnp_Version);
         vnp_Params.put("vnp_Command", vnp_Command);
@@ -215,12 +225,12 @@ public class PhieuthanhtoantiencocService {
         // Lấy mã phiếu từ vnp_OrderInfo
         String orderInfo = request.getParameter("vnp_OrderInfo");
         if (orderInfo == null || !orderInfo.contains("matc=")) {
-            throw new IllegalArgumentException("Thiếu mã phiếu thanh toán trong OrderInfo.");
+            throw new ValidationException("Thiếu mã phiếu thanh toán trong OrderInfo.");
         }
 
         String matc = orderInfo.split("matc=")[1].split("&")[0];
         Phieuthanhtoantiencoc phieu = phieuthanhtoantiencocRepository.findById(matc)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phiếu thanh toán"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy phiếu thanh toán"));
 
         String status = request.getParameter("vnp_TransactionStatus");
         Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -232,23 +242,44 @@ public class PhieuthanhtoantiencocService {
                     phieu.setTrangthai(TrangThaiPhieuThanhToanTienCoc.PAID);
                     phieu.setVnptransactionno(fields.get("vnp_TransactionNo"));
                     phieu.setBankcode(fields.get("vnp_BankCode"));
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    String rawJson = objectMapper.writeValueAsString(fields);
-                    phieu.setRaw(rawJson);
+                    try {
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        String rawJson = objectMapper.writeValueAsString(fields);
+                        phieu.setRaw(rawJson);
+                    } catch (JsonProcessingException ignore) {}
                     Phiendaugia phien = phieu.getPhienDauGia();
                     phien.setSlnguoithamgia(phien.getSlnguoithamgia() + 1);
                     phiendaugiaRepository.save(phien);
                     phieuthanhtoantiencocRepository.save(phieu);
                     return 1;
                 } else {
-                    throw new IllegalStateException("Đã quá thời hạn thanh toán");
+                    throw new ValidationException("Đã quá thời hạn thanh toán");
                 }
             } else {
-                throw new IllegalStateException("Phiếu đã được thanh toán trước đó");
+                throw new ConflictException("Phiếu đã được thanh toán trước đó");
             }
         } else {
             return 0; // Thanh toán thất bại hoặc bị hủy
         }
+    }
+
+    public Page<DepositDTO> findByAccountAndStatusPaged(String matk,
+                                                        TrangThaiPhieuThanhToanTienCoc status,
+                                                        Pageable pageable) {
+        Page<Phieuthanhtoantiencoc> page = phieuthanhtoantiencocRepository
+                .findByTaiKhoan_MatkAndTrangthai(matk, status, pageable);
+
+        // Map Page<Entity> -> Page<DTO> bằng Page.map(...)
+        return page.map(p -> new DepositDTO(
+                p.getMatc(),
+                new UserShortDTO(p.getTaiKhoan().getMatk()),
+                new AuctionDTO(
+                        p.getPhienDauGia().getMaphiendg(),
+                        p.getPhienDauGia().getGiacaonhatdatduoc()
+                ),
+                p.getThoigianthanhtoan(),
+                p.getTrangthai()
+        ));
     }
 
 }

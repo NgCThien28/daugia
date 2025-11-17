@@ -2,6 +2,9 @@ package com.example.daugia.service;
 
 import com.example.daugia.entity.Hinhanh;
 import com.example.daugia.entity.Sanpham;
+import com.example.daugia.exception.NotFoundException;
+import com.example.daugia.exception.StorageException;
+import com.example.daugia.exception.ValidationException;
 import com.example.daugia.repository.HinhanhRepository;
 import com.example.daugia.repository.SanphamRepository;
 import jakarta.transaction.Transactional;
@@ -29,122 +32,178 @@ public class HinhanhService {
     }
 
     @Transactional
-    public List<Hinhanh> saveFiles(String masp, List<MultipartFile> files) throws IOException {
+    public List<Hinhanh> saveFiles(String masp, List<MultipartFile> files) {
         Sanpham sanpham = sanphamRepository.findById(masp)
-                .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại"));
+                .orElseThrow(() -> new NotFoundException("Sản phẩm không tồn tại"));
 
         if (files == null || files.isEmpty()) {
-            throw new IllegalArgumentException("Không có file nào được gửi lên");
+            throw new ValidationException("Không có file nào được gửi lên");
         }
 
-        String imgDir = System.getProperty("user.dir") + "/imgs";
-        Path dirPath = Paths.get(imgDir);
-        if (!Files.exists(dirPath)) {
-            Files.createDirectories(dirPath);
-        }
+        Path dirPath = ensureImageDir();
 
         List<Hinhanh> savedImages = new ArrayList<>();
         for (MultipartFile file : files) {
-            String filename = file.getOriginalFilename();
-            Path filePath = dirPath.resolve(filename);
-            file.transferTo(filePath.toFile());
+            if (file == null || file.isEmpty()) continue;
+
+            String original = file.getOriginalFilename();
+            if (original == null || original.isBlank()) continue;
+
+            String cleanName = sanitizeFilename(original);
+            String uniqueName = resolveUniqueFilename(dirPath, cleanName);
+
+            try {
+                Path filePath = dirPath.resolve(uniqueName);
+                file.transferTo(filePath.toFile());
+            } catch (IOException e) {
+                throw new StorageException("Không thể lưu file: " + cleanName, e);
+            }
 
             Hinhanh h = new Hinhanh();
-            h.setTenanh(filename);
+            h.setTenanh(uniqueName);
             h.setSanPham(sanpham);
             savedImages.add(hinhanhRepository.save(h));
+        }
+
+        if (savedImages.isEmpty()) {
+            throw new ValidationException("Không có file hợp lệ để lưu");
         }
 
         return savedImages;
     }
 
     @Transactional
-    public List<Hinhanh> updateFiles(String masp, List<MultipartFile> files) throws IOException {
-        // 1️⃣ Tìm sản phẩm
+    public List<Hinhanh> updateFiles(String masp, List<MultipartFile> files) {
         Sanpham sanpham = sanphamRepository.findById(masp)
-                .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại"));
+                .orElseThrow(() -> new NotFoundException("Sản phẩm không tồn tại"));
 
         if (files == null || files.isEmpty()) {
-            throw new IllegalArgumentException("Không có file nào được gửi lên");
+            throw new ValidationException("Không có file nào được gửi lên");
         }
 
-        // 2️⃣ Đường dẫn thư mục ảnh
-        String imgDir = System.getProperty("user.dir") + "/imgs";
-        Path dirPath = Paths.get(imgDir);
-        if (!Files.exists(dirPath)) {
-            Files.createDirectories(dirPath);
-        }
+        Path dirPath = ensureImageDir();
 
-        // 3️⃣ Lấy danh sách ảnh hiện tại
         List<Hinhanh> currentImages = sanpham.getHinhAnh();
         if (currentImages == null) {
             currentImages = new ArrayList<>();
             sanpham.setHinhAnh(currentImages);
         }
 
-        // 4️⃣ Duyệt qua từng file được gửi từ FE
         for (int i = 0; i < files.size(); i++) {
             MultipartFile file = files.get(i);
-            if (file.isEmpty()) continue;
+            if (file == null || file.isEmpty()) continue;
 
-            String originalName = file.getOriginalFilename();
+            String original = file.getOriginalFilename();
+            if (original == null || original.isBlank()) continue;
 
-            // Làm sạch tên file (bỏ dấu, lowercase, thay khoảng trắng bằng '-')
-            String cleanName = Normalizer.normalize(originalName, Normalizer.Form.NFD)
-                    .replaceAll("\\p{M}", "")
-                    .replaceAll("[^a-zA-Z0-9\\.\\-]", "-")
-                    .toLowerCase();
+            String cleanName = sanitizeFilename(original);
+            String uniqueName = resolveUniqueFilename(dirPath, cleanName);
+            Path targetPath = dirPath.resolve(uniqueName);
 
-            Path targetPath = dirPath.resolve(cleanName);
+            try {
+                if (i < currentImages.size()) {
+                    // Cập nhật ảnh tại vị trí i
+                    Hinhanh oldImage = currentImages.get(i);
 
-            // Nếu đã có ảnh ở vị trí này thì xóa file cũ và update record
-            if (i < currentImages.size()) {
-                Hinhanh oldImage = currentImages.get(i);
+                    // Xóa file cũ nếu có
+                    Path oldPath = dirPath.resolve(oldImage.getTenanh());
+                    try {
+                        Files.deleteIfExists(oldPath);
+                    } catch (IOException ignore) {
+                        // Không chặn tiến trình nếu không xóa được file cũ
+                    }
 
-                // Xóa file cũ trong thư mục nếu tồn tại
-                Path oldPath = dirPath.resolve(oldImage.getTenanh());
-                try {
-                    Files.deleteIfExists(oldPath);
-                } catch (IOException e) {
-                    System.err.println("Không thể xóa file cũ: " + oldPath);
+                    // Lưu file mới
+                    file.transferTo(targetPath.toFile());
+
+                    // Cập nhật DB
+                    oldImage.setTenanh(uniqueName);
+                    hinhanhRepository.save(oldImage);
+                } else {
+                    // Thêm ảnh mới
+                    file.transferTo(targetPath.toFile());
+                    Hinhanh newImg = new Hinhanh();
+                    newImg.setTenanh(uniqueName);
+                    newImg.setSanPham(sanpham);
+                    hinhanhRepository.save(newImg);
+                    currentImages.add(newImg);
                 }
-
-                // Lưu file mới
-                file.transferTo(targetPath.toFile());
-
-                // Cập nhật record DB
-                oldImage.setTenanh(cleanName);
-                hinhanhRepository.save(oldImage);
-            } else {
-                // Nếu chưa có ảnh ở vị trí này, thêm mới
-                file.transferTo(targetPath.toFile());
-
-                Hinhanh newImg = new Hinhanh();
-                newImg.setTenanh(cleanName);
-                newImg.setSanPham(sanpham);
-                hinhanhRepository.save(newImg);
-
-                currentImages.add(newImg);
+            } catch (IOException e) {
+                throw new StorageException("Không thể lưu file: " + original, e);
             }
         }
 
-        // 5️⃣ Giữ tối đa 3 ảnh
+        // Giữ tối đa 3 ảnh
         if (currentImages.size() > 3) {
-            // Xóa file dư + record dư
             for (int i = 3; i < currentImages.size(); i++) {
                 Hinhanh extra = currentImages.get(i);
                 Path extraPath = dirPath.resolve(extra.getTenanh());
-                Files.deleteIfExists(extraPath);
+                try {
+                    Files.deleteIfExists(extraPath);
+                } catch (IOException ignore) {}
                 hinhanhRepository.delete(extra);
             }
             currentImages = currentImages.subList(0, 3);
         }
 
-        // 6️⃣ Lưu cập nhật vào DB
         sanpham.setHinhAnh(currentImages);
         sanphamRepository.save(sanpham);
 
         return currentImages;
     }
 
+    /* ================= Helpers ================= */
+
+    private Path ensureImageDir() {
+        String imgDir = System.getProperty("user.dir") + "/imgs";
+        Path dirPath = Paths.get(imgDir);
+        try {
+            if (!Files.exists(dirPath)) {
+                Files.createDirectories(dirPath);
+            }
+        } catch (IOException e) {
+            throw new StorageException("Không thể tạo thư mục lưu ảnh: " + imgDir, e);
+        }
+        return dirPath;
+    }
+
+    private String sanitizeFilename(String filename) {
+        String name = filename;
+        // Tách phần mở rộng
+        String ext = "";
+        int dotIdx = name.lastIndexOf('.');
+        if (dotIdx >= 0) {
+            ext = name.substring(dotIdx).toLowerCase();
+            name = name.substring(0, dotIdx);
+        }
+        // Bỏ dấu + ký tự đặc biệt
+        String base = Normalizer.normalize(name, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "")
+                .replaceAll("[^a-zA-Z0-9\\-]+", "-")
+                .replaceAll("-{2,}", "-")
+                .replaceAll("^-|-$", "")
+                .toLowerCase();
+
+        if (base.isBlank()) base = "image";
+        return base + ext;
+    }
+
+    private String resolveUniqueFilename(Path dir, String filename) {
+        Path p = dir.resolve(filename);
+        if (!Files.exists(p)) return filename;
+
+        String name = filename;
+        String ext = "";
+        int dotIdx = name.lastIndexOf('.');
+        if (dotIdx >= 0) {
+            ext = name.substring(dotIdx);
+            name = name.substring(0, dotIdx);
+        }
+        int i = 1;
+        while (true) {
+            String next = name + "-" + i + ext;
+            if (!Files.exists(dir.resolve(next))) return next;
+            i++;
+        }
+    }
 }

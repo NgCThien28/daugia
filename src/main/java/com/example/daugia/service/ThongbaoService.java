@@ -6,6 +6,7 @@ import com.example.daugia.dto.response.NotificationDTO;
 import com.example.daugia.dto.response.UserShortDTO;
 import com.example.daugia.entity.Taikhoanquantri;
 import com.example.daugia.entity.Thongbao;
+import com.example.daugia.exception.NotFoundException;
 import com.example.daugia.repository.TaikhoanquantriRepository;
 import com.example.daugia.repository.ThongbaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,25 +23,24 @@ public class ThongbaoService {
     @Autowired
     private TaikhoanquantriRepository taikhoanquantriRepository;
 
-    public List<NotificationDTO> findAll(){
-        List<Thongbao> thongbaoList = thongbaoRepository.findAll();
-        return thongbaoList.stream()
-                .map(thongbao -> new NotificationDTO(
-                        thongbao.getMatb(),
-                        new UserShortDTO(thongbao.getTaiKhoanQuanTri().getMatk()),
-                        new UserShortDTO(thongbao.getTaiKhoan().getMatk()),
-                        thongbao.getNoidung(),
-                        thongbao.getThoigian()
+    public List<NotificationDTO> findAll() {
+        List<Thongbao> list = thongbaoRepository.findAll();
+        return list.stream()
+                .map(tb -> new NotificationDTO(
+                        tb.getMatb(),
+                        new UserShortDTO(tb.getTaiKhoanQuanTri().getMatk()),
+                        new UserShortDTO(tb.getTaiKhoan().getMatk()),
+                        tb.getNoidung(),
+                        tb.getThoigian()
                 ))
                 .toList();
     }
 
     public Thongbao create(ThongBaoCreationRequest request, String email) {
+        Taikhoanquantri admin = taikhoanquantriRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản quản trị"));
         Thongbao tb = new Thongbao();
-        Taikhoanquantri qtv = taikhoanquantriRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản quản trị"));
-        tb.setTaiKhoanQuanTri(qtv);
-//        tb.setTaiKhoan();
+        tb.setTaiKhoanQuanTri(admin);
         tb.setNoidung(request.getNoidung());
         tb.setThoigian(Timestamp.from(Instant.now()));
         tb.setTrangthai(TrangThaiThongBao.UNSENT);

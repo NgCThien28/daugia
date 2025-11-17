@@ -17,17 +17,8 @@ public class DanhmucController {
     private DanhmucService danhmucService;
 
     @GetMapping("/find-all")
-    public ApiResponse<List<Danhmuc>> findAll(){
-        ApiResponse<List<Danhmuc>> apiResponse = new ApiResponse<>();
-        try{
-            List<Danhmuc> danhmucList = danhmucService.findAll();
-            apiResponse.setCode(200);
-            apiResponse.setMessage("Thanh cong");
-            apiResponse.setResult(danhmucList);
-        } catch (IllegalArgumentException e) {
-            apiResponse.setCode(500);
-            apiResponse.setMessage("That bai:" + e.getMessage());
-        }
-        return apiResponse;
+    public ApiResponse<List<Danhmuc>> findAll() {
+        List<Danhmuc> danhmucList = danhmucService.findAll();
+        return ApiResponse.success(danhmucList, "Thành công");
     }
 }
