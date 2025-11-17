@@ -29,7 +29,7 @@ public class TaikhoanService {
     @Autowired
     private EmailService emailService;
 
-    public List<Taikhoan> findAll(){
+    public List<Taikhoan> findAll() {
         return taikhoanRepository.findAll();
     }
 
@@ -62,9 +62,7 @@ public class TaikhoanService {
 
         Taikhoan saved = taikhoanRepository.save(tk);
 
-        // Gửi mail xác thực
-        String verifyLink = "http://localhost:8082/api/users/verify?token=" + token;
-        emailService.sendVerificationEmail(saved.getEmail(), verifyLink);
+        emailService.sendVerificationEmail(saved, token);
 
         // Ẩn mật khẩu khi trả về
         saved.setMatkhau(null);
@@ -109,7 +107,7 @@ public class TaikhoanService {
         taikhoanRepository.save(taikhoan);
     }
 
-    public Taikhoan updateInfo (TaikhoanCreationRequest request, String email) {
+    public Taikhoan updateInfo(TaikhoanCreationRequest request, String email) {
         Taikhoan taikhoan = taikhoanRepository.findByEmail(normalizeEmail(email))
                 .orElseThrow(() -> new NotFoundException("Tài khoản không tồn tại"));
 
@@ -127,7 +125,7 @@ public class TaikhoanService {
         return saved;
     }
 
-    public void changePassword (TaiKhoanChangePasswordRequest request, String email) {
+    public void changePassword(TaiKhoanChangePasswordRequest request, String email) {
         Taikhoan taikhoan = taikhoanRepository.findByEmail(normalizeEmail(email))
                 .orElseThrow(() -> new NotFoundException("Tài khoản không tồn tại"));
 

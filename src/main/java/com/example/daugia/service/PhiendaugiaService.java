@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -38,6 +39,18 @@ public class PhiendaugiaService {
                 .stream()
                 .map(this::toAuctionDTO)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AuctionDTO> getPaidAuctionsByMatk(String email, Pageable pageable) {
+        Page<Phiendaugia> page = phiendaugiaRepository.findAuctionsPaidByEmail(email, pageable);
+        return page.map(this::toAuctionDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AuctionDTO> getPaidAuctionsByMatk(String email) {
+        List<Phiendaugia> page = phiendaugiaRepository.findAuctionsPaidByEmail(email);
+        return page.stream().map(this::toAuctionDTO).toList();
     }
 
     public AuctionDTO findByIdDTO(String id) {
@@ -66,33 +79,25 @@ public class PhiendaugiaService {
     }
 
     public AuctionDTO create(PhiendaugiaCreationRequest request, String email) {
-        // Lấy tài khoản
         Taikhoan tk = taikhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản khách hàng"));
 
-        // Kiểm tra trùng phiên còn hiệu lực cho sản phẩm
         boolean existsActive = phiendaugiaRepository.existsBySanPham_Masp(request.getMasp());
         if (existsActive) {
             throw new ConflictException("Sản phẩm đã có phiên đấu giá đang chờ hoặc đang diễn ra");
         }
 
-        // Lấy sản phẩm
         Sanpham sp = sanphamRepository.findById(request.getMasp())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm"));
 
-        // Kiểm tra trạng thái sản phẩm
         if (sp.getTrangthai() != TrangThaiSanPham.APPROVED) {
             throw new ValidationException("Sản phẩm chưa được duyệt");
         }
 
-        // Validate thời gian cơ bản (nếu request có thể null thì kiểm tra null trước)
-
-        // Tạo entity phiên đấu giá
         Phiendaugia pdg = new Phiendaugia();
         pdg.setTaiKhoan(tk);
         pdg.setSanPham(sp);
 
-        // Đánh dấu sản phẩm đã tạo phiên
         sp.setTrangthai(TrangThaiSanPham.AUCTION_CREATED);
         sanphamRepository.save(sp);
 
@@ -108,15 +113,11 @@ public class PhiendaugiaService {
         pdg.setTrangthai(TrangThaiPhienDauGia.PENDING_APPROVAL);
 
         phiendaugiaRepository.save(pdg);
-
-        // (Tuỳ chọn) scheduler xử lý tự động
         // auctionSchedulerService.scheduleNewOrApprovedAuction(pdg.getMaphiendg());
-
         return toAuctionDTO(pdg);
     }
 
-    /* ========== PRIVATE HELPERS ========== */
-
+    //  PRIVATE HELPERS
     private void validateAuctionTimes(LocalDateTime start, LocalDateTime end,
                                       LocalDateTime regStart, LocalDateTime regEnd) {
 
@@ -165,7 +166,9 @@ public class PhiendaugiaService {
                 phien.getGiakhoidiem(),
                 phien.getGiatran(),
                 phien.getBuocgia(),
-                phien.getTiencoc()
+                phien.getGiacaonhatdatduoc(),
+                phien.getTiencoc(),
+                phien.getSlnguoithamgia()
         );
     }
 }

@@ -22,10 +22,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class TaikhoanController {
-    @Autowired private TaikhoanService taikhoanService;
-    @Autowired private TokenValidator tokenValidator;
-    @Autowired private BlacklistService blacklistService;
-    @Autowired private ActiveTokenService activeTokenService;
+    @Autowired
+    private TaikhoanService taikhoanService;
+    @Autowired
+    private TokenValidator tokenValidator;
+    @Autowired
+    private BlacklistService blacklistService;
+    @Autowired
+    private ActiveTokenService activeTokenService;
 
     @PostMapping("/create")
     public ApiResponse<Taikhoan> createUser(@RequestBody TaikhoanCreationRequest request)
@@ -53,7 +57,7 @@ public class TaikhoanController {
     }
 
     @GetMapping("/find-all")
-    public ApiResponse<List<Taikhoan>> findAll(){
+    public ApiResponse<List<Taikhoan>> findAll() {
         List<Taikhoan> list = taikhoanService.findAll();
         return ApiResponse.success(list, "Thành công");
     }

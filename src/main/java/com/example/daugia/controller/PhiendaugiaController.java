@@ -18,8 +18,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/auctions")
 public class PhiendaugiaController {
-    @Autowired private PhiendaugiaService phiendaugiaService;
-    @Autowired private TokenValidator tokenValidator;
+    @Autowired
+    private PhiendaugiaService phiendaugiaService;
+    @Autowired
+    private TokenValidator tokenValidator;
 
     @GetMapping("/find-all")
     public ApiResponse<List<AuctionDTO>> findAll() {
@@ -64,6 +66,17 @@ public class PhiendaugiaController {
             Pageable pageable
     ) {
         Page<AuctionDTO> page = phiendaugiaService.findByStatusPaged(status, pageable);
+        return ApiResponse.success(page, "Thành công");
+    }
+
+    @GetMapping("/auction-paid")
+    public ApiResponse<Page<AuctionDTO>> getPaidAuctionsByMatk(
+            @RequestHeader("Authorization") String header,
+            @PageableDefault(size = 12, sort = "thoigianbd", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        Page<AuctionDTO> page = phiendaugiaService.getPaidAuctionsByMatk(email, pageable);
         return ApiResponse.success(page, "Thành công");
     }
 

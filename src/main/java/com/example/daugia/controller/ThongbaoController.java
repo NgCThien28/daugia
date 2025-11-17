@@ -18,7 +18,7 @@ public class ThongbaoController {
     private ThongbaoService thongbaoService;
 
     @GetMapping("/find-all")
-    public ApiResponse<List<NotificationDTO>> findAll(){
+    public ApiResponse<List<NotificationDTO>> findAll() {
         ApiResponse<List<NotificationDTO>> apiResponse = new ApiResponse<>();
         try {
             List<NotificationDTO> thongbaoList = thongbaoService.findAll();

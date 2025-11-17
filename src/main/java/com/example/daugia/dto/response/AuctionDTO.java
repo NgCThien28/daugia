@@ -74,7 +74,23 @@ public class AuctionDTO {
         this.maphiendg = maphiendg;
     }
 
-    public AuctionDTO() {
+    public AuctionDTO(String maphiendg, UserShortDTO taiKhoanNguoiBan, ProductDTO sanPham, TrangThaiPhienDauGia trangthai, Timestamp thoigianbd, Timestamp thoigiankt, Timestamp thoigianbddk, Timestamp thoigianktdk, BigDecimal giakhoidiem, BigDecimal giatran, BigDecimal buocgia, BigDecimal giacaonhatdatduoc, BigDecimal tiencoc, int slnguoithamgia) {
+        this.maphiendg = maphiendg;
+        this.taiKhoanNguoiBan = taiKhoanNguoiBan;
+        this.sanPham = sanPham;
+        this.trangthai = trangthai;
+        this.thoigianbd = thoigianbd;
+        this.thoigiankt = thoigiankt;
+        this.thoigianbddk = thoigianbddk;
+        this.thoigianktdk = thoigianktdk;
+        this.giakhoidiem = giakhoidiem;
+        this.giatran = giatran;
+        this.buocgia = buocgia;
+        this.giacaonhatdatduoc = giacaonhatdatduoc;
+        this.tiencoc = tiencoc;
+        this.slnguoithamgia = slnguoithamgia;
     }
 
+    public AuctionDTO() {
+    }
 }

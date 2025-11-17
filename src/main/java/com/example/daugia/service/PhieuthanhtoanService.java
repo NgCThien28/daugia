@@ -16,7 +16,7 @@ public class PhieuthanhtoanService {
     @Autowired
     private PhieuthanhtoanRepository phieuthanhtoanRepository;
 
-    public List<PaymentDTO> findAll(){
+    public List<PaymentDTO> findAll() {
         List<Phieuthanhtoan> phieuthanhtoanList = phieuthanhtoanRepository.findAll();
         return phieuthanhtoanList.stream()
                 .map(phieuthanhtoan -> new PaymentDTO(

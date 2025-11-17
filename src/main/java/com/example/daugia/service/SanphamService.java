@@ -34,6 +34,7 @@ public class SanphamService {
     private HinhanhRepository hinhanhRepository;
     @Autowired
     private ThanhphoRepository thanhphoRepository;
+
     public List<ProductDTO> findAll() {
         List<Sanpham> sanphamList = sanphamRepository.findAll();
         return sanphamList.stream()

@@ -17,12 +17,18 @@ import java.util.Date;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    @Autowired private TaikhoanService taikhoanService;
-    @Autowired private BlacklistService blacklistService;
-    @Autowired private TokenValidator tokenValidator;
-    @Autowired private ActiveTokenService activeTokenService;
-    @Autowired private NotificationService notificationService;
-    @Autowired private TaikhoanquantriService taikhoanquantriService;
+    @Autowired
+    private TaikhoanService taikhoanService;
+    @Autowired
+    private BlacklistService blacklistService;
+    @Autowired
+    private TokenValidator tokenValidator;
+    @Autowired
+    private ActiveTokenService activeTokenService;
+    @Autowired
+    private NotificationService notificationService;
+    @Autowired
+    private TaikhoanquantriService taikhoanquantriService;
 
     @PostMapping("/login")
     public ApiResponse<Object> login(@RequestBody TaikhoanCreationRequest request) {

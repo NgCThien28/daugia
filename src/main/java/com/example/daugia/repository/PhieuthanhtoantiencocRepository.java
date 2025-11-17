@@ -13,10 +13,22 @@ import java.util.Optional;
 @Repository
 public interface PhieuthanhtoantiencocRepository extends JpaRepository<Phieuthanhtoantiencoc, String> {
     List<Phieuthanhtoantiencoc> findByTaiKhoan_Matk(String matk);
+
     Optional<Phieuthanhtoantiencoc> findByTaiKhoan_MatkAndPhienDauGia_Maphiendg(String matk, String maphiendg);
+
     Page<Phieuthanhtoantiencoc> findByTaiKhoan_MatkAndTrangthai(
             String matk,
             TrangThaiPhieuThanhToanTienCoc trangthai,
             Pageable pageable
+    );
+
+    long countByPhienDauGia_MaphiendgAndTrangthai(
+            String maphiendg,
+            TrangThaiPhieuThanhToanTienCoc trangthai
+    );
+
+    List<Phieuthanhtoantiencoc> findByPhienDauGia_MaphiendgAndTrangthai(
+            String maphiendg,
+            TrangThaiPhieuThanhToanTienCoc trangthai
     );
 }

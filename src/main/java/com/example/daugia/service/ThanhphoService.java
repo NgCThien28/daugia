@@ -12,7 +12,7 @@ public class ThanhphoService {
     @Autowired
     private ThanhphoRepository thanhphoRepository;
 
-    public List<Thanhpho> findAll(){
+    public List<Thanhpho> findAll() {
         return thanhphoRepository.findAll();
     }
 }
