@@ -6,8 +6,6 @@ import com.example.daugia.dto.request.BaoCaoCreationRequest;
 import com.example.daugia.entity.Baocao;
 import com.example.daugia.service.ActiveTokenService;
 import com.example.daugia.service.BaocaoService;
-import com.example.daugia.service.BlacklistService;
-import com.example.daugia.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

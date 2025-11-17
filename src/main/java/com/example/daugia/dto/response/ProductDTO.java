@@ -1,6 +1,5 @@
 package com.example.daugia.dto.response;
 
-import com.example.daugia.entity.Thanhpho;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;

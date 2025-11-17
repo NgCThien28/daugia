@@ -1,12 +1,10 @@
 package com.example.daugia.dto.response;
 
-import com.example.daugia.core.enums.TrangThaiPhieuThanhToan;
 import com.example.daugia.core.enums.TrangThaiPhieuThanhToanTienCoc;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Setter

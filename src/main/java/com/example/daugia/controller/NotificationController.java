@@ -2,7 +2,6 @@ package com.example.daugia.controller;
 
 import com.example.daugia.core.custom.TokenValidator;
 import com.example.daugia.service.NotificationService;
-import com.example.daugia.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
