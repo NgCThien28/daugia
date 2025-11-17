@@ -2,7 +2,6 @@ package com.example.daugia.controller;
 
 import com.example.daugia.dto.request.ApiResponse;
 import com.example.daugia.dto.response.PaymentDTO;
-import com.example.daugia.entity.Phieuthanhtoan;
 import com.example.daugia.service.PhieuthanhtoanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +17,7 @@ public class PhieuthanhtoanController {
     private PhieuthanhtoanService phieuthanhtoanService;
 
     @GetMapping("/find-all")
-    public ApiResponse<List<PaymentDTO>> findAll(){
+    public ApiResponse<List<PaymentDTO>> findAll() {
         ApiResponse<List<PaymentDTO>> apiResponse = new ApiResponse<>();
         try {
             List<PaymentDTO> phieuthanhtoanList = phieuthanhtoanService.findAll();

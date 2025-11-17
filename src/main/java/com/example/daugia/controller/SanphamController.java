@@ -19,8 +19,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/products")
 public class SanphamController {
-    @Autowired private SanphamService sanphamService;
-    @Autowired private TokenValidator tokenValidator;
+    @Autowired
+    private SanphamService sanphamService;
+    @Autowired
+    private TokenValidator tokenValidator;
+
     @GetMapping("/find-all")
     public ApiResponse<List<ProductDTO>> findAll() {
         List<ProductDTO> list = sanphamService.findAll();
@@ -33,7 +36,7 @@ public class SanphamController {
             @RequestParam(name = "status", required = false) List<TrangThaiSanPham> statuses,
             @PageableDefault(size = 8, sort = "masp", direction = Sort.Direction.ASC)
             Pageable pageable
-    ){
+    ) {
         String email = tokenValidator.authenticateAndGetEmail(header);
         Page<Sanpham> page = (statuses == null || statuses.isEmpty())
                 ? sanphamService.findByUser(email, pageable)

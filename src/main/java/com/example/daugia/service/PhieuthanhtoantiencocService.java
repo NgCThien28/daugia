@@ -55,13 +55,14 @@ public class PhieuthanhtoantiencocService {
                 ))
                 .toList();
     }
-    public DepositDTO findById(String id){
+
+    public DepositDTO findById(String id) {
         Phieuthanhtoantiencoc phieuthanhtoantiencoc = phieuthanhtoantiencocRepository.findById(id)
-                .orElseThrow(()-> new NotFoundException("Không tìm thấy"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy"));
         DepositDTO depositDTO = new DepositDTO();
         depositDTO.setMatc(phieuthanhtoantiencoc.getMatc());
         depositDTO.setTrangthai(phieuthanhtoantiencoc.getTrangthai());
-        depositDTO.setPhienDauGia(new AuctionDTO(phieuthanhtoantiencoc.getPhienDauGia().getTiencoc(),phieuthanhtoantiencoc.getPhienDauGia().getMaphiendg()));
+        depositDTO.setPhienDauGia(new AuctionDTO(phieuthanhtoantiencoc.getPhienDauGia().getTiencoc(), phieuthanhtoantiencoc.getPhienDauGia().getMaphiendg()));
         depositDTO.setTaiKhoanKhachThanhToan(new UserShortDTO(phieuthanhtoantiencoc.getTaiKhoan().getMatk()));
         return depositDTO;
     }
@@ -84,15 +85,15 @@ public class PhieuthanhtoantiencocService {
                 .toList();
     }
 
-    public DepositDTO create(PhieuthanhtoantiencocCreationRequest request, String email){
+    public DepositDTO create(PhieuthanhtoantiencocCreationRequest request, String email) {
 
         Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
-                .orElseThrow(()-> new NotFoundException("Không tìm thấy tài khoản"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
         if (taikhoan.getXacthuctaikhoan() == TrangThaiTaiKhoan.INACTIVE) {
             throw new ValidationException("Tài khoản chưa được xác thực, vui lòng xác thực email trước khi tham gia đấu giá");
         }
         Phiendaugia phiendaugia = phiendaugiaRepository.findById(request.getMaphien())
-                .orElseThrow(()-> new NotFoundException("Không tìm thấy phien dau gia"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy phien dau gia"));
         Optional<Phieuthanhtoantiencoc> existing =
                 phieuthanhtoantiencocRepository.findByTaiKhoan_MatkAndPhienDauGia_Maphiendg(
                         taikhoan.getMatk(), phiendaugia.getMaphiendg()
@@ -122,7 +123,7 @@ public class PhieuthanhtoantiencocService {
         return findById(phieuthanhtoantiencoc.getMatc());
     }
 
-    public String createOrder(HttpServletRequest request){
+    public String createOrder(HttpServletRequest request) {
         Phieuthanhtoantiencoc phieu = phieuthanhtoantiencocRepository.findById(request.getParameter("matc"))
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy phiếu thanh toán"));
 
@@ -153,7 +154,7 @@ public class PhieuthanhtoantiencocService {
         vnp_Params.put("vnp_Version", vnp_Version);
         vnp_Params.put("vnp_Command", vnp_Command);
         vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
-        vnp_Params.put("vnp_Amount", String.valueOf(amount*100));
+        vnp_Params.put("vnp_Amount", String.valueOf(amount * 100));
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
         vnp_Params.put("vnp_OrderInfo", "Thanh toan tien coc matc=" + request.getParameter("matc"));
@@ -204,7 +205,7 @@ public class PhieuthanhtoantiencocService {
 
     public int orderReturn(HttpServletRequest request) throws JsonProcessingException {
         Map<String, String> fields = new HashMap<>();
-        for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements();) {
+        for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements(); ) {
             String fieldName = URLEncoder.encode((String) params.nextElement(), StandardCharsets.US_ASCII);
             String fieldValue = URLEncoder.encode(request.getParameter(fieldName), StandardCharsets.US_ASCII);
             if (fieldValue != null && !fieldValue.isEmpty()) {
@@ -246,7 +247,8 @@ public class PhieuthanhtoantiencocService {
                         ObjectMapper objectMapper = new ObjectMapper();
                         String rawJson = objectMapper.writeValueAsString(fields);
                         phieu.setRaw(rawJson);
-                    } catch (JsonProcessingException ignore) {}
+                    } catch (JsonProcessingException ignore) {
+                    }
                     Phiendaugia phien = phieu.getPhienDauGia();
                     phien.setSlnguoithamgia(phien.getSlnguoithamgia() + 1);
                     phiendaugiaRepository.save(phien);

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="color-scheme" content="light only">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phiên đấu giá sắp bắt đầu - Đấu Giá STU</title>
+  <style>
+    /* Client-safe inline styles for most email clients */
+    body { background-color:#f4f7fb; font-family:'Segoe UI', Arial, sans-serif; margin:0; padding:0; color:#333; }
+    .container { max-width:520px; margin:30px auto; background:#fff; border-radius:12px; padding:32px; box-shadow:0 4px 16px rgba(0,0,0,0.08); }
+    h2 { color:#0ea5e9; text-align:center; font-size:22px; margin:0 0 12px; }
+    p { line-height:1.6; font-size:15px; margin:10px 0; }
+    .button { display:inline-block; margin:18px 0; background:#0ea5e9; color:#fff !important; padding:12px 20px; text-decoration:none; font-size:16px; border-radius:8px; font-weight:600; }
+    .footer { margin-top:26px; font-size:13px; color:#666; text-align:center; }
+    .code-box { padding:14px; background:#f0f9ff; border-left:4px solid #0ea5e9; border-radius:6px; font-size:14px; word-break:break-word; }
+    .info { background:#fafcff; border:1px solid #e8f3ff; border-radius:10px; padding:14px; margin:14px 0; }
+    .info h3 { margin:0 0 8px; font-size:15px; color:#0f6bae; }
+    .info table { width:100%; border-collapse:collapse; font-size:14px; }
+    .info td { padding:6px 0; vertical-align:top; }
+    .label { color:#64748b; width:42%; }
+    .value { color:#0f172a; font-weight:600; }
+    .note { font-size:13px; color:#64748b; }
+    @media (max-width:560px){
+      .container { padding:22px; margin:16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Phiên đấu giá sắp bắt đầu</h2>
+
+  <p>Xin chào, <strong>{{name}}</strong></p>
+  <p>
+    Đây là thông báo nhắc bạn về phiên đấu giá
+    <strong>{{tensp}}</strong> (Mã phiên: <strong>{{maphien}}</strong>)
+    sẽ bắt đầu sớm. Hãy chuẩn bị để tham gia đúng giờ.
+  </p>
+
+  <div class="info">
+    <h3>Thông tin phiên</h3>
+    <table role="presentation" aria-hidden="true">
+      <tr>
+        <td class="label">Thời gian bắt đầu</td>
+        <td class="value">{{thoigianbd}}</td>
+      </tr>
+      <tr>
+        <td class="label">Thời gian kết thúc</td>
+        <td class="value">{{thoigiankt}}</td>
+      </tr>
+      <tr>
+        <td class="label">Giá khởi điểm</td>
+        <td class="value">{{giakhoidiem}} Đ</td>
+      </tr>
+    </table>
+  </div>
+
+  <div style="text-align:center;">
+    <a href="{{auction_link}}" class="button">Vào trang phiên đấu giá</a>
+  </div>
+
+  <p>Nếu nút trên không hoạt động, hãy sao chép liên kết bên dưới và mở trong trình duyệt:</p>
+  <div class="code-box">{{auction_link}}</div>
+
+  <p class="note">
+    Lưu ý: Vui lòng kiểm tra kết nối mạng, đăng nhập tài khoản và đảm bảo số dư/giới hạn trả giá phù hợp
+    (nếu có yêu cầu) trước khi phiên bắt đầu.
+  </p>
+
+  <p class="footer">
+    Trân trọng,<br />
+    Đội ngũ Đấu Giá STU
+  </p>
+</div>
+</body>
+</html>

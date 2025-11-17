@@ -86,5 +86,6 @@ public class GlobalExceptionHandler {
         return new Resolved(HttpStatus.INTERNAL_SERVER_ERROR, 500, "Lỗi hệ thống: " + msg);
     }
 
-    private record Resolved(HttpStatus status, int code, String message) {}
+    private record Resolved(HttpStatus status, int code, String message) {
+    }
 }
