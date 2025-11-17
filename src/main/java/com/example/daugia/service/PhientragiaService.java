@@ -6,6 +6,8 @@ import com.example.daugia.dto.response.UserShortDTO;
 import com.example.daugia.entity.Phiendaugia;
 import com.example.daugia.entity.Phientragia;
 import com.example.daugia.entity.Taikhoan;
+import com.example.daugia.exception.NotFoundException;
+import com.example.daugia.exception.ValidationException;
 import com.example.daugia.repository.PhiendaugiaRepository;
 import com.example.daugia.repository.PhientragiaRepository;
 import com.example.daugia.repository.TaikhoanRepository;
@@ -28,78 +30,39 @@ public class PhientragiaService {
     private PhiendaugiaRepository phiendaugiaRepository;
     @Autowired
     private TaikhoanRepository taikhoanRepository;
+    private static final int WAIT_SECONDS = 20;
 
-    public List<BiddingDTO> findAll(){
-        List<Phientragia> phientragiaList = phientragiaRepository.findAll();
-        return phientragiaList.stream()
-                .map(phientragia -> new BiddingDTO(
-                        phientragia.getMaphientg(),
-                        new UserShortDTO(phientragia.getTaiKhoan().getMatk()),
-                        new AuctionDTO(phientragia.getPhienDauGia().getMaphiendg()),
-                        phientragia.getSotien(),
-                        phientragia.getSolan(),
-                        phientragia.getThoigian(),
-                        phientragia.getThoigiancho()
-                ))
+    public List<BiddingDTO> findAll() {
+        return phientragiaRepository.findAll()
+                .stream()
+                .map(this::toDto)
                 .toList();
     }
 
     @Transactional
     public BiddingDTO createBid(String maphienDauGia, String makh, int solan) {
         if (solan < 1) {
-            throw new IllegalArgumentException("Số lần trả giá phải lớn hơn hoặc bằng 1");
+            throw new ValidationException("Số lần trả giá phải ≥ 1");
         }
 
-        // Gợi ý: nếu có thể, dùng repo với PESSIMISTIC_WRITE lock để tránh tranh chấp:
-        // Phiendaugia phien = phiendaugiaRepository.findByIdForUpdate(maphienDauGia)
         Phiendaugia phien = phiendaugiaRepository.findById(maphienDauGia)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phiên đấu giá"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy phiên đấu giá"));
         Taikhoan user = taikhoanRepository.findById(makh)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng"));
 
-        // Kiểm tra thời gian phiên
         Timestamp now = Timestamp.from(Instant.now());
-        if (phien.getThoigianbd() != null && now.before(phien.getThoigianbd())) {
-            throw new IllegalArgumentException("Phiên chưa bắt đầu, không thể trả giá.");
-        }
-        if (phien.getThoigiankt() != null && now.after(phien.getThoigiankt())) {
-            throw new IllegalArgumentException("Phiên đã kết thúc, không thể trả giá.");
-        }
+        validateAuctionTime(phien, now);
+        enforceUserCooldown(makh, maphienDauGia, now);
 
-        // Kiểm tra "khóa chờ"
-        Optional<Phientragia> lastBid = phientragiaRepository
-                .findTopByTaiKhoan_MatkAndPhienDauGia_MaphiendgOrderByThoigianDesc(makh, maphienDauGia);
-        if (lastBid.isPresent()) {
-            Timestamp lockUntil = lastBid.get().getThoigiancho();
-            if (lockUntil != null && lockUntil.after(now)) {
-                throw new IllegalArgumentException("Bạn phải đợi hết thời gian chờ mới được trả giá lại!");
-            }
-        }
-
-        // Tính thời gian chờ mới (20s)
-        Timestamp waitUntil = Timestamp.from(now.toInstant().plusSeconds(20));
-
-        // Tính giá mới bằng BigDecimal
-        BigDecimal giaKhoiDiem = requireNonNull(phien.getGiakhoidiem(), "Thiếu giá khởi điểm");
-        BigDecimal buocGia = requireNonNull(phien.getBuocgia(), "Thiếu bước giá");
-        BigDecimal giaCaoNhat = Optional.ofNullable(phien.getGiacaonhatdatduoc()).orElse(BigDecimal.ZERO);
-
-        // tổng tăng = buocGia * solan
-        BigDecimal tangThem = buocGia.multiply(BigDecimal.valueOf(solan));
-
-        // "Lần đầu" nếu chưa có giá hoặc giá cao nhất <= giá khởi điểm
-        boolean lanDau = (giaCaoNhat.compareTo(giaKhoiDiem) <= 0);
-
-        BigDecimal newPrice = (lanDau ? giaKhoiDiem : giaCaoNhat).add(tangThem);
-
-        // (Tuỳ chọn) chuẩn hoá scale theo bước giá hoặc 0 chữ số thập phân
-        newPrice = newPrice.setScale(Math.max(0, buocGia.scale()), RoundingMode.HALF_UP);
+        BigDecimal newPrice = calculateNewPrice(phien, solan);
 
         // Cập nhật giá cao nhất
         phien.setGiacaonhatdatduoc(newPrice);
         phiendaugiaRepository.save(phien);
 
-        // Lưu bản ghi trả giá
+        // Thời gian chờ mới
+        Timestamp waitUntil = Timestamp.from(now.toInstant().plusSeconds(WAIT_SECONDS));
+
         Phientragia ptg = new Phientragia();
         ptg.setPhienDauGia(phien);
         ptg.setTaiKhoan(user);
@@ -109,19 +72,66 @@ public class PhientragiaService {
         ptg.setThoigiancho(waitUntil);
         phientragiaRepository.save(ptg);
 
-        return new BiddingDTO(
-                ptg.getMaphientg(),
-                new UserShortDTO(user.getMatk(), user.getHo(), user.getTenlot(), user.getTen(), user.getEmail(), user.getSdt()),
-                new AuctionDTO(phien.getMaphiendg()),
-                ptg.getSotien(),
-                ptg.getSolan(),
-                ptg.getThoigian(),
-                ptg.getThoigiancho()
-        );
+        return toDto(ptg);
     }
 
-    private static <T> T requireNonNull(T val, String msg) {
-        if (val == null) throw new IllegalArgumentException(msg);
+//    Helper
+    private void validateAuctionTime(Phiendaugia phien, Timestamp now) {
+        if (phien.getThoigianbd() != null && now.before(phien.getThoigianbd())) {
+            throw new ValidationException("Phiên chưa bắt đầu, không thể trả giá.");
+        }
+        if (phien.getThoigiankt() != null && now.after(phien.getThoigiankt())) {
+            throw new ValidationException("Phiên đã kết thúc, không thể trả giá.");
+        }
+    }
+
+    private void enforceUserCooldown(String makh, String maphienDauGia, Timestamp now) {
+        Optional<Phientragia> lastBid = phientragiaRepository
+                .findTopByTaiKhoan_MatkAndPhienDauGia_MaphiendgOrderByThoigianDesc(makh, maphienDauGia);
+        if (lastBid.isPresent()) {
+            Timestamp lockUntil = lastBid.get().getThoigiancho();
+            if (lockUntil != null && lockUntil.after(now)) {
+                throw new ValidationException("Bạn phải đợi hết thời gian chờ mới được trả giá lại!");
+            }
+        }
+    }
+
+    private BigDecimal calculateNewPrice(Phiendaugia phien, int solan) {
+        BigDecimal giaKhoiDiem = nonNull(phien.getGiakhoidiem(), "Thiếu giá khởi điểm");
+        BigDecimal buocGia = nonNull(phien.getBuocgia(), "Thiếu bước giá");
+        BigDecimal giaCaoNhat = Optional.ofNullable(phien.getGiacaonhatdatduoc()).orElse(BigDecimal.ZERO);
+
+        boolean firstTime = giaCaoNhat.compareTo(giaKhoiDiem) <= 0;
+        BigDecimal base = firstTime ? giaKhoiDiem : giaCaoNhat;
+        BigDecimal increase = buocGia.multiply(BigDecimal.valueOf(solan));
+
+        BigDecimal newPrice = base.add(increase);
+        // Scale theo bước giá
+        newPrice = newPrice.setScale(Math.max(0, buocGia.scale()), RoundingMode.HALF_UP);
+        return newPrice;
+    }
+
+    private <T> T nonNull(T val, String msg) {
+        if (val == null) throw new ValidationException(msg);
         return val;
+    }
+
+    private BiddingDTO toDto(Phientragia entity) {
+        return new BiddingDTO(
+                entity.getMaphientg(),
+                new UserShortDTO(
+                        entity.getTaiKhoan().getMatk(),
+                        entity.getTaiKhoan().getHo(),
+                        entity.getTaiKhoan().getTenlot(),
+                        entity.getTaiKhoan().getTen(),
+                        entity.getTaiKhoan().getEmail(),
+                        entity.getTaiKhoan().getSdt()
+                ),
+                new AuctionDTO(entity.getPhienDauGia().getMaphiendg()),
+                entity.getSotien(),
+                entity.getSolan(),
+                entity.getThoigian(),
+                entity.getThoigiancho()
+        );
     }
 }

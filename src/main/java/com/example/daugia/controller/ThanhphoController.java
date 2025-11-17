@@ -17,17 +17,8 @@ public class ThanhphoController {
     private ThanhphoService thanhphoService;
 
     @GetMapping("/find-all")
-    public ApiResponse<List<Thanhpho>> findAll(){
-        ApiResponse<List<Thanhpho>> apiResponse = new ApiResponse<>();
-        try {
-            List<Thanhpho> thanhphoList = thanhphoService.findAll();
-            apiResponse.setCode(200);
-            apiResponse.setResult(thanhphoList);
-            apiResponse.setMessage("Thanh cong");
-        } catch (IllegalArgumentException e) {
-            apiResponse.setCode(500);
-            apiResponse.setMessage("That bai:" + e.getMessage());
-        }
-        return apiResponse;
+    public ApiResponse<List<Thanhpho>> findAll() {
+        List<Thanhpho> list = thanhphoService.findAll();
+        return ApiResponse.success(list, "Thành công");
     }
 }

@@ -17,17 +17,8 @@ public class TaikhoanquantriController {
     private TaikhoanquantriService taikhoanquantriService;
 
     @GetMapping("/find-all")
-    public ApiResponse<List<Taikhoanquantri>> findAll(){
-        ApiResponse<List<Taikhoanquantri>> apiResponse = new ApiResponse<>();
-        try{
-            List<Taikhoanquantri> taikhoanquantriList = taikhoanquantriService.findAll();
-            apiResponse.setCode(200);
-            apiResponse.setMessage("Thanh cong");
-            apiResponse.setResult(taikhoanquantriList);
-        } catch (IllegalArgumentException e) {
-            apiResponse.setCode(500);
-            apiResponse.setMessage("That bai:" + e.getMessage());
-        }
-        return apiResponse;
+    public ApiResponse<List<Taikhoanquantri>> findAll() {
+        List<Taikhoanquantri> list = taikhoanquantriService.findAll();
+        return ApiResponse.success(list, "Thành công");
     }
 }

@@ -1,7 +1,11 @@
 package com.example.daugia.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class CityDTO {
     private String matp;
@@ -19,19 +23,4 @@ public class CityDTO {
     public CityDTO() {
     }
 
-    public String getMatp() {
-        return matp;
-    }
-
-    public void setMatp(String matp) {
-        this.matp = matp;
-    }
-
-    public String getTentp() {
-        return tentp;
-    }
-
-    public void setTentp(String tentp) {
-        this.tentp = tentp;
-    }
 }

@@ -2,10 +2,14 @@ package com.example.daugia.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.util.List;
 
+@Setter
+@Getter
 @Entity
 public class Danhmuc {
     public static final String ID_PREFIX = "DM";
@@ -20,27 +24,4 @@ public class Danhmuc {
 
     private String tendm;
 
-    public String getMadm() {
-        return madm;
-    }
-
-    public void setMadm(String madm) {
-        this.madm = madm;
-    }
-
-    public List<Sanpham> getSanPham() {
-        return sanPham;
-    }
-
-    public void setSanPham(List<Sanpham> sanPham) {
-        this.sanPham = sanPham;
-    }
-
-    public String getTendm() {
-        return tendm;
-    }
-
-    public void setTendm(String tendm) {
-        this.tendm = tendm;
-    }
 }

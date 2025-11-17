@@ -5,12 +5,16 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 
+@Setter
+@Getter
 @Entity
 public class Phiendaugia {
     public static final String ID_PREFIX = "DG";
@@ -58,147 +62,4 @@ public class Phiendaugia {
     private BigDecimal tiencoc;
     private int slnguoithamgia;
 
-    public String getMaphiendg() {
-        return maphiendg;
-    }
-
-    public void setMaphiendg(String maphiendg) {
-        this.maphiendg = maphiendg;
-    }
-
-    public Sanpham getSanPham() {
-        return sanPham;
-    }
-
-    public void setSanPham(Sanpham sanPham) {
-        this.sanPham = sanPham;
-    }
-
-    public Phieuthanhtoan getPhieuThanhToan() {
-        return phieuThanhToan;
-    }
-
-    public void setPhieuThanhToan(Phieuthanhtoan phieuThanhToan) {
-        this.phieuThanhToan = phieuThanhToan;
-    }
-
-    public Taikhoanquantri getTaiKhoanQuanTri() {
-        return taiKhoanQuanTri;
-    }
-
-    public void setTaiKhoanQuanTri(Taikhoanquantri taiKhoanQuanTri) {
-        this.taiKhoanQuanTri = taiKhoanQuanTri;
-    }
-
-    public Taikhoan getTaiKhoan() {
-        return taiKhoan;
-    }
-
-    public void setTaiKhoan(Taikhoan taiKhoan) {
-        this.taiKhoan = taiKhoan;
-    }
-
-    public List<Phientragia> getPhienTraGia() {
-        return phienTraGia;
-    }
-
-    public void setPhienTraGia(List<Phientragia> phienTraGia) {
-        this.phienTraGia = phienTraGia;
-    }
-
-    public List<Phieuthanhtoantiencoc> getPhieuThanhToanTienCoc() {
-        return phieuThanhToanTienCoc;
-    }
-
-    public void setPhieuThanhToanTienCoc(List<Phieuthanhtoantiencoc> phieuThanhToanTienCoc) {
-        this.phieuThanhToanTienCoc = phieuThanhToanTienCoc;
-    }
-
-    public TrangThaiPhienDauGia getTrangthai() {
-        return trangthai;
-    }
-
-    public void setTrangthai(TrangThaiPhienDauGia trangthai) {
-        this.trangthai = trangthai;
-    }
-
-    public Timestamp getThoigianbd() {
-        return thoigianbd;
-    }
-
-    public void setThoigianbd(Timestamp thoigianbd) {
-        this.thoigianbd = thoigianbd;
-    }
-
-    public Timestamp getThoigiankt() {
-        return thoigiankt;
-    }
-
-    public void setThoigiankt(Timestamp thoigiankt) {
-        this.thoigiankt = thoigiankt;
-    }
-
-    public Timestamp getThoigianbddk() {
-        return thoigianbddk;
-    }
-
-    public void setThoigianbddk(Timestamp thoigianbddk) {
-        this.thoigianbddk = thoigianbddk;
-    }
-
-    public Timestamp getThoigianktdk() {
-        return thoigianktdk;
-    }
-
-    public void setThoigianktdk(Timestamp thoigianktdk) {
-        this.thoigianktdk = thoigianktdk;
-    }
-
-    public BigDecimal getGiakhoidiem() {
-        return giakhoidiem;
-    }
-
-    public void setGiakhoidiem(BigDecimal giakhoidiem) {
-        this.giakhoidiem = giakhoidiem;
-    }
-
-    public BigDecimal getGiatran() {
-        return giatran;
-    }
-
-    public void setGiatran(BigDecimal giatran) {
-        this.giatran = giatran;
-    }
-
-    public BigDecimal getBuocgia() {
-        return buocgia;
-    }
-
-    public void setBuocgia(BigDecimal buocgia) {
-        this.buocgia = buocgia;
-    }
-
-    public BigDecimal getGiacaonhatdatduoc() {
-        return giacaonhatdatduoc;
-    }
-
-    public void setGiacaonhatdatduoc(BigDecimal giacaonhatdatduoc) {
-        this.giacaonhatdatduoc = giacaonhatdatduoc;
-    }
-
-    public BigDecimal getTiencoc() {
-        return tiencoc;
-    }
-
-    public void setTiencoc(BigDecimal tiencoc) {
-        this.tiencoc = tiencoc;
-    }
-
-    public int getSlnguoithamgia() {
-        return slnguoithamgia;
-    }
-
-    public void setSlnguoithamgia(int slnguoithamgia) {
-        this.slnguoithamgia = slnguoithamgia;
-    }
 }

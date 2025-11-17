@@ -1,7 +1,11 @@
 package com.example.daugia.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class ImageDTO {
     private String maanh;
@@ -15,19 +19,4 @@ public class ImageDTO {
     public ImageDTO() {
     }
 
-    public String getMaanh() {
-        return maanh;
-    }
-
-    public void setMaanh(String maanh) {
-        this.maanh = maanh;
-    }
-
-    public String getTenanh() {
-        return tenanh;
-    }
-
-    public void setTenanh(String tenanh) {
-        this.tenanh = tenanh;
-    }
 }

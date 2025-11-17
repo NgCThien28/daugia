@@ -12,7 +12,7 @@ server:
 
 logging:
   level:
-    root: INFO                  # root logger
+    root: INFO
     com.example.daugia: DEBUG
     org:
       springframework:
@@ -27,7 +27,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: daugiastu@gmail.com
-    password: xitxyfjucokpenwe # app password (không phải mật khẩu thật)
+    password: xitxyfjucokpenwe
     properties:
       mail:
         smtp:

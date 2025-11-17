@@ -1,24 +1,14 @@
 package com.example.daugia.dto.request;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
+@Setter
+@Getter
 public class HinhanhCreationRequest {
     private String masp;
     private List<String> tenanh;
 
-    public String getMasp() {
-        return masp;
-    }
-
-    public void setMasp(String masp) {
-        this.masp = masp;
-    }
-
-    public List<String> getTenanh() {
-        return tenanh;
-    }
-
-    public void setTenanh(List<String> tenanh) {
-        this.tenanh = tenanh;
-    }
 }

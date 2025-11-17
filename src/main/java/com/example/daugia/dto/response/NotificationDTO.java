@@ -1,8 +1,12 @@
 package com.example.daugia.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class NotificationDTO {
     private String matb;
@@ -22,43 +26,4 @@ public class NotificationDTO {
     public NotificationDTO() {
     }
 
-    public String getMatb() {
-        return matb;
-    }
-
-    public void setMatb(String matb) {
-        this.matb = matb;
-    }
-
-    public UserShortDTO getTaiKhoanQuanTri() {
-        return taiKhoanQuanTri;
-    }
-
-    public void setTaiKhoanQuanTri(UserShortDTO taiKhoanQuanTri) {
-        this.taiKhoanQuanTri = taiKhoanQuanTri;
-    }
-
-    public UserShortDTO getTaiKhoanKhachHang() {
-        return taiKhoanKhachHang;
-    }
-
-    public void setTaiKhoanKhachHang(UserShortDTO taiKhoanKhachHang) {
-        this.taiKhoanKhachHang = taiKhoanKhachHang;
-    }
-
-    public String getNoidung() {
-        return noidung;
-    }
-
-    public void setNoidung(String noidung) {
-        this.noidung = noidung;
-    }
-
-    public Timestamp getThoigian() {
-        return thoigian;
-    }
-
-    public void setThoigian(Timestamp thoigian) {
-        this.thoigian = thoigian;
-    }
 }

@@ -2,10 +2,14 @@ package com.example.daugia.dto.response;
 
 import com.example.daugia.core.enums.TrangThaiPhienDauGia;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class AuctionDTO {
     private String maphiendg;
@@ -73,123 +77,4 @@ public class AuctionDTO {
     public AuctionDTO() {
     }
 
-    public String getMaphiendg() {
-        return maphiendg;
-    }
-
-    public void setMaphiendg(String maphiendg) {
-        this.maphiendg = maphiendg;
-    }
-
-    public UserShortDTO getTaiKhoanNguoiBan() {
-        return taiKhoanNguoiBan;
-    }
-
-    public void setTaiKhoanNguoiBan(UserShortDTO taiKhoanNguoiBan) {
-        this.taiKhoanNguoiBan = taiKhoanNguoiBan;
-    }
-
-    public UserShortDTO getTaiKhoanQuanTri() {
-        return taiKhoanQuanTri;
-    }
-
-    public void setTaiKhoanQuanTri(UserShortDTO taiKhoanQuanTri) {
-        this.taiKhoanQuanTri = taiKhoanQuanTri;
-    }
-
-    public TrangThaiPhienDauGia getTrangthai() {
-        return trangthai;
-    }
-
-    public void setTrangthai(TrangThaiPhienDauGia trangthai) {
-        this.trangthai = trangthai;
-    }
-
-    public Timestamp getThoigianbd() {
-        return thoigianbd;
-    }
-
-    public void setThoigianbd(Timestamp thoigianbd) {
-        this.thoigianbd = thoigianbd;
-    }
-
-    public Timestamp getThoigiankt() {
-        return thoigiankt;
-    }
-
-    public void setThoigiankt(Timestamp thoigiankt) {
-        this.thoigiankt = thoigiankt;
-    }
-
-    public Timestamp getThoigianbddk() {
-        return thoigianbddk;
-    }
-
-    public void setThoigianbddk(Timestamp thoigianbddk) {
-        this.thoigianbddk = thoigianbddk;
-    }
-
-    public Timestamp getThoigianktdk() {
-        return thoigianktdk;
-    }
-
-    public void setThoigianktdk(Timestamp thoigianktdk) {
-        this.thoigianktdk = thoigianktdk;
-    }
-
-    public BigDecimal getGiakhoidiem() {
-        return giakhoidiem;
-    }
-
-    public void setGiakhoidiem(BigDecimal giakhoidiem) {
-        this.giakhoidiem = giakhoidiem;
-    }
-
-    public BigDecimal getGiatran() {
-        return giatran;
-    }
-
-    public void setGiatran(BigDecimal giatran) {
-        this.giatran = giatran;
-    }
-
-    public BigDecimal getBuocgia() {
-        return buocgia;
-    }
-
-    public void setBuocgia(BigDecimal buocgia) {
-        this.buocgia = buocgia;
-    }
-
-    public BigDecimal getGiacaonhatdatduoc() {
-        return giacaonhatdatduoc;
-    }
-
-    public void setGiacaonhatdatduoc(BigDecimal giacaonhatdatduoc) {
-        this.giacaonhatdatduoc = giacaonhatdatduoc;
-    }
-
-    public BigDecimal getTiencoc() {
-        return tiencoc;
-    }
-
-    public void setTiencoc(BigDecimal tiencoc) {
-        this.tiencoc = tiencoc;
-    }
-
-    public int getSlnguoithamgia() {
-        return slnguoithamgia;
-    }
-
-    public void setSlnguoithamgia(int slnguoithamgia) {
-        this.slnguoithamgia = slnguoithamgia;
-    }
-
-    public ProductDTO getSanPham() {
-        return sanPham;
-    }
-
-    public void setSanPham(ProductDTO sanPham) {
-        this.sanPham = sanPham;
-    }
 }

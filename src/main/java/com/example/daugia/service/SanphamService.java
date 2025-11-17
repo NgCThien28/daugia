@@ -9,12 +9,18 @@ import com.example.daugia.dto.response.ProductDTO;
 import com.example.daugia.dto.response.UserShortDTO;
 import com.example.daugia.entity.Sanpham;
 import com.example.daugia.entity.Taikhoan;
+import com.example.daugia.exception.NotFoundException;
+import com.example.daugia.exception.ValidationException;
 import com.example.daugia.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.example.daugia.core.enums.TrangThaiSanPham.*;
 
 @Service
 public class SanphamService {
@@ -41,7 +47,10 @@ public class SanphamService {
                                 sp.getTaiKhoan().getEmail(),
                                 sp.getTaiKhoan().getSdt()
                         ),
-                        new CityDTO(sp.getThanhPho().getMatp(), sp.getThanhPho().getTentp()),
+                        new CityDTO(
+                                sp.getThanhPho().getMatp(),
+                                sp.getThanhPho().getTentp()
+                        ),
                         sp.getHinhAnh().stream()
                                 .map(ha -> new ImageDTO(ha.getMaanh(), ha.getTenanh()))
                                 .toList(),
@@ -52,27 +61,45 @@ public class SanphamService {
                 .toList();
     }
 
-    public List<Sanpham> findByUser(String email){
+    // Mặc định lọc 3 trạng thái: PENDING_APPROVAL, APPROVED, CANCELLED
+    public Page<Sanpham> findByUser(String email, Pageable pageable) {
+        List<TrangThaiSanPham> defaultStatuses = List.of(PENDING_APPROVAL, APPROVED, CANCELLED);
+        return findByUserWithStatuses(email, defaultStatuses, pageable);
+    }
+
+    public Page<Sanpham> findByUserWithStatuses(String email,
+                                                List<TrangThaiSanPham> statuses,
+                                                Pageable pageable) {
         Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản"));
-        return sanphamRepository.findByTaiKhoan_Matk(taikhoan.getMatk());
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
+
+        List<TrangThaiSanPham> effectiveStatuses =
+                (statuses == null || statuses.isEmpty())
+                        ? List.of(PENDING_APPROVAL, APPROVED, CANCELLED)
+                        : statuses;
+
+        return sanphamRepository.findByTaiKhoan_MatkAndTrangthaiIn(
+                taikhoan.getMatk(), effectiveStatuses, pageable
+        );
     }
 
     public ProductDTO create(SanPhamCreationRequest request, String email) {
-        Sanpham sp = new Sanpham();
         Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
-                .orElseThrow(()-> new IllegalArgumentException("Không tìm thấy tài khoản"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
+
         if (taikhoan.getXacthuctaikhoan() == TrangThaiTaiKhoan.INACTIVE) {
-            throw new IllegalArgumentException("Tài khoản chưa được xác thực, vui lòng xác thực email trước khi tham gia đấu giá");
+            throw new ValidationException("Tài khoản chưa được xác thực, vui lòng xác thực email");
         }
+
+        Sanpham sp = new Sanpham();
         sp.setTaiKhoan(taikhoan);
         sp.setDanhMuc(danhmucRepository.findById(request.getMadm())
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy danh mục")));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy danh mục")));
         sp.setThanhPho(thanhphoRepository.findById(request.getMatp())
-                .orElseThrow(() -> new IllegalArgumentException("Khong tim thay thanh pho")));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy thành phố")));
         sp.setTensp(request.getTensp());
         sp.setTinhtrangsp(request.getTinhtrangsp());
-        sp.setTrangthai(TrangThaiSanPham.PENDING_APPROVAL);
+        sp.setTrangthai(PENDING_APPROVAL);
 
         sanphamRepository.save(sp);
 
@@ -80,27 +107,32 @@ public class SanphamService {
         CityDTO cityDTO = new CityDTO(sp.getThanhPho().getTentp());
         List<ImageDTO> hinhAnh = new ArrayList<>();
 
-        return new ProductDTO(sp.getMasp(), userShortDTO,cityDTO, hinhAnh, sp.getTinhtrangsp(),
-                sp.getTensp(), sp.getTrangthai().getValue());
+        return new ProductDTO(
+                sp.getMasp(), userShortDTO, cityDTO, hinhAnh,
+                sp.getTinhtrangsp(), sp.getTensp(), sp.getTrangthai().getValue()
+        );
     }
 
-    public ProductDTO update (SanPhamCreationRequest request) {
+    public ProductDTO update(SanPhamCreationRequest request) {
         Sanpham sanpham = sanphamRepository.findById(request.getMasp())
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm"));
+
         sanpham.setDanhMuc(danhmucRepository.findById(request.getMadm())
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy danh mục sản phẩm")));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy danh mục sản phẩm")));
         sanpham.setThanhPho(thanhphoRepository.findById(request.getMatp())
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thành phố")));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy thành phố")));
         sanpham.setTensp(request.getTensp());
         sanpham.setTinhtrangsp(request.getTinhtrangsp());
+
+        sanphamRepository.save(sanpham);
 
         UserShortDTO userShortDTO = new UserShortDTO(sanpham.getTaiKhoan().getMatk());
         CityDTO cityDTO = new CityDTO(sanpham.getThanhPho().getTentp());
         List<ImageDTO> hinhAnh = new ArrayList<>();
-        ProductDTO productDTO = new ProductDTO(sanpham.getMasp(), userShortDTO,cityDTO, hinhAnh, sanpham.getTinhtrangsp(),
-                sanpham.getTensp(), sanpham.getTrangthai().getValue());
 
-        sanphamRepository.save(sanpham);
-        return productDTO;
+        return new ProductDTO(
+                sanpham.getMasp(), userShortDTO, cityDTO, hinhAnh,
+                sanpham.getTinhtrangsp(), sanpham.getTensp(), sanpham.getTrangthai().getValue()
+        );
     }
 }

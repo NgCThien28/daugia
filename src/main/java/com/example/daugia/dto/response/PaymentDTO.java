@@ -2,9 +2,13 @@ package com.example.daugia.dto.response;
 
 import com.example.daugia.core.enums.TrangThaiPhieuThanhToan;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class PaymentDTO {
     private String matt;
@@ -24,43 +28,4 @@ public class PaymentDTO {
     public PaymentDTO() {
     }
 
-    public String getMatt() {
-        return matt;
-    }
-
-    public void setMatt(String matt) {
-        this.matt = matt;
-    }
-
-    public UserShortDTO getTaiKhoanKhachThanhToan() {
-        return taiKhoanKhachThanhToan;
-    }
-
-    public void setTaiKhoanKhachThanhToan(UserShortDTO taiKhoanKhachThanhToan) {
-        this.taiKhoanKhachThanhToan = taiKhoanKhachThanhToan;
-    }
-
-    public AuctionDTO getPhienDauGia() {
-        return phienDauGia;
-    }
-
-    public void setPhienDauGia(AuctionDTO phienDauGia) {
-        this.phienDauGia = phienDauGia;
-    }
-
-    public Timestamp getThoigianthanhtoan() {
-        return thoigianthanhtoan;
-    }
-
-    public void setThoigianthanhtoan(Timestamp thoigianthanhtoan) {
-        this.thoigianthanhtoan = thoigianthanhtoan;
-    }
-
-    public TrangThaiPhieuThanhToan getTrangthai() {
-        return trangthai;
-    }
-
-    public void setTrangthai(TrangThaiPhieuThanhToan trangthai) {
-        this.trangthai = trangthai;
-    }
 }

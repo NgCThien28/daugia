@@ -1,10 +1,14 @@
 package com.example.daugia.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class BiddingDTO {
     private String maphientg;
@@ -28,59 +32,4 @@ public class BiddingDTO {
     public BiddingDTO() {
     }
 
-    public String getMaphientg() {
-        return maphientg;
-    }
-
-    public void setMaphientg(String maphientg) {
-        this.maphientg = maphientg;
-    }
-
-    public UserShortDTO getTaiKhoanNguoiRaGia() {
-        return taiKhoanNguoiRaGia;
-    }
-
-    public void setTaiKhoanNguoiRaGia(UserShortDTO taiKhoanNguoiRaGia) {
-        this.taiKhoanNguoiRaGia = taiKhoanNguoiRaGia;
-    }
-
-    public AuctionDTO getPhienDauGia() {
-        return phienDauGia;
-    }
-
-    public void setPhienDauGia(AuctionDTO phienDauGia) {
-        this.phienDauGia = phienDauGia;
-    }
-
-    public BigDecimal getSotien() {
-        return sotien;
-    }
-
-    public void setSotien(BigDecimal sotien) {
-        this.sotien = sotien;
-    }
-
-    public int getSolan() {
-        return solan;
-    }
-
-    public void setSolan(int solan) {
-        this.solan = solan;
-    }
-
-    public Timestamp getThoigian() {
-        return thoigian;
-    }
-
-    public void setThoigian(Timestamp thoigian) {
-        this.thoigian = thoigian;
-    }
-
-    public Timestamp getThoigiancho() {
-        return thoigiancho;
-    }
-
-    public void setThoigiancho(Timestamp thoigiancho) {
-        this.thoigiancho = thoigiancho;
-    }
 }
