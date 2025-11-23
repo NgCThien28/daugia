@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông báo kết thúc phiên đấu giá</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .header { text-align: center; background-color: #007bff; color: #ffffff; padding: 10px; border-radius: 8px 8px 0 0; }
+        .content { padding: 20px; }
+        .footer { text-align: center; font-size: 12px; color: #777; padding: 10px; }
+        .highlight { font-weight: bold; color: #007bff; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>Thông báo kết thúc phiên đấu giá</h2>
+    </div>
+    <div class="content">
+        <p>Xin chào {{name}},</p>
+        <p>Phiên đấu giá của sản phẩm <strong>{{tensp}}</strong> (Mã phiên: {{maphien}}) đã kết thúc vào lúc {{thoigiankt}}.</p>
+        <p><strong>Trạng thái phiên:</strong> <span class="highlight">{{trangthai}}</span></p>
+        <p><strong>Giá cao nhất đạt được:</strong> {{giacaonhat}} VND</p>
+        <p><strong>Lý do/Chi tiết:</strong> {{lydo}}</p>
+        <p>Vui lòng kiểm tra tài khoản của bạn để biết thêm chi tiết hoặc liên hệ hỗ trợ nếu cần.</p>
+        <p>Trân trọng,<br>Đội ngũ Đấu Giá STU</p>
+    </div>
+    <div class="footer">
+        <p>Email này được gửi tự động. Vui lòng không trả lời.</p>
+    </div>
+</div>
+</body>
+</html>

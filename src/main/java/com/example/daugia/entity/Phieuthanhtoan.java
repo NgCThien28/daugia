@@ -24,7 +24,7 @@ public class Phieuthanhtoan {
     private Phiendaugia phienDauGia;
 
     @ManyToOne
-    @JoinColumn(name = "makh", insertable = false, updatable = false)
+    @JoinColumn(name = "makh", nullable = false, unique = true)
     @JsonManagedReference
     private Taikhoan taiKhoan;
 

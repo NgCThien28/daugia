@@ -69,6 +69,8 @@ public class AuctionDTO {
         this.giacaonhatdatduoc = giacaonhatdatduoc;
     }
 
+
+
     public AuctionDTO(BigDecimal tiencoc, String maphiendg) {
         this.tiencoc = tiencoc;
         this.maphiendg = maphiendg;

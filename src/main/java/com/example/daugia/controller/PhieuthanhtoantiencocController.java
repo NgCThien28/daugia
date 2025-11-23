@@ -5,10 +5,7 @@ import com.example.daugia.core.enums.TrangThaiPhieuThanhToanTienCoc;
 import com.example.daugia.dto.request.ApiResponse;
 import com.example.daugia.dto.request.PhieuthanhtoantiencocCreationRequest;
 import com.example.daugia.dto.response.DepositDTO;
-import com.example.daugia.service.ActiveTokenService;
-import com.example.daugia.service.BlacklistService;
 import com.example.daugia.service.PhieuthanhtoantiencocService;
-import com.example.daugia.util.JwtUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +83,17 @@ public class PhieuthanhtoantiencocController {
             Pageable pageable
     ) {
         Page<DepositDTO> page = phieuthanhtoantiencocService.findByAccountAndStatusPaged(matk, status, pageable);
+        return ApiResponse.success(page, "OK");
+    }
+
+    @GetMapping("/find-by-user-and-status")
+    public ApiResponse<Page<DepositDTO>> findByUserAndStatus(
+            @RequestHeader("Authorization") String header,
+            @RequestParam TrangThaiPhieuThanhToanTienCoc status,
+            @PageableDefault(size = 20, sort = "thoigianthanhtoan", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        Page<DepositDTO> page = phieuthanhtoantiencocService.findByUserAndStatusPaged(email, status, pageable);
         return ApiResponse.success(page, "OK");
     }
 }

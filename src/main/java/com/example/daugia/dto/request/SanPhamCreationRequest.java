@@ -3,6 +3,7 @@ package com.example.daugia.dto.request;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Setter
@@ -15,5 +16,6 @@ public class SanPhamCreationRequest {
     private String matp;
     private String tinhtrangsp;
     private List<String> hinhanh;
-
+    private BigDecimal giathapnhat;
+    private BigDecimal giacaonhat;
 }
