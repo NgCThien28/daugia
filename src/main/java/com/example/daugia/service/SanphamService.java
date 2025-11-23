@@ -101,7 +101,8 @@ public class SanphamService {
         sp.setTensp(request.getTensp());
         sp.setTinhtrangsp(request.getTinhtrangsp());
         sp.setTrangthai(PENDING_APPROVAL);
-
+        sp.setGiacaonhat(request.getGiacaonhat());
+        sp.setGiathapnhat(request.getGiathapnhat());
         sanphamRepository.save(sp);
 
         UserShortDTO userShortDTO = new UserShortDTO(sp.getTaiKhoan().getMatk());

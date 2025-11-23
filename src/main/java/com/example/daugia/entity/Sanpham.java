@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.math.BigDecimal;
 import java.util.List;
 @Setter
 @Getter
@@ -49,6 +50,8 @@ public class Sanpham {
 
     private String tinhtrangsp;
     private String tensp;
+    private BigDecimal giathapnhat;
+    private BigDecimal giacaonhat;
     private TrangThaiSanPham trangthai;
 
 }

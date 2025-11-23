@@ -94,6 +94,11 @@ public class PhieuthanhtoantiencocService {
         }
         Phiendaugia phiendaugia = phiendaugiaRepository.findById(request.getMaphien())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy phien dau gia"));
+
+        if (phiendaugia.getTaiKhoan().getMatk().equals(taikhoan.getMatk())) {
+            throw new ValidationException("Bạn không thể đăng ký tham gia phiên đấu giá do chính mình tạo ra");
+        }
+
         Optional<Phieuthanhtoantiencoc> existing =
                 phieuthanhtoantiencocRepository.findByTaiKhoan_MatkAndPhienDauGia_Maphiendg(
                         taikhoan.getMatk(), phiendaugia.getMaphiendg()
@@ -199,8 +204,7 @@ public class PhieuthanhtoantiencocService {
         String queryUrl = query.toString();
         String vnp_SecureHash = PaymentConfig.hmacSHA512(PaymentConfig.secretKey, hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
-        String paymentUrl = PaymentConfig.vnp_PayUrl + "?" + queryUrl;
-        return paymentUrl;
+        return PaymentConfig.vnp_PayUrl + "?" + queryUrl;
     }
 
     public int orderReturn(HttpServletRequest request) throws JsonProcessingException {
@@ -278,6 +282,24 @@ public class PhieuthanhtoantiencocService {
                 new AuctionDTO(
                         p.getPhienDauGia().getMaphiendg(),
                         p.getPhienDauGia().getGiacaonhatdatduoc()
+                ),
+                p.getThoigianthanhtoan(),
+                p.getTrangthai()
+        ));
+    }
+
+    // Thêm method mới
+    public Page<DepositDTO> findByUserAndStatusPaged(String email, TrangThaiPhieuThanhToanTienCoc status, Pageable pageable) {
+        Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
+        Page<Phieuthanhtoantiencoc> page = phieuthanhtoantiencocRepository
+                .findByTaiKhoan_MatkAndTrangthai(taikhoan.getMatk(), status, pageable);
+        return page.map(p -> new DepositDTO(
+                p.getMatc(),
+                new UserShortDTO(p.getTaiKhoan().getMatk()),
+                new AuctionDTO(
+                        p.getPhienDauGia().getTiencoc(),
+                        p.getPhienDauGia().getMaphiendg()
                 ),
                 p.getThoigianthanhtoan(),
                 p.getTrangthai()
