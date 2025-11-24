@@ -22,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -52,7 +53,8 @@ public class PhieuthanhtoanService {
                                 phieuthanhtoan.getPhienDauGia().getGiacaonhatdatduoc()
                         ),
                         phieuthanhtoan.getThoigianthanhtoan(),
-                        phieuthanhtoan.getTrangthai()
+                        phieuthanhtoan.getTrangthai(),
+                        phieuthanhtoan.getSotien()
                 ))
                 .toList();
     }
@@ -68,7 +70,8 @@ public class PhieuthanhtoanService {
                         phieuthanhtoan.getPhienDauGia().getGiacaonhatdatduoc()
                 ),
                 phieuthanhtoan.getThoigianthanhtoan(),
-                phieuthanhtoan.getTrangthai()
+                phieuthanhtoan.getTrangthai(),
+                phieuthanhtoan.getSotien()
         );
     }
 
@@ -85,25 +88,14 @@ public class PhieuthanhtoanService {
                                 phieuthanhtoan.getPhienDauGia().getGiacaonhatdatduoc()
                         ),
                         phieuthanhtoan.getThoigianthanhtoan(),
-                        phieuthanhtoan.getTrangthai()
+                        phieuthanhtoan.getTrangthai(),
+                        phieuthanhtoan.getSotien()
                 ))
                 .toList();
     }
 
-    // Method tạo phiếu thanh toán cho người thắng phiên
-    public Phieuthanhtoan createForWinner(Phiendaugia phienDauGia) {
-        // Tìm người thắng từ bids
-        List<Phientragia> bids = phientragiaRepository.findByPhienDauGia_Maphiendg(phienDauGia.getMaphiendg());
-        if (bids.isEmpty()) {
-            throw new ValidationException("Không có người tham gia trả giá để tạo phiếu thanh toán");
-        }
-
-        Phientragia winnerBid = bids.stream()
-                .max(Comparator.comparing(Phientragia::getSotien))
-                .orElseThrow(() -> new ValidationException("Không tìm thấy người thắng"));
-
-        Taikhoan winner = winnerBid.getTaiKhoan();
-
+    // Thêm method tạo phiếu cho winner cụ thể (cho fallback)
+    public Phieuthanhtoan createForWinner(Phiendaugia phienDauGia, Taikhoan winner, BigDecimal giaThang) {
         // Kiểm tra đã có phiếu chưa
         Optional<Phieuthanhtoan> existing = phieuthanhtoanRepository.findByPhienDauGia_Maphiendg(phienDauGia.getMaphiendg());
         if (existing.isPresent()) {
@@ -123,7 +115,20 @@ public class PhieuthanhtoanService {
         return phieuthanhtoanRepository.save(phieu);
     }
 
-    // Thêm method findByPhienDauGia
+    // Giữ method cũ, gọi với winner từ bids
+    public Phieuthanhtoan createForWinner(Phiendaugia phienDauGia) {
+        List<Phientragia> bids = phientragiaRepository.findByPhienDauGia_Maphiendg(phienDauGia.getMaphiendg());
+        if (bids.isEmpty()) {
+            throw new ValidationException("Không có người tham gia trả giá để tạo phiếu thanh toán");
+        }
+
+        Phientragia winnerBid = bids.stream()
+                .max(Comparator.comparing(Phientragia::getSotien))
+                .orElseThrow(() -> new ValidationException("Không tìm thấy người thắng"));
+
+        return createForWinner(phienDauGia, winnerBid.getTaiKhoan(), winnerBid.getSotien());
+    }
+
     public Optional<Phieuthanhtoan> findByPhienDauGia(String maphiendg) {
         return phieuthanhtoanRepository.findByPhienDauGia_Maphiendg(maphiendg);
     }
@@ -166,7 +171,7 @@ public class PhieuthanhtoanService {
         vnp_Params.put("vnp_OrderType", orderType);
         vnp_Params.put("vnp_Locale", "vn");
 
-        vnp_Params.put("vnp_ReturnUrl", PaymentConfig.vnp_ReturnDepositUrl);
+        vnp_Params.put("vnp_ReturnUrl", PaymentConfig.vnp_ReturnPaymentUrl);
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
@@ -281,11 +286,8 @@ public class PhieuthanhtoanService {
                         p.getPhienDauGia().getGiacaonhatdatduoc()
                 ),
                 p.getThoigianthanhtoan(),
-                p.getTrangthai()
+                p.getTrangthai(),
+                p.getSotien()
         ));
     }
-
-    // Thêm repository method trong PhieuthanhtoanRepository:
-    // Optional<Phieuthanhtoan> findByPhienDauGia_Maphiendg(String maphiendg);
-    // Page<Phieuthanhtoan> findByTaiKhoan_MatkAndTrangthai(String matk, TrangThaiPhieuThanhToan status, Pageable pageable);
 }

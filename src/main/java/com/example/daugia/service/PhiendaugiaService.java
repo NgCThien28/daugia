@@ -73,8 +73,25 @@ public class PhiendaugiaService {
         return page.map(this::toAuctionDTO);
     }
 
-    public Page<AuctionDTO> findByStatusPaged(TrangThaiPhienDauGia status, Pageable pageable) {
-        Page<Phiendaugia> page = phiendaugiaRepository.findByTrangthai(status, pageable);
+    public Page<AuctionDTO> findFilteredAuctions(
+            List<TrangThaiPhienDauGia> statuses,
+            String keyword,
+            String cateId,
+            String regionId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Long startDateFrom,
+            Long startDateTo,
+            Pageable pageable
+    ) {
+        Page<Phiendaugia> page = phiendaugiaRepository.findFilteredAuctions(
+                statuses, keyword, cateId, regionId, minPrice, maxPrice, startDateFrom, startDateTo, pageable
+        );
+        return page.map(this::toAuctionDTO);
+    }
+
+    public Page<AuctionDTO> findByStatusPagedWithTimeFilter(TrangThaiPhienDauGia status, Long startDateFrom, Long startDateTo, Pageable pageable) {
+        Page<Phiendaugia> page = phiendaugiaRepository.findByTrangthaiAndThoigianbdBetween(status, startDateFrom, startDateTo, pageable);
         return page.map(this::toAuctionDTO);
     }
 

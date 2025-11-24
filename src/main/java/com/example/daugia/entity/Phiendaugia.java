@@ -56,6 +56,7 @@ public class Phiendaugia {
     private Timestamp thoigianbddk;
     private Timestamp thoigianktdk;
     private BigDecimal giakhoidiem;
+    @Column(name = "giatran", columnDefinition = "DECIMAL(19,2)")
     private BigDecimal giatran;
     private BigDecimal buocgia;
     private BigDecimal giacaonhatdatduoc;

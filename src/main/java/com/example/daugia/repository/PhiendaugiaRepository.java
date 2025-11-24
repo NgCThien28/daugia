@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -25,6 +26,40 @@ public interface PhiendaugiaRepository extends JpaRepository<Phiendaugia, String
     Page<Phiendaugia> findByTrangthai(TrangThaiPhienDauGia trangthai, Pageable pageable);
 
     Page<Phiendaugia> findByTrangthaiIn(List<TrangThaiPhienDauGia> statuses, Pageable pageable);
+
+    @Query("SELECT p FROM Phiendaugia p WHERE p.trangthai = :status " +
+            "AND (:startDateFrom IS NULL OR p.thoigianbd >= :startDateFrom) " +
+            "AND (:startDateTo IS NULL OR p.thoigianbd <= :startDateTo)")
+    Page<Phiendaugia> findByTrangthaiAndThoigianbdBetween(@Param("status") TrangThaiPhienDauGia status,
+                                                          @Param("startDateFrom") Long startDateFrom,
+                                                          @Param("startDateTo") Long startDateTo,
+                                                          Pageable pageable);
+
+    @Query("""
+        SELECT DISTINCT p FROM Phiendaugia p
+        JOIN p.sanPham sp
+        LEFT JOIN sp.danhMuc dm
+        LEFT JOIN sp.thanhPho tp
+        WHERE (:statuses IS NULL OR p.trangthai IN :statuses)
+        AND (:keyword IS NULL OR LOWER(sp.tensp) LIKE LOWER(CONCAT('%', :keyword, '%')))
+        AND (:cateId IS NULL OR dm.madm = :cateId)
+        AND (:regionId IS NULL OR tp.matp = :regionId)
+        AND (:minPrice IS NULL OR p.giakhoidiem >= :minPrice)
+        AND (:maxPrice IS NULL OR p.giakhoidiem <= :maxPrice)
+        AND (:startDateFrom IS NULL OR p.thoigianbd >= :startDateFrom)
+        AND (:startDateTo IS NULL OR p.thoigianbd <= :startDateTo)
+        """)
+    Page<Phiendaugia> findFilteredAuctions(
+            @Param("statuses") List<TrangThaiPhienDauGia> statuses,
+            @Param("keyword") String keyword,
+            @Param("cateId") String cateId,
+            @Param("regionId") String regionId,
+            @Param("minPrice") BigDecimal minPrice,
+            @Param("maxPrice") BigDecimal maxPrice,
+            @Param("startDateFrom") Long startDateFrom,
+            @Param("startDateTo") Long startDateTo,
+            Pageable pageable
+    );
 
     @Query("""
             select distinct ph
