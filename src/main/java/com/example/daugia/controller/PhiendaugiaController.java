@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -62,10 +63,31 @@ public class PhiendaugiaController {
     @GetMapping("/find-by-single-status")
     public ApiResponse<Page<AuctionDTO>> findBySingleStatus(
             @RequestParam("status") TrangThaiPhienDauGia status,
+            @RequestParam(value = "startDateFrom", required = false) Long startDateFrom,
+            @RequestParam(value = "startDateTo", required = false) Long startDateTo,
             @PageableDefault(size = 12, sort = "thoigianbd", direction = Sort.Direction.ASC)
             Pageable pageable
     ) {
-        Page<AuctionDTO> page = phiendaugiaService.findByStatusPaged(status, pageable);
+        Page<AuctionDTO> page = phiendaugiaService.findByStatusPagedWithTimeFilter(status, startDateFrom, startDateTo, pageable);
+        return ApiResponse.success(page, "Thành công");
+    }
+
+    @GetMapping("/find-filtered")
+    public ApiResponse<Page<AuctionDTO>> findFilteredAuctions(
+            @RequestParam(value = "statuses", required = false) List<TrangThaiPhienDauGia> statuses,
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "cateId", required = false) String cateId,
+            @RequestParam(value = "regionId", required = false) String regionId,
+            @RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
+            @RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice,
+            @RequestParam(value = "startDateFrom", required = false) Long startDateFrom,
+            @RequestParam(value = "startDateTo", required = false) Long startDateTo,
+            @PageableDefault(size = 12, sort = "thoigianbd", direction = Sort.Direction.ASC)
+            Pageable pageable
+    ) {
+        Page<AuctionDTO> page = phiendaugiaService.findFilteredAuctions(
+                statuses, keyword, cateId, regionId, minPrice, maxPrice, startDateFrom, startDateTo, pageable
+        );
         return ApiResponse.success(page, "Thành công");
     }
 

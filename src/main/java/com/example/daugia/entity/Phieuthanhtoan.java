@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
+
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Setter
@@ -27,7 +29,7 @@ public class Phieuthanhtoan {
     @JoinColumn(name = "makh", nullable = false, unique = true)
     @JsonManagedReference
     private Taikhoan taiKhoan;
-
+    private BigDecimal sotien;
     private Timestamp thoigianthanhtoan;
     private TrangThaiPhieuThanhToan trangthai;
     private String vnptransactionno;

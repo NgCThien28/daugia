@@ -159,5 +159,46 @@ public class EmailService {
         helper.setText(html, true); // true = HTML
         mailSender.send(message);
     }
+
+    // Thêm method gửi email cho người thắng thứ 2
+    public void sendAuctionTransferEmail(Taikhoan newWinner, Phiendaugia phiendaugia, BigDecimal giaThang) throws MessagingException, IOException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+
+//        helper.setTo(newWinner.getEmail());
+        helper.setTo("tanboro365@gmail.com");
+        helper.setSubject("Quyền thắng phiên đấu giá " + phiendaugia.getMaphiendg() + " đã được chuyển cho bạn");
+
+        String name = String.join(" ",
+                newWinner.getHo() == null ? "" : newWinner.getHo(),
+                newWinner.getTenlot() == null ? "" : newWinner.getTenlot(),
+                newWinner.getTen() == null ? "" : newWinner.getTen()
+        ).trim();
+        if (name.isEmpty()) name = "Bạn";
+
+        String templatePath = "templates/auction-transfer-email.html";
+        ClassPathResource resource = new ClassPathResource(templatePath);
+        String html = Files.readString(resource.getFile().toPath());
+
+        // Format dữ liệu
+        Locale vi = new Locale("vi", "VN");
+        SimpleDateFormat dtf = new SimpleDateFormat("dd/MM/yyyy HH:mm", vi);
+        NumberFormat numberFmt = NumberFormat.getNumberInstance(vi);
+
+        // Thời hạn thanh toán: 7 ngày từ bây giờ
+        long sevenDaysMs = 7L * 24 * 60 * 60 * 1000;
+        String thoigiandue = dtf.format(new java.util.Date(System.currentTimeMillis() + sevenDaysMs));
+
+        String giaThangFormatted = giaThang == null ? "-" : numberFmt.format(giaThang);
+
+        html = html.replace("{{name}}", name);
+        html = html.replace("{{tensp}}", phiendaugia.getSanPham().getTensp());
+        html = html.replace("{{maphien}}", phiendaugia.getMaphiendg());
+        html = html.replace("{{giaThang}}", giaThangFormatted);
+        html = html.replace("{{thoigiandue}}", thoigiandue);
+
+        helper.setText(html, true); // true = HTML
+        mailSender.send(message);
+    }
 }
 
