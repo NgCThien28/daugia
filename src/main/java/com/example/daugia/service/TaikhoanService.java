@@ -93,6 +93,10 @@ public class TaikhoanService {
             throw new ValidationException("Mật khẩu không đúng");
         }
 
+        if (taikhoan.getTrangthaidangnhap().equals(TrangThaiTaiKhoan.BANNED)){
+             throw new ValidationException("Tài khoản hiện đã bị khoá");
+        }
+
         taikhoan.setTrangthaidangnhap(TrangThaiTaiKhoan.ONLINE);
         taikhoanRepository.save(taikhoan);
 

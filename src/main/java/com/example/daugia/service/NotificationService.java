@@ -27,13 +27,34 @@ public class NotificationService {
         return emitter;
     }
 
-    public void sendLogoutEvent(String email) {
+    public void sendLogoutEvent(String email, boolean isSelfLogout) {
+        SseEmitter emitter = emitters.get(email);
+        if (emitter != null) {
+            try {
+                if (isSelfLogout) {
+                    emitter.send(SseEmitter.event()
+                            .name("self-logout")
+                            .data("Đăng xuất thành công!"));
+                } else {
+                    emitter.send(SseEmitter.event()
+                            .name("force-logout")
+                            .data("Tài khoản của bạn đã đăng nhập ở nơi khác."));
+                }
+                emitter.complete();
+                emitters.remove(email);
+            } catch (Exception e) {
+                emitters.remove(email);
+            }
+        }
+    }
+
+    public void sendBanEvent(String email) {
         SseEmitter emitter = emitters.get(email);
         if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event()
-                        .name("logout")
-                        .data("Tài khoản của bạn đã đăng nhập ở nơi khác."));
+                        .name("banned")
+                        .data("Tài khoản của bạn đã bị khoá."));
                 emitter.complete();
                 emitters.remove(email);
             } catch (Exception e) {
