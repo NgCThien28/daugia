@@ -9,6 +9,7 @@ import com.example.daugia.dto.response.ProductDTO;
 import com.example.daugia.dto.response.UserShortDTO;
 import com.example.daugia.entity.Sanpham;
 import com.example.daugia.entity.Taikhoan;
+import com.example.daugia.entity.Taikhoanquantri;
 import com.example.daugia.exception.NotFoundException;
 import com.example.daugia.exception.ValidationException;
 import com.example.daugia.repository.*;
@@ -34,6 +35,8 @@ public class SanphamService {
     private HinhanhRepository hinhanhRepository;
     @Autowired
     private ThanhphoRepository thanhphoRepository;
+    @Autowired
+    private TaikhoanquantriRepository taikhoanquantriRepository;
 
     public List<ProductDTO> findAll() {
         List<Sanpham> sanphamList = sanphamRepository.findAll();
@@ -137,4 +140,55 @@ public class SanphamService {
                 sanpham.getTinhtrangsp(), sanpham.getTensp(), sanpham.getTrangthai().getValue()
         );
     }
+
+    public ProductDTO approveProduct(String masp, String emailAdmin) {
+        Sanpham sanpham = sanphamRepository.findById(masp)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm với mã: " + masp));
+        if (sanpham.getTrangthai() != TrangThaiSanPham.PENDING_APPROVAL) {
+            throw new IllegalArgumentException("Sản phẩm đã được duyệt");
+        }
+        Taikhoanquantri admin = taikhoanquantriRepository.findByEmail(emailAdmin)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản quản trị"));
+
+        sanpham.setTrangthai(TrangThaiSanPham.APPROVED);
+        sanpham.setTaiKhoanQuanTri(admin);
+
+        Sanpham updatedProduct = sanphamRepository.save(sanpham);
+
+        return convertToDTO(updatedProduct);
+    }
+
+    public ProductDTO rejectProduct(String masp, String emailAdmin) {
+        Sanpham sanpham = sanphamRepository.findById(masp)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm với mã: " + masp));
+        if (sanpham.getTrangthai() != TrangThaiSanPham.PENDING_APPROVAL) {
+            throw new IllegalArgumentException("Sản phẩm không ở trạng thái chờ duyệt");
+        }
+        Taikhoanquantri admin = taikhoanquantriRepository.findByEmail(emailAdmin)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản quản trị"));
+
+        sanpham.setTrangthai(TrangThaiSanPham.CANCELLED);
+        sanpham.setTaiKhoanQuanTri(admin);
+
+        Sanpham updatedProduct = sanphamRepository.save(sanpham);
+
+        return convertToDTO(updatedProduct);
+    }
+
+    private ProductDTO convertToDTO(Sanpham sanpham) {
+        UserShortDTO userShortDTO = new UserShortDTO(sanpham.getTaiKhoan().getMatk());
+        CityDTO cityDTO = new CityDTO(sanpham.getThanhPho().getTentp());
+        List<ImageDTO> hinhAnh = new ArrayList<>();
+
+        return new ProductDTO(
+                sanpham.getMasp(),
+                userShortDTO,
+                cityDTO,
+                hinhAnh,
+                sanpham.getTinhtrangsp(),
+                sanpham.getTensp(),
+                sanpham.getTrangthai().getValue()
+        );
+    }
+
 }

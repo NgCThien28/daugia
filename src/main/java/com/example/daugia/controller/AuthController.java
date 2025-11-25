@@ -70,6 +70,16 @@ public class AuthController {
         return ApiResponse.success(user, "Đang đăng nhập");
     }
 
+    @GetMapping("/me-admin")
+    public ApiResponse<Object> getCurrentAdmin(@RequestHeader("Authorization") String header) {
+        String token = tokenValidator.extractBearerOrThrow(header);
+        String email = tokenValidator.validateAndGetEmailFromToken(token);
+
+        Taikhoanquantri admin = taikhoanquantriService.findByEmail(email);
+        admin.setMatkhau(null);
+        return ApiResponse.success(admin, "Đang đăng nhập");
+    }
+
     @PostMapping("/logout")
     public ApiResponse<String> logout(@RequestHeader("Authorization") String header) {
         String token = tokenValidator.extractBearerOrThrow(header);
@@ -83,7 +93,7 @@ public class AuthController {
         if (email != null) {
             taikhoanService.logout(email);
             activeTokenService.removeActiveToken(email);
-            notificationService.sendLogoutEvent(email);
+            notificationService.sendLogoutEvent(email, true);
         }
 
         blacklistToken(token);
@@ -101,7 +111,7 @@ public class AuthController {
         String email = JwtUtil.validateToken(token);
         if (email != null) {
             activeTokenService.removeActiveToken(email);
-            notificationService.sendLogoutEvent(email);
+            notificationService.sendLogoutEvent(email, true);
         }
 
         blacklistToken(token);
@@ -118,7 +128,7 @@ public class AuthController {
                 // TTL fallback nếu không lấy được exp
                 blacklistService.addToken(oldToken, System.currentTimeMillis() + 60_000);
             }
-            notificationService.sendLogoutEvent(email);
+            notificationService.sendLogoutEvent(email, false);
         }
     }
 

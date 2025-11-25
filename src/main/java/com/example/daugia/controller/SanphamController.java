@@ -18,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/products")
+@CrossOrigin("http://localhost:5173/")
 public class SanphamController {
     @Autowired
     private SanphamService sanphamService;
@@ -60,4 +61,23 @@ public class SanphamController {
         ProductDTO updated = sanphamService.update(request);
         return ApiResponse.success(updated, "Cập nhật sản phẩm thành công");
     }
+
+    @PutMapping("/approve/{masp}")
+    public ApiResponse<ProductDTO> approveProduct(
+            @PathVariable String masp,
+            @RequestHeader("Authorization") String header) {
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        ProductDTO approved = sanphamService.approveProduct(masp, email);
+        return ApiResponse.success(approved,"Duyệt sản phẩm thành công");
+    }
+
+    @PutMapping("/reject/{masp}")
+    public ApiResponse<ProductDTO> rejectProduct(
+            @PathVariable String masp,
+            @RequestHeader("Authorization") String header) {
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        ProductDTO rejected = sanphamService.rejectProduct(masp, email);
+        return ApiResponse.success(rejected, "Từ chối sản phẩm thành công");
+    }
+
 }

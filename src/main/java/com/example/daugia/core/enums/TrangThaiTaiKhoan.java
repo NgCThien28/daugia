@@ -6,7 +6,8 @@ public enum TrangThaiTaiKhoan {
     ONLINE("Đang hoạt động"),
     OFFLINE("Ngoại tuyến"),
     INACTIVE("Chưa xác thực"),
-    ACTIVE("Đã xác thực");
+    ACTIVE("Đã xác thực"),
+    BANNED("Đã bị khoá");
 
     private final String value;
 
