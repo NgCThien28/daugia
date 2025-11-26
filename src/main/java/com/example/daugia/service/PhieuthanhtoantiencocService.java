@@ -93,7 +93,7 @@ public class PhieuthanhtoantiencocService {
             throw new ValidationException("Tài khoản chưa được xác thực, vui lòng xác thực email trước khi tham gia đấu giá");
         }
         Phiendaugia phiendaugia = phiendaugiaRepository.findById(request.getMaphien())
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy phien dau gia"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy phiên đấu giá"));
 
         if (phiendaugia.getTaiKhoan().getMatk().equals(taikhoan.getMatk())) {
             throw new ValidationException("Bạn không thể đăng ký tham gia phiên đấu giá do chính mình tạo ra");
@@ -114,7 +114,7 @@ public class PhieuthanhtoantiencocService {
         Timestamp thoigianktdk = phiendaugia.getThoigianktdk();
 
         if (now.after(thoigianktdk)) {
-            throw new ValidationException("Đã quá thời hạn đăng ký, không thể tạo phiếu");
+            throw new ValidationException("Đã quá thời hạn đăng ký");
         }
 
         // Tính thời gian thanh toán tối đa 7 ngày
@@ -137,10 +137,10 @@ public class PhieuthanhtoantiencocService {
 
         // Chỉ tạo order nếu chưa quá hạn và chưa thanh toán
         if (phieu.getTrangthai().equals(TrangThaiPhieuThanhToanTienCoc.PAID)) {
-            throw new ConflictException("Phiếu đã được thanh toán.");
+            throw new ConflictException("Phiếu đã được thanh toán");
         }
         if (!thoigianThanhToanChoPhep.after(now)) {
-            throw new ValidationException("Đã quá thời hạn thanh toán.");
+            throw new ValidationException("Đã quá thời hạn thanh toán");
         }
 
         String vnp_Version = "2.1.0";
@@ -230,7 +230,7 @@ public class PhieuthanhtoantiencocService {
         // Lấy mã phiếu từ vnp_OrderInfo
         String orderInfo = request.getParameter("vnp_OrderInfo");
         if (orderInfo == null || !orderInfo.contains("matc=")) {
-            throw new ValidationException("Thiếu mã phiếu thanh toán trong OrderInfo.");
+            throw new ValidationException("Thiếu mã phiếu thanh toán");
         }
 
         String matc = orderInfo.split("matc=")[1].split("&")[0];

@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface PhientragiaRepository extends JpaRepository<Phientragia, String> {
     Optional<Phientragia> findTopByTaiKhoan_MatkAndPhienDauGia_MaphiendgOrderByThoigianDesc(String makh, String maphiendg);
 
+    Optional<Phientragia> findTopByPhienDauGia_MaphiendgOrderBySotienDesc(String maphiendg);
+
     // Thêm methods mới cho scheduler
     List<Phientragia> findByPhienDauGia_Maphiendg(String maphiendg);
 

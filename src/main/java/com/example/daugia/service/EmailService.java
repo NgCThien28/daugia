@@ -165,8 +165,7 @@ public class EmailService {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
 
-//        helper.setTo(newWinner.getEmail());
-        helper.setTo("tanboro365@gmail.com");
+        helper.setTo(newWinner.getEmail());
         helper.setSubject("Quyền thắng phiên đấu giá " + phiendaugia.getMaphiendg() + " đã được chuyển cho bạn");
 
         String name = String.join(" ",
@@ -196,6 +195,32 @@ public class EmailService {
         html = html.replace("{{maphien}}", phiendaugia.getMaphiendg());
         html = html.replace("{{giaThang}}", giaThangFormatted);
         html = html.replace("{{thoigiandue}}", thoigiandue);
+
+        helper.setText(html, true); // true = HTML
+        mailSender.send(message);
+    }
+
+    public void sendAuctionCancelWinEmail(Taikhoan oldWinner, Phiendaugia phiendaugia) throws MessagingException, IOException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+
+        helper.setTo(oldWinner.getEmail());
+        helper.setSubject("Quyền thắng phiên đấu giá " + phiendaugia.getMaphiendg() + " đã bị hủy");
+
+        String name = String.join(" ",
+                oldWinner.getHo() == null ? "" : oldWinner.getHo(),
+                oldWinner.getTenlot() == null ? "" : oldWinner.getTenlot(),
+                oldWinner.getTen() == null ? "" : oldWinner.getTen()
+        ).trim();
+        if (name.isEmpty()) name = "Bạn";
+
+        String templatePath = "templates/auction-cancel-win-email.html";
+        ClassPathResource resource = new ClassPathResource(templatePath);
+        String html = Files.readString(resource.getFile().toPath());
+
+        html = html.replace("{{name}}", name);
+        html = html.replace("{{tensp}}", phiendaugia.getSanPham().getTensp());
+        html = html.replace("{{maphien}}", phiendaugia.getMaphiendg());
 
         helper.setText(html, true); // true = HTML
         mailSender.send(message);

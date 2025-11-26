@@ -16,6 +16,5 @@ public class SanPhamCreationRequest {
     private String matp;
     private String tinhtrangsp;
     private List<String> hinhanh;
-    private BigDecimal giathapnhat;
-    private BigDecimal giacaonhat;
+    private BigDecimal giamongdoi;
 }

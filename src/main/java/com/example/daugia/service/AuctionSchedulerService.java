@@ -245,11 +245,9 @@ public class AuctionSchedulerService {
             boolean hasValidBid = !validBids.isEmpty();
             BigDecimal highestBid = phientragiaRepository.findMaxSotienByPhienDauGia_Maphiendg(phien.getMaphiendg())
                     .orElse(BigDecimal.ZERO);
-            BigDecimal giaTran = phien.getGiatran();
-            boolean priceCondition = giaTran != null && highestBid.compareTo(giaTran.multiply(BigDecimal.valueOf(0.5))) > 0;
 
             String lydo = "";
-            if (hasValidBid && priceCondition) {
+            if (hasValidBid) {
                 // Tao phieu thanh toan cho nguoi thang
                 try {
                     Phieuthanhtoan phieu = phieuthanhtoanService.createForWinner(phien);
@@ -278,11 +276,7 @@ public class AuctionSchedulerService {
             } else {
                 phien.setTrangthai(TrangThaiPhienDauGia.FAILED);
                 phiendaugiaRepository.save(phien);
-                if (!hasValidBid) {
-                    lydo = "Khong co nguoi tham gia tra gia.";
-                } else {
-                    lydo = "Gia cao nhat khong dat yeu cau (phai > 50% gia tran).";
-                }
+                lydo = "Khong co nguoi tham gia tra gia.";
                 // Gui email that bai
                 try {
                     emailService.sendAuctionEndEmail(phien.getTaiKhoan(), phien, lydo);
@@ -356,7 +350,7 @@ public class AuctionSchedulerService {
                     } catch (Exception e) {
                         log.error("Loi gui email thanh cong cho phien {}: {}", fresh.getMaphiendg(), e.getMessage());
                     }
-                    log.info("🎉 Phien {} → SUCCESS (nguoi thang da thanh toan)", fresh.getMaphiendg());
+                    log.info("Phien {} → SUCCESS (nguoi thang da thanh toan)", fresh.getMaphiendg());
                 } else {
                     List<Phientragia> bids = phientragiaRepository.findByPhienDauGia_Maphiendg(fresh.getMaphiendg());
                     log.info("So luot tra gia: {}", bids.size());
@@ -376,6 +370,7 @@ public class AuctionSchedulerService {
                             if (hasTransferredToSecond) {
                                 if (phieu.getThoigianthanhtoan().before(new java.util.Date())) {
                                     fresh.setTrangthai(TrangThaiPhienDauGia.FAILED);
+
                                     phiendaugiaRepository.save(fresh);
                                     try {
                                         emailService.sendAuctionEndEmail(fresh.getTaiKhoan(), fresh, "Nguoi thang thu hai khong thanh toan.");
@@ -399,12 +394,7 @@ public class AuctionSchedulerService {
                             .findFirst()
                             .orElse(BigDecimal.ZERO);
 
-                    BigDecimal giaTran = fresh.getGiatran();
-                    log.info("Gia tran: {}", giaTran);
-                    boolean secondPriceCondition = giaTran != null && secondHighestBid.compareTo(giaTran.multiply(BigDecimal.valueOf(0.5))) > 0;
-                    log.info("Gia cao thu hai: {}, dieu kien gia: {}", secondHighestBid, secondPriceCondition);
-
-                    if (secondPriceCondition) {
+                    if (bids.size() > 1) {
                         Phientragia secondWinnerBid = bids.stream()
                                 .sorted(Comparator.comparing(Phientragia::getSotien).reversed())
                                 .skip(1)
@@ -412,14 +402,15 @@ public class AuctionSchedulerService {
                                 .orElse(null);
 
                         if (secondWinnerBid != null) {
-                            Phieuthanhtoan phieuthanhtoan = fresh.getPhieuThanhToan();
-                            if (phieuthanhtoan != null) {
-                                phieuthanhtoan.setTaiKhoan(secondWinnerBid.getTaiKhoan());
-                                phieuthanhtoan.setSotien(secondHighestBid);
-                                phieuthanhtoan.setThoigianthanhtoan(new Timestamp(System.currentTimeMillis() + SEVEN_DAYS_MS));
-                                phieuthanhtoanRepository.save(phieuthanhtoan);
-                            }
-
+                            if (phieu == null) throw new AssertionError();
+                            if (phieu.getTaiKhoan() == null) throw new AssertionError();
+                            emailService.sendAuctionCancelWinEmail(phieu.getTaiKhoan(), fresh);
+                            phieu.setTaiKhoan(secondWinnerBid.getTaiKhoan());
+                            phieu.setSotien(secondHighestBid);
+                            phieu.setThoigianthanhtoan(new Timestamp(System.currentTimeMillis() + SEVEN_DAYS_MS));
+                            phieuthanhtoanRepository.save(phieu);
+                            fresh.setGiacaonhatdatduoc(secondHighestBid);
+                            phiendaugiaRepository.save(fresh);
                             emailService.sendAuctionTransferEmail(secondWinnerBid.getTaiKhoan(), fresh, secondHighestBid);
                             schedulePaymentCheck(fresh);
                             log.info("🔄 Phien {}: Chuyen cho nguoi thang thu hai {}", fresh.getMaphiendg(), secondWinnerBid.getTaiKhoan().getEmail());
