@@ -18,6 +18,15 @@ logging:
       springframework:
         security: DEBUG
 
+storage:
+  provider: SUPABASE
+  max-size-mb: ${MAX_IMAGE_MB:5}
+  supabase:
+    url: ${SUPABASE_URL}
+    service-key: ${SUPABASE_SERVICE_ROLE_KEY}
+    bucket-products: ${SUPABASE_BUCKET_PRODUCTS:imgs}
+    cdn-base: ${SUPABASE_CDN_BASE:}
+
 spring:
   datasource:
     url: "jdbc:mysql://localhost:3306/daugia?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Ho_Chi_Minh"
@@ -54,5 +63,5 @@ spring:
     time-zone: Asia/Ho_Chi_Minh
   servlet:
     multipart:
-      max-file-size: 2MB
-      max-request-size: 2MB
+      max-file-size: 5MB
+      max-request-size: 5MB
