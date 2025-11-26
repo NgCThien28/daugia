@@ -22,13 +22,12 @@ public class AuctionDTO {
     private Timestamp thoigianbddk;
     private Timestamp thoigianktdk;
     private BigDecimal giakhoidiem;
-    private BigDecimal giatran;
     private BigDecimal buocgia;
     private BigDecimal giacaonhatdatduoc;
     private BigDecimal tiencoc;
     private int slnguoithamgia;
 
-    public AuctionDTO(String maphiendg, UserShortDTO taiKhoanNguoiBan, UserShortDTO taiKhoanQuanTri, TrangThaiPhienDauGia trangthai, Timestamp thoigianbd, Timestamp thoigiankt, Timestamp thoigianbddk, Timestamp thoigianktdk, BigDecimal giakhoidiem, BigDecimal giatran, BigDecimal buocgia, BigDecimal giacaonhatdatduoc, BigDecimal tiencoc, int slnguoithamgia) {
+    public AuctionDTO(String maphiendg, UserShortDTO taiKhoanNguoiBan, UserShortDTO taiKhoanQuanTri, TrangThaiPhienDauGia trangthai, Timestamp thoigianbd, Timestamp thoigiankt, Timestamp thoigianbddk, Timestamp thoigianktdk, BigDecimal giakhoidiem, BigDecimal buocgia, BigDecimal giacaonhatdatduoc, BigDecimal tiencoc, int slnguoithamgia) {
         this.maphiendg = maphiendg;
         this.taiKhoanNguoiBan = taiKhoanNguoiBan;
         this.taiKhoanQuanTri = taiKhoanQuanTri;
@@ -38,14 +37,13 @@ public class AuctionDTO {
         this.thoigianbddk = thoigianbddk;
         this.thoigianktdk = thoigianktdk;
         this.giakhoidiem = giakhoidiem;
-        this.giatran = giatran;
         this.buocgia = buocgia;
         this.giacaonhatdatduoc = giacaonhatdatduoc;
         this.tiencoc = tiencoc;
         this.slnguoithamgia = slnguoithamgia;
     }
 
-    public AuctionDTO(String maphiendg, UserShortDTO taiKhoanNguoiBan,ProductDTO sanPham, TrangThaiPhienDauGia trangthai, Timestamp thoigianbd, Timestamp thoigiankt, Timestamp thoigianbddk, Timestamp thoigianktdk, BigDecimal giakhoidiem, BigDecimal giatran, BigDecimal buocgia, BigDecimal tiencoc) {
+    public AuctionDTO(String maphiendg, UserShortDTO taiKhoanNguoiBan,ProductDTO sanPham, TrangThaiPhienDauGia trangthai, Timestamp thoigianbd, Timestamp thoigiankt, Timestamp thoigianbddk, Timestamp thoigianktdk, BigDecimal giakhoidiem, BigDecimal buocgia, BigDecimal tiencoc) {
         this.maphiendg = maphiendg;
         this.taiKhoanNguoiBan = taiKhoanNguoiBan;
         this.sanPham = sanPham;
@@ -55,7 +53,6 @@ public class AuctionDTO {
         this.thoigianbddk = thoigianbddk;
         this.thoigianktdk = thoigianktdk;
         this.giakhoidiem = giakhoidiem;
-        this.giatran = giatran;
         this.buocgia = buocgia;
         this.tiencoc = tiencoc;
     }
@@ -76,7 +73,7 @@ public class AuctionDTO {
         this.maphiendg = maphiendg;
     }
 
-    public AuctionDTO(String maphiendg, UserShortDTO taiKhoanNguoiBan, ProductDTO sanPham, TrangThaiPhienDauGia trangthai, Timestamp thoigianbd, Timestamp thoigiankt, Timestamp thoigianbddk, Timestamp thoigianktdk, BigDecimal giakhoidiem, BigDecimal giatran, BigDecimal buocgia, BigDecimal giacaonhatdatduoc, BigDecimal tiencoc, int slnguoithamgia) {
+    public AuctionDTO(String maphiendg, UserShortDTO taiKhoanNguoiBan, ProductDTO sanPham, TrangThaiPhienDauGia trangthai, Timestamp thoigianbd, Timestamp thoigiankt, Timestamp thoigianbddk, Timestamp thoigianktdk, BigDecimal giakhoidiem, BigDecimal buocgia, BigDecimal giacaonhatdatduoc, BigDecimal tiencoc, int slnguoithamgia) {
         this.maphiendg = maphiendg;
         this.taiKhoanNguoiBan = taiKhoanNguoiBan;
         this.sanPham = sanPham;
@@ -86,7 +83,6 @@ public class AuctionDTO {
         this.thoigianbddk = thoigianbddk;
         this.thoigianktdk = thoigianktdk;
         this.giakhoidiem = giakhoidiem;
-        this.giatran = giatran;
         this.buocgia = buocgia;
         this.giacaonhatdatduoc = giacaonhatdatduoc;
         this.tiencoc = tiencoc;

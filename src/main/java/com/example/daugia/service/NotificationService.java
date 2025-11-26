@@ -38,7 +38,7 @@ public class NotificationService {
                 } else {
                     emitter.send(SseEmitter.event()
                             .name("force-logout")
-                            .data("Tài khoản của bạn đã đăng nhập ở nơi khác."));
+                            .data("Tài khoản của bạn đã đăng nhập ở nơi khác"));
                 }
                 emitter.complete();
                 emitters.remove(email);
@@ -54,7 +54,7 @@ public class NotificationService {
             try {
                 emitter.send(SseEmitter.event()
                         .name("banned")
-                        .data("Tài khoản của bạn đã bị khoá."));
+                        .data("Tài khoản của bạn đã bị khoá!"));
                 emitter.complete();
                 emitters.remove(email);
             } catch (Exception e) {

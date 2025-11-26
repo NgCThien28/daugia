@@ -20,16 +20,6 @@ public class BlacklistService {
         return blacklist.containsKey(token);
     }
 
-    //    // Kiểm tra token có bị blacklist không
-//    public boolean isBlacklisted(String token) {
-//        Long exp = blacklist.get(token);
-//        if (exp == null) return false;
-//        if (exp < System.currentTimeMillis()) {
-//            blacklist.remove(token); // tự động dọn rác
-//            return false;
-//        }
-//        return true;
-//    }
     @Scheduled(fixedRate = 600000)
     public void cleanExpiredTokens() {
         long now = System.currentTimeMillis();

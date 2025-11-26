@@ -123,7 +123,6 @@ public class PhiendaugiaService {
         pdg.setThoigianbddk(request.getThoigianbddk());
         pdg.setThoigianktdk(request.getThoigianktdk());
         pdg.setGiakhoidiem(request.getGiakhoidiem());
-        pdg.setGiatran(request.getGiatran());
         pdg.setBuocgia(request.getBuocgia());
         pdg.setTiencoc(request.getTiencoc());
         pdg.setGiacaonhatdatduoc(BigDecimal.ZERO);
@@ -181,7 +180,6 @@ public class PhiendaugiaService {
                 phien.getThoigianbddk(),
                 phien.getThoigianktdk(),
                 phien.getGiakhoidiem(),
-                phien.getGiatran(),
                 phien.getBuocgia(),
                 phien.getGiacaonhatdatduoc(),
                 phien.getTiencoc(),

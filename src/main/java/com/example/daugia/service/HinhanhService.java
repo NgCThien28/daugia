@@ -47,7 +47,7 @@ public class HinhanhService {
         ensureImageCollection(sp);
 
         if (!sp.getHinhAnh().isEmpty()) {
-            throw new ValidationException("Sản phẩm đã có ảnh, dùng replace-all hoặc upsert");
+            throw new ValidationException("Sản phẩm đã có ảnh");
         }
 
         List<Hinhanh> added = internalAppend(sp, files, MAX_IMAGES);
@@ -78,7 +78,7 @@ public class HinhanhService {
     @Transactional
     public List<Hinhanh> replaceIndices(String masp, Map<Integer, MultipartFile> replaceMap) {
         if (replaceMap == null || replaceMap.isEmpty()) {
-            throw new ValidationException("Không có chỉ số ảnh để thay thế");
+            throw new ValidationException("Không có ảnh để thay thế");
         }
         Sanpham sp = loadSanpham(masp);
         ensureImageCollection(sp);
@@ -106,7 +106,7 @@ public class HinhanhService {
             try {
                 file.transferTo(dir.resolve(uniqueName).toFile());
             } catch (IOException e) {
-                throw new StorageException("Không thể lưu file: " + original, e);
+                throw new StorageException("Không thể lưu file " + original, e);
             }
             old.setTenanh(uniqueName);
             hinhanhRepository.save(old);
@@ -363,7 +363,7 @@ public class HinhanhService {
             try {
                 f.transferTo(dir.resolve(unique).toFile());
             } catch (IOException e) {
-                throw new StorageException("Không thể lưu file: " + original, e);
+                throw new StorageException("Không thể lưu file " + original, e);
             }
             Hinhanh h = new Hinhanh();
             h.setTenanh(unique);

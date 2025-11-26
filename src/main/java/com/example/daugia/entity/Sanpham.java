@@ -47,11 +47,10 @@ public class Sanpham {
     @JoinColumn(name = "matp")
     @JsonManagedReference
     private Thanhpho thanhPho;
-
     private String tinhtrangsp;
     private String tensp;
-    private BigDecimal giathapnhat;
-    private BigDecimal giacaonhat;
+    private BigDecimal giamongdoi;
+    private BigDecimal hoahong;
     private TrangThaiSanPham trangthai;
 
 }

@@ -104,8 +104,7 @@ public class SanphamService {
         sp.setTensp(request.getTensp());
         sp.setTinhtrangsp(request.getTinhtrangsp());
         sp.setTrangthai(PENDING_APPROVAL);
-        sp.setGiacaonhat(request.getGiacaonhat());
-        sp.setGiathapnhat(request.getGiathapnhat());
+        sp.setGiamongdoi(request.getGiamongdoi());
         sanphamRepository.save(sp);
 
         UserShortDTO userShortDTO = new UserShortDTO(sp.getTaiKhoan().getMatk());
@@ -118,17 +117,18 @@ public class SanphamService {
         );
     }
 
-    public ProductDTO update(SanPhamCreationRequest request) {
+    public ProductDTO update(SanPhamCreationRequest request, String email) {
         Sanpham sanpham = sanphamRepository.findById(request.getMasp())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm"));
-
+        if(!email.equals(sanpham.getTaiKhoan().getEmail()))
+            throw new ValidationException("Bạn không phải chủ sản phẩm");
         sanpham.setDanhMuc(danhmucRepository.findById(request.getMadm())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy danh mục sản phẩm")));
         sanpham.setThanhPho(thanhphoRepository.findById(request.getMatp())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy thành phố")));
         sanpham.setTensp(request.getTensp());
         sanpham.setTinhtrangsp(request.getTinhtrangsp());
-
+        sanpham.setGiamongdoi(request.getGiamongdoi());
         sanphamRepository.save(sanpham);
 
         UserShortDTO userShortDTO = new UserShortDTO(sanpham.getTaiKhoan().getMatk());
@@ -141,14 +141,25 @@ public class SanphamService {
         );
     }
 
+    public String delete(String masp, String email) {
+        Sanpham sanpham = sanphamRepository.findById(masp)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm"));
+        if(!email.equals(sanpham.getTaiKhoan().getEmail()))
+            throw new ValidationException("Bạn không phải chủ sản phẩm");
+        if(sanpham.getTrangthai() == AUCTION_CREATED)
+            throw new ValidationException("Sản phẩm đã được tạo phiên");
+        sanphamRepository.delete(sanpham);
+        return "Xóa sản phẩm thành công!";
+    }
+
     public ProductDTO approveProduct(String masp, String emailAdmin) {
         Sanpham sanpham = sanphamRepository.findById(masp)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm với mã: " + masp));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm với mã: " + masp));
         if (sanpham.getTrangthai() != TrangThaiSanPham.PENDING_APPROVAL) {
-            throw new IllegalArgumentException("Sản phẩm đã được duyệt");
+            throw new ValidationException("Sản phẩm đã được duyệt");
         }
         Taikhoanquantri admin = taikhoanquantriRepository.findByEmail(emailAdmin)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản quản trị"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản quản trị"));
 
         sanpham.setTrangthai(TrangThaiSanPham.APPROVED);
         sanpham.setTaiKhoanQuanTri(admin);
@@ -160,12 +171,12 @@ public class SanphamService {
 
     public ProductDTO rejectProduct(String masp, String emailAdmin) {
         Sanpham sanpham = sanphamRepository.findById(masp)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm với mã: " + masp));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm với mã: " + masp));
         if (sanpham.getTrangthai() != TrangThaiSanPham.PENDING_APPROVAL) {
-            throw new IllegalArgumentException("Sản phẩm không ở trạng thái chờ duyệt");
+            throw new ValidationException("Sản phẩm không ở trạng thái chờ duyệt");
         }
         Taikhoanquantri admin = taikhoanquantriRepository.findByEmail(emailAdmin)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản quản trị"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản quản trị"));
 
         sanpham.setTrangthai(TrangThaiSanPham.CANCELLED);
         sanpham.setTaiKhoanQuanTri(admin);

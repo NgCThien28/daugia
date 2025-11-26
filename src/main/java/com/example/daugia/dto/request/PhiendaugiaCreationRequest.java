@@ -20,7 +20,6 @@ public class PhiendaugiaCreationRequest {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp thoigianktdk;
     private BigDecimal giakhoidiem;
-    private BigDecimal giatran;
     private BigDecimal buocgia;
     private BigDecimal tiencoc;
 

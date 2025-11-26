@@ -3,33 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quyền thắng được chuyển</title>
+  <title>Quyền thắng bị hủy</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body { font-family: Arial, sans-serif; background-color: #f4f4f4; }
     .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    .header { background-color: #ffc107; color: #000000; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; }
+    .header { background-color: #dc3545; color: #ffffff; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; }
     .content { padding: 20px; }
     .footer { text-align: center; font-size: 12px; color: #666; padding: 10px; border-top: 1px solid #ddd; }
-    .highlight { color: #ffc107; font-weight: bold; }
+    .highlight { color: #dc3545; font-weight: bold; }
   </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
-    <h2>Quyền thắng được chuyển</h2>
+    <h2>Quyền thắng bị hủy</h2>
   </div>
   <div class="content">
     <p>Xin chào <strong>{{name}}</strong>,</p>
-    <p>Chúng tôi thông báo rằng quyền thắng phiên đấu giá với sản phẩm sau đã được chuyển cho bạn vì người thắng đầu tiên không thanh toán đúng hạn:</p>
+    <p>Chúng tôi rất tiếc phải thông báo rằng quyền thắng của bạn trong phiên đấu giá sau đã bị hủy vì không thanh toán đúng hạn:</p>
     <ul>
       <li><strong>Tên sản phẩm:</strong> {{tensp}}</li>
       <li><strong>Mã phiên đấu giá:</strong> {{maphien}}</li>
-      <li><strong>Giá thắng:</strong> <span class="highlight">{{giaThang}} VND</span></li>
     </ul>
-    <p><strong>Lưu ý quan trọng:</strong> Bạn cần thanh toán số tiền trên trong vòng <strong>7 ngày</strong> (trước {{thoigiandue}}) để hoàn tất giao dịch. Nếu không thanh toán đúng hạn, phiên đấu giá có thể bị hủy.</p>
-    <p>Để thanh toán, vui lòng truy cập vào tài khoản của bạn trên hệ thống và thực hiện thanh toán qua VNPay.</p>
-    <p>Nếu bạn có bất kỳ câu hỏi nào, hãy liên hệ với chúng tôi qua email hoặc hotline.</p>
+    <p>Phiên đấu giá đã được chuyển cho người thắng thứ hai. Nếu bạn có bất kỳ câu hỏi nào, hãy liên hệ với chúng tôi.</p>
     <p>Trân trọng,<br>Đội ngũ Đấu Giá STU</p>
   </div>
   <div class="footer">

@@ -56,10 +56,17 @@ public class SanphamController {
     @PutMapping("/update")
     public ApiResponse<ProductDTO> update(@RequestBody SanPhamCreationRequest request,
                                           @RequestHeader("Authorization") String header) {
-        // Chỉ cần xác thực hợp lệ, không cần email trong update hiện tại
-        tokenValidator.authenticateAndGetEmail(header);
-        ProductDTO updated = sanphamService.update(request);
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        ProductDTO updated = sanphamService.update(request, email);
         return ApiResponse.success(updated, "Cập nhật sản phẩm thành công");
+    }
+
+    @DeleteMapping("/delete/{masp}")
+    public ApiResponse<String> delete(@PathVariable String masp,
+                                      @RequestHeader("Authorization") String header) {
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        String text = sanphamService.delete(masp, email);
+        return ApiResponse.success(null, text);
     }
 
     @PutMapping("/approve/{masp}")
@@ -68,7 +75,7 @@ public class SanphamController {
             @RequestHeader("Authorization") String header) {
         String email = tokenValidator.authenticateAndGetEmail(header);
         ProductDTO approved = sanphamService.approveProduct(masp, email);
-        return ApiResponse.success(approved,"Duyệt sản phẩm thành công");
+        return ApiResponse.success(approved, "Duyệt sản phẩm thành công");
     }
 
     @PutMapping("/reject/{masp}")

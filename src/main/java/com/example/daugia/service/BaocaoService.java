@@ -36,11 +36,11 @@ public class BaocaoService {
 
     public Baocao update(String mabc, BaoCaoCreationRequest request, String email) {
         Baocao bc = baocaoRepository.findById(mabc)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy báo cáo với mã: " + mabc));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy báo cáo với mã " + mabc));
 
         if (email != null) {
             Taikhoanquantri qtv = taikhoanquantriRepository.findByEmail(email)
-                    .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản quản trị: " + email));
+                    .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản quản trị " + email));
             bc.setTaiKhoanQuanTri(qtv);
         }
 
@@ -51,7 +51,7 @@ public class BaocaoService {
 
     public void delete(String mabc) {
         if (!baocaoRepository.existsById(mabc)) {
-            throw new NotFoundException("Không tìm thấy báo cáo với mã: " + mabc);
+            throw new NotFoundException("Không tìm thấy báo cáo với mã " + mabc);
         }
         baocaoRepository.deleteById(mabc);
     }

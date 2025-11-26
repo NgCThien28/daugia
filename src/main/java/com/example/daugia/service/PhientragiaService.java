@@ -34,7 +34,7 @@ public class PhientragiaService {
     @Autowired
     private TaikhoanRepository taikhoanRepository;
 
-    private static final int WAIT_SECONDS = 20;
+    private static final int WAIT_SECONDS = 10;
 
     // số lần retry khi gặp xung đột optimistic lock
     private static final int MAX_RETRY = 3;
@@ -54,8 +54,8 @@ public class PhientragiaService {
      */
     @Transactional
     public BiddingDTO createBid(String maphienDauGia, String makh, int solan) {
-        if (solan < 1) {
-            throw new ValidationException("Số lần trả giá phải ≥ 1");
+        if (solan < 0) {
+            throw new ValidationException("Số lần trả giá phải lớn hơn 0");
         }
 
         int attempt = 0;
@@ -95,6 +95,7 @@ public class PhientragiaService {
         Timestamp now = Timestamp.from(Instant.now());
         validateAuctionTime(phien, now);
         enforceUserCooldown(makh, maphienDauGia, now);
+        enforceNoSelfBidding(maphienDauGia, makh, phien); // Thêm validate không tự đấu
 
         BigDecimal newPrice = calculateNewPrice(phien, solan);
 
@@ -120,10 +121,10 @@ public class PhientragiaService {
     //    Helper
     private void validateAuctionTime(Phiendaugia phien, Timestamp now) {
         if (phien.getThoigianbd() != null && now.before(phien.getThoigianbd())) {
-            throw new ValidationException("Phiên chưa bắt đầu, không thể trả giá.");
+            throw new ValidationException("Phiên chưa bắt đầu, không thể trả giá");
         }
         if (phien.getThoigiankt() != null && now.after(phien.getThoigiankt())) {
-            throw new ValidationException("Phiên đã kết thúc, không thể trả giá.");
+            throw new ValidationException("Phiên đã kết thúc, không thể trả giá");
         }
     }
 
@@ -138,18 +139,47 @@ public class PhientragiaService {
         }
     }
 
+    // Thêm method validate không tự đấu với chính mình
+    private void enforceNoSelfBidding(String maphienDauGia, String makh, Phiendaugia phien) {
+        BigDecimal giaCaoNhat = Optional.ofNullable(phien.getGiacaonhatdatduoc()).orElse(BigDecimal.ZERO);
+        BigDecimal giaKhoiDiem = Optional.ofNullable(phien.getGiakhoidiem()).orElse(BigDecimal.ZERO);
+        if (giaCaoNhat.compareTo(giaKhoiDiem) > 0) {
+            // Có bid rồi, tìm bid cao nhất
+            Optional<Phientragia> highestBid = phientragiaRepository
+                    .findTopByPhienDauGia_MaphiendgOrderBySotienDesc(maphienDauGia);
+            if (highestBid.isPresent() && highestBid.get().getTaiKhoan().getMatk().equals(makh)) {
+                throw new ValidationException("Bạn đang là người trả giá cao nhất, không thể trả giá thêm!");
+            }
+        }
+    }
+
     private BigDecimal calculateNewPrice(Phiendaugia phien, int solan) {
         BigDecimal giaKhoiDiem = nonNull(phien.getGiakhoidiem(), "Thiếu giá khởi điểm");
         BigDecimal buocGia = nonNull(phien.getBuocgia(), "Thiếu bước giá");
         BigDecimal giaCaoNhat = Optional.ofNullable(phien.getGiacaonhatdatduoc()).orElse(BigDecimal.ZERO);
 
         boolean firstTime = giaCaoNhat.compareTo(giaKhoiDiem) <= 0;
-        BigDecimal base = firstTime ? giaKhoiDiem : giaCaoNhat;
-        BigDecimal increase = buocGia.multiply(BigDecimal.valueOf(solan));
 
-        BigDecimal newPrice = base.add(increase);
-        newPrice = newPrice.setScale(Math.max(0, buocGia.scale()), RoundingMode.HALF_UP);
-        return newPrice;
+        if (firstTime) {
+            // Lần đầu: solan = 0 thì bằng giá khởi điểm, solan > 0 thì tăng solan bước
+            if (solan == 0) {
+                return giaKhoiDiem;
+            } else if (solan > 0) {
+                BigDecimal increase = buocGia.multiply(BigDecimal.valueOf(solan));
+                BigDecimal newPrice = giaKhoiDiem.add(increase);
+                return newPrice.setScale(Math.max(0, buocGia.scale()), RoundingMode.HALF_UP);
+            } else {
+                throw new ValidationException("Số lần trả giá không hợp lệ cho lần đầu");
+            }
+        } else {
+            // Các lần sau: solan >= 1
+            if (solan < 1) {
+                throw new ValidationException("Số lần bước giá lớn hơn 1");
+            }
+            BigDecimal increase = buocGia.multiply(BigDecimal.valueOf(solan));
+            BigDecimal newPrice = giaCaoNhat.add(increase);
+            return newPrice.setScale(Math.max(0, buocGia.scale()), RoundingMode.HALF_UP);
+        }
     }
 
     private <T> T nonNull(T val, String msg) {
