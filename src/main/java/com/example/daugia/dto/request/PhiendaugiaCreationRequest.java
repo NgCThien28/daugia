@@ -22,5 +22,4 @@ public class PhiendaugiaCreationRequest {
     private BigDecimal giakhoidiem;
     private BigDecimal buocgia;
     private BigDecimal tiencoc;
-
 }

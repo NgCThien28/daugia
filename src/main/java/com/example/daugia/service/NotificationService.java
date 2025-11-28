@@ -76,7 +76,7 @@ public class NotificationService {
                                 thongbao.getTieude(),
                                 thongbao.getNoidung(),
                                 thongbao.getThoigian(),
-                                thongbao.getTrangthai().name()
+                                thongbao.getTrangthai().getValue()
                         )));
             } catch (Exception e) {
                 emitters.remove(email);

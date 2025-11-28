@@ -3,7 +3,6 @@ package com.example.daugia.controller;
 import com.example.daugia.core.custom.TokenValidator;
 import com.example.daugia.dto.request.ApiResponse;
 import com.example.daugia.dto.response.NotificationDTO;
-import com.example.daugia.entity.Thongbao;
 import com.example.daugia.service.ThongbaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -31,7 +30,7 @@ public class ThongbaoController {
     @GetMapping
     public ApiResponse<Page<NotificationDTO>> findByUser(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "5") int size,
             @RequestHeader("Authorization") String header) {
         String email = tokenValidator.authenticateAndGetEmail(header);
         Pageable pageable = PageRequest.of(page, size, Sort.by("thoigian").descending());

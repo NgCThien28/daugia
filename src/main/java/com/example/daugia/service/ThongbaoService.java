@@ -13,8 +13,6 @@ import com.example.daugia.repository.TaikhoanRepository;
 import com.example.daugia.repository.TaikhoanquantriRepository;
 import com.example.daugia.repository.ThongbaoRepository;
 import jakarta.transaction.Transactional;
-import lombok.extern.log4j.Log4j;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,12 +49,17 @@ public class ThongbaoService {
         Taikhoan user = taikhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
         Page<Thongbao> page = thongbaoRepository.findByTaiKhoan_Matk(user.getMatk(), pageable);
+        long totalUnread = thongbaoRepository.findByTaiKhoan_Matk(user.getMatk())
+                .stream()
+                .filter(tb -> tb.getTrangthai() == TrangThaiThongBao.NOT_VIEWED)
+                .count();
         return page.map(tb -> new NotificationDTO(
                 tb.getMatb(),
                 tb.getTieude(),
                 tb.getNoidung(),
                 tb.getThoigian(),
-                tb.getTrangthai().getValue()
+                tb.getTrangthai().getValue(),
+                totalUnread
         ));
     }
 
