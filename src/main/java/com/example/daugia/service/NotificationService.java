@@ -1,4 +1,6 @@
 package com.example.daugia.service;
+import com.example.daugia.dto.response.NotificationDTO;
+import com.example.daugia.entity.Thongbao;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -57,6 +59,25 @@ public class NotificationService {
                         .data("Tài khoản của bạn đã bị khoá!"));
                 emitter.complete();
                 emitters.remove(email);
+            } catch (Exception e) {
+                emitters.remove(email);
+            }
+        }
+    }
+
+    public void sendNotification(String email, Thongbao thongbao) {
+        SseEmitter emitter = emitters.get(email);
+        if (emitter != null) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("notification")
+                        .data(new NotificationDTO(
+                                thongbao.getMatb(),
+                                thongbao.getTieude(),
+                                thongbao.getNoidung(),
+                                thongbao.getThoigian(),
+                                thongbao.getTrangthai().name()
+                        )));
             } catch (Exception e) {
                 emitters.remove(email);
             }

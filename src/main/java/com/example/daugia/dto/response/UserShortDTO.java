@@ -15,6 +15,7 @@ public class UserShortDTO {
     private String email;
     private String sdt;
     private String diachi;
+
     public UserShortDTO(String matk, String ho, String tenlot, String ten, String email, String sdt) {
         this.matk = matk;
         this.ho = ho;

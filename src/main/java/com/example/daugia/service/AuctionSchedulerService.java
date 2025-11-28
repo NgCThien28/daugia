@@ -3,6 +3,7 @@ package com.example.daugia.service;
 import com.example.daugia.core.enums.TrangThaiPhienDauGia;
 import com.example.daugia.core.enums.TrangThaiPhieuThanhToan;
 import com.example.daugia.core.enums.TrangThaiPhieuThanhToanTienCoc;
+import com.example.daugia.dto.request.ThongBaoCreationRequest;
 import com.example.daugia.entity.Phiendaugia;
 import com.example.daugia.entity.Phientragia;
 import com.example.daugia.entity.Phieuthanhtoan;
@@ -50,7 +51,8 @@ public class AuctionSchedulerService {
     private PhieuthanhtoanRepository phieuthanhtoanRepository;// Inject service mới
     @Autowired
     private EmailService emailService;
-
+    @Autowired
+    private ThongbaoService thongbaoService;
     // _start, _end, _notify, _payment_check
     private final Map<String, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
     private final Set<String> preStartNotifiedSessions = ConcurrentHashMap.newKeySet();
@@ -224,6 +226,7 @@ public class AuctionSchedulerService {
                 // Gui email that bai
                 try {
                     emailService.sendAuctionEndEmail(phien.getTaiKhoan(), phien, "Khong du so luong nguoi tham gia (to thieu 5 nguoi).");
+                    createEndNotification(phien, "Không đủ số lượng người tham gia.", false);
                 } catch (Exception e) {
                     log.error("Loi gui email that bai cho phien {}: {}", phien.getMaphiendg(), e.getMessage());
                 }
@@ -266,6 +269,7 @@ public class AuctionSchedulerService {
                     if (winnerBid != null && winnerBid.getTaiKhoan() != null) {
                         BigDecimal giaThang = winnerBid.getSotien();
                         emailService.sendAuctionWinEmail(winnerBid.getTaiKhoan(), phien, giaThang);
+                        createWinNotification(winnerBid, phien, giaThang);
                         log.info("Da gui email thong bao thang cho {} trong phien {}", winnerBid.getTaiKhoan().getEmail(), phien.getMaphiendg());
                     }
                 } catch (Exception e) {
@@ -347,6 +351,7 @@ public class AuctionSchedulerService {
                     phiendaugiaRepository.save(fresh);
                     try {
                         emailService.sendAuctionEndEmail(fresh.getTaiKhoan(), fresh, "Phien dau gia thanh cong. Nguoi thang da thanh toan.");
+                        createEndNotification(fresh, "Phiên đấu giá thành công. Người thắng đã thanh toán.", true);
                     } catch (Exception e) {
                         log.error("Loi gui email thanh cong cho phien {}: {}", fresh.getMaphiendg(), e.getMessage());
                     }
@@ -373,7 +378,8 @@ public class AuctionSchedulerService {
 
                                     phiendaugiaRepository.save(fresh);
                                     try {
-                                        emailService.sendAuctionEndEmail(fresh.getTaiKhoan(), fresh, "Nguoi thang thu hai khong thanh toan.");
+                                        emailService.sendAuctionEndEmail(fresh.getTaiKhoan(), fresh, "Người thắng thứ hai không thanh toán.");
+                                        createEndNotification(fresh, "Người thắng thứ hai không thanh toán.", false);
                                     } catch (Exception e) {
                                         log.error("Loi gui email that bai cho phien {}: {}", fresh.getMaphiendg(), e.getMessage());
                                     }
@@ -412,6 +418,8 @@ public class AuctionSchedulerService {
                             fresh.setGiacaonhatdatduoc(secondHighestBid);
                             phiendaugiaRepository.save(fresh);
                             emailService.sendAuctionTransferEmail(secondWinnerBid.getTaiKhoan(), fresh, secondHighestBid);
+                            createNotification(secondWinnerBid.getTaiKhoan().getEmail(), "Bạn được chuyển quyền thắng phiên đấu giá",
+                                    String.format("Phiên '%s' đã chuyển cho bạn với giá %s.", fresh.getSanPham().getTensp(), secondHighestBid));
                             schedulePaymentCheck(fresh);
                             log.info("🔄 Phien {}: Chuyen cho nguoi thang thu hai {}", fresh.getMaphiendg(), secondWinnerBid.getTaiKhoan().getEmail());
                         } else {
@@ -420,6 +428,7 @@ public class AuctionSchedulerService {
                             phiendaugiaRepository.save(fresh);
                             try {
                                 emailService.sendAuctionEndEmail(fresh.getTaiKhoan(), fresh, "Nguoi thang khong thanh toan va khong co nguoi ke tiep.");
+                                createEndNotification(fresh, "Người thắng không thanh toán và không có người kế tiếp.", false);
                             } catch (Exception e) {
                                 log.error("Loi gui email that bai cho phien {}: {}", fresh.getMaphiendg(), e.getMessage());
                             }
@@ -468,6 +477,7 @@ public class AuctionSchedulerService {
                 cancelScheduledTask(maphiendg);
                 try {
                     emailService.sendAuctionEndEmail(phien.getTaiKhoan(), phien, "Phien dau gia da bi huy: " + reason);
+                    createEndNotification(phien, "Phiên đấu giá đã bị hủy: " + reason, false);
                 } catch (Exception e) {
                     log.error("Loi gui email huy cho phien {}: {}", maphiendg, e.getMessage());
                 }
@@ -528,6 +538,8 @@ public class AuctionSchedulerService {
         for (Phieuthanhtoantiencoc p : paid) {
             if (p.getTaiKhoan() != null) {
                 emailService.sendAuctionBeginEmail(p.getTaiKhoan(), fresh);
+                createNotification(p.getTaiKhoan().getEmail(), "Thông báo bắt đầu phiên đấu giá",
+                        String.format("Phiên '%s' sẽ bắt đầu trong 24 giờ.", fresh.getSanPham().getTensp()));
             }
         }
         preStartNotifiedSessions.add(fresh.getMaphiendg());
@@ -566,5 +578,35 @@ public class AuctionSchedulerService {
         }
         scheduleStartOnce(phien);
         scheduleEndOnce(phien);
+    }
+
+    private void createNotification(String userEmail, String tieude, String noidung) {
+        try {
+            ThongBaoCreationRequest request = new ThongBaoCreationRequest();
+            request.setTieude(tieude);
+            request.setNoidung(noidung);
+            // Giả sử admin system email (hoặc lấy từ config)
+            String adminEmail = "admin@system.com";  // Thay bằng email admin thực
+            thongbaoService.createForUser(request, userEmail);
+            log.info("Da tao thong bao cho {}: {}", userEmail, tieude);
+        } catch (Exception e) {
+            log.error("Loi tao thong bao cho {}: {}", userEmail, e.getMessage());
+        }
+    }
+
+    private void createWinNotification(Phientragia winnerBid, Phiendaugia phien, BigDecimal giaThang) {
+        if (winnerBid != null && winnerBid.getTaiKhoan() != null) {
+            String tieude = "Chúc mừng! Bạn đã thắng phiên đấu giá";
+            String noidung = String.format("Bạn đã thắng phiên '%s' với giá %s. Vui lòng thanh toán trong thời hạn.", phien.getSanPham().getTensp(), giaThang);
+            createNotification(winnerBid.getTaiKhoan().getEmail(), tieude, noidung);
+        }
+    }
+
+    private void createEndNotification(Phiendaugia phien, String lydo, boolean isSuccess) {
+        if (phien.getTaiKhoan() != null) {
+            String tieude = isSuccess ? "Phiên đấu giá thành công" : "Phiên đấu giá thất bại";
+            String noidung = String.format("Phiên '%s' đã kết thúc. Lý do: %s", phien.getSanPham().getTensp(), lydo);
+            createNotification(phien.getTaiKhoan().getEmail(), tieude, noidung);
+        }
     }
 }

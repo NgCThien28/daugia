@@ -4,12 +4,19 @@ import com.example.daugia.core.enums.TrangThaiThongBao;
 import com.example.daugia.dto.request.ThongBaoCreationRequest;
 import com.example.daugia.dto.response.NotificationDTO;
 import com.example.daugia.dto.response.UserShortDTO;
+import com.example.daugia.entity.Taikhoan;
 import com.example.daugia.entity.Taikhoanquantri;
 import com.example.daugia.entity.Thongbao;
+import com.example.daugia.exception.ForbiddenException;
 import com.example.daugia.exception.NotFoundException;
+import com.example.daugia.repository.TaikhoanRepository;
 import com.example.daugia.repository.TaikhoanquantriRepository;
 import com.example.daugia.repository.ThongbaoRepository;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -22,7 +29,10 @@ public class ThongbaoService {
     private ThongbaoRepository thongbaoRepository;
     @Autowired
     private TaikhoanquantriRepository taikhoanquantriRepository;
-
+    @Autowired
+    private TaikhoanRepository taikhoanRepository;
+    @Autowired
+    private NotificationService notificationService;
     public List<NotificationDTO> findAll() {
         List<Thongbao> list = thongbaoRepository.findAll();
         return list.stream()
@@ -36,14 +46,62 @@ public class ThongbaoService {
                 .toList();
     }
 
-    public Thongbao create(ThongBaoCreationRequest request, String email) {
-        Taikhoanquantri admin = taikhoanquantriRepository.findByEmail(email)
+    public Page<NotificationDTO> findByUser(String email, Pageable pageable) {
+        Taikhoan user = taikhoanRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
+        Page<Thongbao> page = thongbaoRepository.findByTaiKhoan_Matk(user.getMatk(), pageable);
+        return page.map(tb -> new NotificationDTO(
+                tb.getMatb(),
+                tb.getTieude(),
+                tb.getNoidung(),
+                tb.getThoigian(),
+                tb.getTrangthai().name()
+        ));
+    }
+
+    public void markAsRead(String matb, String email) {
+        Thongbao tb = thongbaoRepository.findById(matb)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy thông báo"));;
+        // Check ownership
+        if (!tb.getTaiKhoan().getEmail().equals(email)) {
+            throw new ForbiddenException("Không có quyền đánh dấu đã đọc thông báo này");
+        }
+        tb.setTrangthai(TrangThaiThongBao.VIEWED);
+        thongbaoRepository.save(tb);;
+    }
+
+    public Thongbao createForUser(ThongBaoCreationRequest request, String adminEmail, String userEmail) {
+        Taikhoanquantri admin = taikhoanquantriRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản quản trị"));
+        Taikhoan user = taikhoanRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản user"));
+
         Thongbao tb = new Thongbao();
         tb.setTaiKhoanQuanTri(admin);
+        tb.setTaiKhoan(user);
+        tb.setTieude(request.getTieude());
         tb.setNoidung(request.getNoidung());
         tb.setThoigian(Timestamp.from(Instant.now()));
-        tb.setTrangthai(TrangThaiThongBao.UNSENT);
-        return thongbaoRepository.save(tb);
+        tb.setTrangthai(TrangThaiThongBao.NOT_VIEWED);
+        Thongbao saved = thongbaoRepository.save(tb);
+
+        // Push SSE
+        notificationService.sendNotification(userEmail, saved);
+        return saved;
+    }
+
+    public void createForUser(ThongBaoCreationRequest request, String userEmail) {
+        Taikhoan user = taikhoanRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản user"));
+
+        Thongbao tb = new Thongbao();
+        tb.setTaiKhoan(user);
+        tb.setTieude(request.getTieude());
+        tb.setNoidung(request.getNoidung());
+        tb.setThoigian(Timestamp.from(Instant.now()));
+        tb.setTrangthai(TrangThaiThongBao.NOT_VIEWED);
+        Thongbao saved = thongbaoRepository.save(tb);
+        // Push SSE
+        notificationService.sendNotification(userEmail, saved);
     }
 }

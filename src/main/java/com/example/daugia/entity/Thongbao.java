@@ -20,15 +20,15 @@ public class Thongbao {
     private String matb;
 
     @ManyToOne
-    @JoinColumn(name = "makh", insertable = false, updatable = false)
+    @JoinColumn(name = "makh")
     @JsonManagedReference
     private Taikhoan taiKhoan;
 
     @ManyToOne
-    @JoinColumn(name = "maqtv", insertable = false, updatable = false)
+    @JoinColumn(name = "maqtv")
     @JsonManagedReference
     private Taikhoanquantri taiKhoanQuanTri;
-
+    private String tieude;
     private String noidung;
     private Timestamp thoigian;
     private TrangThaiThongBao trangthai;
