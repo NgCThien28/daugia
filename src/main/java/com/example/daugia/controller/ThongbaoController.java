@@ -21,19 +21,11 @@ public class ThongbaoController {
     private ThongbaoService thongbaoService;
     @Autowired
     private TokenValidator tokenValidator;
+
     @GetMapping("/find-all")
     public ApiResponse<List<NotificationDTO>> findAll() {
-        ApiResponse<List<NotificationDTO>> apiResponse = new ApiResponse<>();
-        try {
-            List<NotificationDTO> thongbaoList = thongbaoService.findAll();
-            apiResponse.setCode(200);
-            apiResponse.setMessage("thanh cong");
-            apiResponse.setResult(thongbaoList);
-        } catch (IllegalArgumentException e) {
-            apiResponse.setCode(500);
-            apiResponse.setMessage("That bai:" + e.getMessage());
-        }
-        return apiResponse;
+        List<NotificationDTO> thongbaoList = thongbaoService.findAll();
+        return ApiResponse.success(thongbaoList, "Thành công");
     }
 
     @GetMapping
@@ -41,34 +33,30 @@ public class ThongbaoController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestHeader("Authorization") String header) {
-        ApiResponse<Page<NotificationDTO>> apiResponse = new ApiResponse<>();
-        try {
-            String email = tokenValidator.authenticateAndGetEmail(header);
-            Pageable pageable = PageRequest.of(page, size, Sort.by("thoigian").descending());
-            Page<NotificationDTO> pageResult = thongbaoService.findByUser(email, pageable);
-            apiResponse.setCode(200);
-            apiResponse.setMessage("Thành công");
-            apiResponse.setResult(pageResult);
-        } catch (Exception e) {
-            apiResponse.setCode(500);
-            apiResponse.setMessage("Thất bại: " + e.getMessage());
-        }
-        return apiResponse;
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("thoigian").descending());
+        Page<NotificationDTO> pageResult = thongbaoService.findByUser(email, pageable);
+        return ApiResponse.success(pageResult, "Thành công");
     }
 
     @PatchMapping("/{matb}/read")
     public ApiResponse<Void> markAsRead(@PathVariable String matb, @RequestHeader("Authorization") String header) {
-        ApiResponse<Void> apiResponse = new ApiResponse<>();
-        try {
-            String email = tokenValidator.authenticateAndGetEmail(header);
-            thongbaoService.markAsRead(matb, email);
-            apiResponse.setCode(200);
-            apiResponse.setMessage("Đánh dấu đã đọc thành công");
-            apiResponse.setResult(null);
-        } catch (Exception e) {
-            apiResponse.setCode(500);
-            apiResponse.setMessage("Thất bại: " + e.getMessage());
-        }
-        return apiResponse;
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        thongbaoService.markAsRead(matb, email);
+        return ApiResponse.success(null, "Đánh dấu đã đọc thành công");
+    }
+
+    @DeleteMapping("/clear-all")
+    public ApiResponse<Void> clearAll(@RequestHeader("Authorization") String header) {
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        thongbaoService.clearAllNotifications(email);
+        return ApiResponse.success(null, "Xóa tất cả thông báo thành công");
+    }
+
+    @PatchMapping("/mark-all-read")
+    public ApiResponse<Void> markAllAsRead(@RequestHeader("Authorization") String header) {
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        thongbaoService.markAllAsRead(email);
+        return ApiResponse.success(null, "Đánh dấu tất cả đã đọc thành công");
     }
 }
