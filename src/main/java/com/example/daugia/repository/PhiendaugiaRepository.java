@@ -17,6 +17,8 @@ import java.util.List;
 public interface PhiendaugiaRepository extends JpaRepository<Phiendaugia, String> {
     List<Phiendaugia> findByTaiKhoan_Matk(String makh);
 
+    Page<Phiendaugia> findByTaiKhoan_Matk(String makh, Pageable pageable);
+
     boolean existsBySanPham_Masp(String masp);
 
     List<Phiendaugia> findByTrangthai(TrangThaiPhienDauGia trangthai);

@@ -37,9 +37,12 @@ public class PhiendaugiaController {
     }
 
     @GetMapping("/find-by-user")
-    public ApiResponse<List<AuctionDTO>> findByUser(@RequestHeader("Authorization") String header) {
+    public ApiResponse<Page<AuctionDTO>> findByUser(
+            @RequestHeader("Authorization") String header,
+            @PageableDefault(size = 12, sort = "thoigianbd", direction = Sort.Direction.DESC)
+            Pageable pageable) {
         String email = tokenValidator.authenticateAndGetEmail(header);
-        List<AuctionDTO> list = phiendaugiaService.findByUser(email);
+        Page<AuctionDTO> list = phiendaugiaService.findByUser(email, pageable);
         return ApiResponse.success(list, "Thành công");
     }
 
@@ -108,5 +111,16 @@ public class PhiendaugiaController {
         String email = tokenValidator.authenticateAndGetEmail(header);
         AuctionDTO dto = phiendaugiaService.create(request, email);
         return ApiResponse.success(dto, "Tạo phiên thành công");
+    }
+
+    @PutMapping("/update/{maphiendg}")
+    public ApiResponse<AuctionDTO> update(
+            @PathVariable String maphiendg,
+            @RequestBody PhiendaugiaCreationRequest request,
+            @RequestHeader("Authorization") String header
+    ) {
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        AuctionDTO dto = phiendaugiaService.update(maphiendg, request, email);
+        return ApiResponse.success(dto, "Cập nhật phiên đấu giá thành công");
     }
 }

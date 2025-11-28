@@ -16,13 +16,22 @@ public class NotificationDTO {
     private String trangthai;
     private UserShortDTO taiKhoanQuanTri;
     private UserShortDTO taiKhoanKhachHang;
-
+    private Long tongthongbaochuaxem;
     public NotificationDTO(String matb, UserShortDTO taiKhoanQuanTri, UserShortDTO taiKhoanKhachHang, String noidung, Timestamp thoigian) {
         this.matb = matb;
         this.taiKhoanQuanTri = taiKhoanQuanTri;
         this.taiKhoanKhachHang = taiKhoanKhachHang;
         this.noidung = noidung;
         this.thoigian = thoigian;
+    }
+
+    public NotificationDTO(String matb, String tieude, String noidung, Timestamp thoigian, String trangthai, Long tongthongbaochuaxem) {
+        this.matb = matb;
+        this.tieude = tieude;
+        this.noidung = noidung;
+        this.thoigian = thoigian;
+        this.trangthai = trangthai;
+        this.tongthongbaochuaxem = tongthongbaochuaxem;
     }
 
     public NotificationDTO(String matb, String tieude, String noidung, Timestamp thoigian, String trangthai) {

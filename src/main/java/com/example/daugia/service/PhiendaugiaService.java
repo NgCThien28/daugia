@@ -8,6 +8,7 @@ import com.example.daugia.entity.Phiendaugia;
 import com.example.daugia.entity.Sanpham;
 import com.example.daugia.entity.Taikhoan;
 import com.example.daugia.exception.ConflictException;
+import com.example.daugia.exception.ForbiddenException;
 import com.example.daugia.exception.NotFoundException;
 import com.example.daugia.exception.ValidationException;
 import com.example.daugia.repository.PhiendaugiaRepository;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -59,13 +59,11 @@ public class PhiendaugiaService {
         return toAuctionDTO(entity);
     }
 
-    public List<AuctionDTO> findByUser(String email) {
+    public Page<AuctionDTO> findByUser(String email, Pageable pageable) {
         Taikhoan tk = taikhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản người dùng"));
-        return phiendaugiaRepository.findByTaiKhoan_Matk(tk.getMatk())
-                .stream()
-                .map(this::toAuctionDTO)
-                .toList();
+        Page<Phiendaugia> page = phiendaugiaRepository.findByTaiKhoan_Matk(tk.getMatk(),pageable);
+        return page.map(this::toAuctionDTO);
     }
 
     public Page<AuctionDTO> findByStatusesPaged(List<TrangThaiPhienDauGia> statuses, Pageable pageable) {
@@ -133,23 +131,51 @@ public class PhiendaugiaService {
         return toAuctionDTO(pdg);
     }
 
-    //  PRIVATE HELPERS
-    private void validateAuctionTimes(LocalDateTime start, LocalDateTime end,
-                                      LocalDateTime regStart, LocalDateTime regEnd) {
+    @Transactional
+    public AuctionDTO update(String maphiendg, PhiendaugiaCreationRequest request, String email) {
+        Taikhoan tk = taikhoanRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
 
-        if (start != null && end != null && !end.isAfter(start)) {
-            throw new ValidationException("Thời gian kết thúc phiên phải sau thời gian bắt đầu");
+        Phiendaugia pdg = phiendaugiaRepository.findById(maphiendg)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy phiên đấu giá"));
+
+        if (!pdg.getTaiKhoan().getMatk().equals(tk.getMatk())) {
+            throw new ForbiddenException("Bạn không có quyền chỉnh sửa phiên đấu giá này");
         }
-        if (regStart != null && start != null && !regStart.isBefore(start)) {
-            throw new ValidationException("Thời gian bắt đầu đăng ký phải trước thời gian bắt đầu phiên");
+
+        if (pdg.getTrangthai() != TrangThaiPhienDauGia.PENDING_APPROVAL) {
+            throw new ValidationException("Chỉ có thể chỉnh sửa phiên đấu giá đang chờ duyệt");
         }
-        if (regEnd != null && regStart != null && !regEnd.isAfter(regStart)) {
-            throw new ValidationException("Thời gian kết thúc đăng ký phải sau thời gian bắt đầu đăng ký");
-        }
-        if (regEnd != null && start != null && !regEnd.isBefore(start)) {
-            throw new ValidationException("Thời gian kết thúc đăng ký phải trước thời gian bắt đầu phiên");
-        }
+
+        // Update fields
+        pdg.setBuocgia(request.getBuocgia());
+        pdg.setTiencoc(request.getTiencoc());
+        pdg.setThoigianbd(request.getThoigianbd());
+        pdg.setThoigiankt(request.getThoigiankt());
+        pdg.setThoigianbddk(request.getThoigianbddk());
+        pdg.setThoigianktdk(request.getThoigianktdk());
+
+        Phiendaugia saved = phiendaugiaRepository.save(pdg);
+        return toAuctionDTO(saved);
     }
+
+//    //  PRIVATE HELPERS
+//    private void validateAuctionTimes(Timestamp start, Timestamp end,
+//                                      Timestamp regStart, Timestamp regEnd) {
+//
+//        if (start != null && end != null && !end.after(start)) {
+//            throw new ValidationException("Thời gian kết thúc phiên phải sau thời gian bắt đầu");
+//        }
+//        if (regStart != null && start != null && !regStart.before(start)) {
+//            throw new ValidationException("Thời gian bắt đầu đăng ký phải trước thời gian bắt đầu phiên");
+//        }
+//        if (regEnd != null && regStart != null && !regEnd.after(regStart)) {
+//            throw new ValidationException("Thời gian kết thúc đăng ký phải sau thời gian bắt đầu đăng ký");
+//        }
+//        if (regEnd != null && start != null && !regEnd.before(start)) {
+//            throw new ValidationException("Thời gian kết thúc đăng ký phải trước thời gian bắt đầu phiên");
+//        }
+//    }
 
     private AuctionDTO toAuctionDTO(Phiendaugia phien) {
         return new AuctionDTO(
