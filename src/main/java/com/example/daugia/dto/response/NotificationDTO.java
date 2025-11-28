@@ -10,10 +10,12 @@ import java.sql.Timestamp;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class NotificationDTO {
     private String matb;
-    private UserShortDTO taiKhoanQuanTri;
-    private UserShortDTO taiKhoanKhachHang;
+    private String tieude;
     private String noidung;
     private Timestamp thoigian;
+    private String trangthai;
+    private UserShortDTO taiKhoanQuanTri;
+    private UserShortDTO taiKhoanKhachHang;
 
     public NotificationDTO(String matb, UserShortDTO taiKhoanQuanTri, UserShortDTO taiKhoanKhachHang, String noidung, Timestamp thoigian) {
         this.matb = matb;
@@ -21,6 +23,14 @@ public class NotificationDTO {
         this.taiKhoanKhachHang = taiKhoanKhachHang;
         this.noidung = noidung;
         this.thoigian = thoigian;
+    }
+
+    public NotificationDTO(String matb, String tieude, String noidung, Timestamp thoigian, String trangthai) {
+        this.matb = matb;
+        this.tieude = tieude;
+        this.noidung = noidung;
+        this.thoigian = thoigian;
+        this.trangthai = trangthai;
     }
 
     public NotificationDTO() {

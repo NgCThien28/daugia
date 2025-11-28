@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum TrangThaiThongBao {
     UNSENT("Chưa gửi"),
-    SEND("Đã gửi"),
+    NOT_VIEWED("Chưa xem"),
+    VIEWED("Đã xem"),
     CANCELED("Đã huỷ");
 
     private final String value;

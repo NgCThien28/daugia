@@ -11,5 +11,6 @@ public class ThongBaoCreationRequest {
     private String maqtv;
     private String noidung;
     private Timestamp thoigian;
+    private String tieude;
 
 }
