@@ -12,6 +12,7 @@ import com.example.daugia.exception.NotFoundException;
 import com.example.daugia.repository.TaikhoanRepository;
 import com.example.daugia.repository.TaikhoanquantriRepository;
 import com.example.daugia.repository.ThongbaoRepository;
+import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,7 @@ public class ThongbaoService {
                 tb.getTieude(),
                 tb.getNoidung(),
                 tb.getThoigian(),
-                tb.getTrangthai().name()
+                tb.getTrangthai().getValue()
         ));
     }
 
@@ -68,6 +69,20 @@ public class ThongbaoService {
         }
         tb.setTrangthai(TrangThaiThongBao.VIEWED);
         thongbaoRepository.save(tb);;
+    }
+
+    @Transactional
+    public void clearAllNotifications(String email) {
+        Taikhoan user = taikhoanRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
+        thongbaoRepository.deleteByTaiKhoan_Matk(user.getMatk());
+    }
+
+    @Transactional
+    public void markAllAsRead(String email) {
+        Taikhoan user = taikhoanRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
+        thongbaoRepository.markAllAsReadByTaiKhoan_Matk(user.getMatk());
     }
 
     public Thongbao createForUser(ThongBaoCreationRequest request, String adminEmail, String userEmail) {
