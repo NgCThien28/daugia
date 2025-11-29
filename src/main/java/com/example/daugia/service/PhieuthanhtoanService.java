@@ -106,7 +106,7 @@ public class PhieuthanhtoanService {
         phieu.setTaiKhoan(winner);
         phieu.setPhienDauGia(phienDauGia);
         phieu.setTrangthai(TrangThaiPhieuThanhToan.UNPAID);
-        phieu.setSotien(giaThang);
+        phieu.setSotien(giaThang.subtract(phienDauGia.getTiencoc()));
         // Thời gian thanh toán: 7 ngày từ bây giờ
         Timestamp now = Timestamp.from(Instant.now());
         long sevenDaysMs = 7L * 24 * 60 * 60 * 1000;
