@@ -112,15 +112,14 @@ public class PhieuthanhtoantiencocService {
         phieuthanhtoantiencoc.setPhienDauGia(phiendaugia);
         Timestamp now = Timestamp.from(Instant.now());
         Timestamp thoigianktdk = phiendaugia.getThoigianktdk();
-
+        Timestamp thoigianbd = phiendaugia.getThoigianbd();
         if (now.after(thoigianktdk)) {
             throw new ValidationException("Đã quá thời hạn đăng ký");
         }
 
-        // Tính thời gian thanh toán tối đa 7 ngày
-        long maxPaymentMillis = 7L * 24 * 60 * 60 * 1000; // 7 ngày
-        long remainingMillis = thoigianktdk.getTime() - now.getTime();
-        long paymentMillis = Math.min(maxPaymentMillis, remainingMillis);
+        // Hạn thanh toán đến 1 ngày trước thoigianbd
+        long oneDayBeforeStart = thoigianbd.getTime() - (24L * 60 * 60 * 1000); // 1 ngày trước thoigianbd
+        long paymentMillis = Math.max(0, oneDayBeforeStart - now.getTime()); // Đảm bảo không âm
 
         phieuthanhtoantiencoc.setThoigianthanhtoan(new Timestamp(now.getTime() + paymentMillis));
         phieuthanhtoantiencoc.setTrangthai(TrangThaiPhieuThanhToanTienCoc.UNPAID);

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum TrangThaiPhieuThanhToan {
     UNPAID("Chưa thanh toán"),
-    PAID("Đã thanh toán");
-
+    PAID("Đã thanh toán"),
+    CANCELLED("Bị hủy");
     private final String value;
 
     TrangThaiPhieuThanhToan(String value) {

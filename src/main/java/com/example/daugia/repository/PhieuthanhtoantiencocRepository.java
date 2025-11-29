@@ -31,4 +31,6 @@ public interface PhieuthanhtoantiencocRepository extends JpaRepository<Phieuthan
             String maphiendg,
             TrangThaiPhieuThanhToanTienCoc trangthai
     );
+
+    List<Phieuthanhtoantiencoc> findByPhienDauGia_Maphiendg(String maphiendg);
 }
