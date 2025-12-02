@@ -50,7 +50,7 @@ public class AuctionSchedulerService {
     @Autowired
     private PhieuthanhtoanService phieuthanhtoanService;
     @Autowired
-    private PhieuthanhtoanRepository phieuthanhtoanRepository;// Inject service mới
+    private PhieuthanhtoanRepository phieuthanhtoanRepository;
     @Autowired
     private EmailService emailService;
     @Autowired
@@ -405,7 +405,7 @@ public class AuctionSchedulerService {
                                 if (phieu.getThoigianthanhtoan().before(new java.util.Date())) {
                                     fresh.setTrangthai(TrangThaiPhienDauGia.FAILED);
                                     phiendaugiaRepository.save(fresh);
-                                    // Khi FAILED do người 1 và 2 không thanh toán, chuyển phiếu cọc của người 2 thành PAID nếu cần, rồi chuyển REFUNDED cho những người còn lại
+                                    // Khi FAILED do người 1 và 2 không thanh toán
                                     List<Phieuthanhtoantiencoc> allDeposits = phieuthanhtoantiencocRepository.findByPhienDauGia_Maphiendg(fresh.getMaphiendg());
                                     assert highestBidder != null;
                                     String firstWinnerId = highestBidder.getTaiKhoan().getMatk();
@@ -472,7 +472,7 @@ public class AuctionSchedulerService {
                             emailService.sendAuctionCancelWinEmail(phieu.getTaiKhoan(), fresh);
                             createNotification(phieu.getTaiKhoan().getEmail(), "Hình phạt không thanh toán phiên", "Tiền cọc của bạn đã mất do không thanh toán phiên "+ fresh.getMaphiendg()+".");
                             phieu.setTaiKhoan(secondWinnerBid.getTaiKhoan());
-                            phieu.setSotien(secondHighestBid);
+                            phieu.setSotien(secondHighestBid.subtract(fresh.getTiencoc()));
                             phieu.setThoigianthanhtoan(new Timestamp(System.currentTimeMillis() + SEVEN_DAYS_MS));
                             phieuthanhtoanRepository.save(phieu);
                             fresh.setGiacaonhatdatduoc(secondHighestBid);
@@ -481,7 +481,7 @@ public class AuctionSchedulerService {
                             createNotification(secondWinnerBid.getTaiKhoan().getEmail(), "Bạn được chuyển quyền thắng phiên đấu giá.",
                                     String.format("Phiên '%s' đã chuyển cho bạn với giá %s.", fresh.getSanPham().getTensp(), formatCurrency(secondHighestBid)));
                             schedulePaymentCheck(fresh);
-                            log.info("🔄 Phien {}: Chuyen cho nguoi thang thu hai {}", fresh.getMaphiendg(), secondWinnerBid.getTaiKhoan().getEmail());
+                            log.info("Phien {}: Chuyen cho nguoi thang thu hai {}", fresh.getMaphiendg(), secondWinnerBid.getTaiKhoan().getEmail());
                         } else {
                             log.warn("Khong tim thay nguoi thang thu hai cho {}", fresh.getMaphiendg());
                             fresh.setTrangthai(TrangThaiPhienDauGia.FAILED);
@@ -518,7 +518,7 @@ public class AuctionSchedulerService {
                         try {
                             emailService.sendAuctionEndEmail(fresh.getTaiKhoan(), fresh, "Nguoi thang khong thanh toan va khong co nguoi ke tiep du dieu kien.");
                         } catch (Exception ignored) {}
-                        log.info("❌ Phien {} → FAILED (nguoi thang khong thanh toan, khong co thay the)", fresh.getMaphiendg());
+                        log.info("Phien {} → FAILED (nguoi thang khong thanh toan, khong co thay the)", fresh.getMaphiendg());
                     }
                 }
             } catch (Exception e) {
@@ -543,27 +543,27 @@ public class AuctionSchedulerService {
         }
     }
 
-//    public void cancelAuction(String maphiendg, String reason) {
-//        try {
-//            Phiendaugia phien = phiendaugiaRepository.findById(maphiendg()).orElse(null);
-//            if (phien == null) return;
-//
-//            if (phien.getTrangthai() != TrangThaiPhienDauGia.CANCELLED) {
-//                phien.setTrangthai(TrangThaiPhienDauGia.CANCELLED);
-//                phiendaugiaRepository.save(phien);
-//                cancelScheduledTask(maphiendg);
-//                try {
-//                    emailService.sendAuctionEndEmail(phien.getTaiKhoan(), phien, "Phien dau gia da bi huy: " + reason);
-//                    createEndNotification(phien, "Phiên đấu giá đã bị hủy: " + reason, false);
-//                } catch (Exception e) {
-//                    log.error("Loi gui email huy cho phien {}: {}", maphiendg, e.getMessage());
-//                }
-//                log.info("🚫 Phien {} → CANCELLED (ly do: {})", maphiendg, reason);
-//            }
-//        } catch (Exception e) {
-//            log.error("Huy phien that bai {}: {}", maphiendg, e.getMessage());
-//        }
-//    }
+    public void cancelAuction(String maphiendg, String reason) {
+        try {
+            Phiendaugia phien = phiendaugiaRepository.findById(maphiendg).orElse(null);
+            if (phien == null) return;
+
+            if (phien.getTrangthai() != TrangThaiPhienDauGia.CANCELLED) {
+                phien.setTrangthai(TrangThaiPhienDauGia.CANCELLED);
+                phiendaugiaRepository.save(phien);
+                cancelScheduledTask(maphiendg);
+                try {
+                    emailService.sendAuctionEndEmail(phien.getTaiKhoan(), phien, "Phien dau gia da bi huy: " + reason);
+                    createEndNotification(phien, "Phiên đấu giá đã bị hủy: " + reason, false);
+                } catch (Exception e) {
+                    log.error("Loi gui email huy cho phien {}: {}", maphiendg, e.getMessage());
+                }
+                log.info("🚫 Phien {} → CANCELLED (ly do: {})", maphiendg, reason);
+            }
+        } catch (Exception e) {
+            log.error("Huy phien that bai {}: {}", maphiendg, e.getMessage());
+        }
+    }
 
     private void schedulePreStartNotifyOnce(Phiendaugia phien, long now, long startTime) throws MessagingException, IOException {
         if (preStartNotifiedSessions.contains(phien.getMaphiendg())) return;

@@ -15,11 +15,13 @@ import com.example.daugia.repository.PhientragiaRepository;
 import com.example.daugia.repository.TaikhoanRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -272,12 +274,32 @@ public class PhieuthanhtoanService {
         }
     }
 
-    // Ví dụ:
-    public Page<PaymentDTO> findByUserAndStatusPaged(String email, TrangThaiPhieuThanhToan status, Pageable pageable) {
+    public Page<PaymentDTO> findByUserAndStatusPaged(String email, TrangThaiPhieuThanhToan status, String keyword, Pageable pageable) {
         Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
-        Page<Phieuthanhtoan> page = phieuthanhtoanRepository
-                .findByTaiKhoan_MatkAndTrangthai(taikhoan.getMatk(), status, pageable);
+
+        // Tạo Specification (không dùng where() deprecated)
+        Specification<Phieuthanhtoan> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Filter theo tài khoản và trạng thái
+            predicates.add(cb.equal(root.get("taiKhoan").get("matk"), taikhoan.getMatk()));
+            predicates.add(cb.equal(root.get("trangthai"), status));
+
+            // Nếu có keyword, tìm kiếm trong matt hoặc maphiendg (case-insensitive)
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String keywordLower = "%" + keyword.toLowerCase() + "%";
+                Predicate mattPredicate = cb.like(cb.lower(root.get("matt")), keywordLower);
+                Predicate maphiendgPredicate = cb.like(cb.lower(root.get("phienDauGia").get("maphiendg")), keywordLower);
+                predicates.add(cb.or(mattPredicate, maphiendgPredicate));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // Sử dụng findAll với Specification
+        Page<Phieuthanhtoan> page = phieuthanhtoanRepository.findAll(spec, pageable);
+
         return page.map(p -> new PaymentDTO(
                 p.getMatt(),
                 new UserShortDTO(p.getTaiKhoan().getMatk()),

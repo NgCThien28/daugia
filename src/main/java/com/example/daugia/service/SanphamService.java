@@ -13,9 +13,11 @@ import com.example.daugia.entity.Taikhoanquantri;
 import com.example.daugia.exception.NotFoundException;
 import com.example.daugia.exception.ValidationException;
 import com.example.daugia.repository.*;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -65,15 +67,10 @@ public class SanphamService {
                 .toList();
     }
 
-    // Mặc định lọc 3 trạng thái: PENDING_APPROVAL, APPROVED, CANCELLED
-    public Page<Sanpham> findByUser(String email, Pageable pageable) {
-        List<TrangThaiSanPham> defaultStatuses = List.of(PENDING_APPROVAL, APPROVED, CANCELLED);
-        return findByUserWithStatuses(email, defaultStatuses, pageable);
-    }
-
-    public Page<Sanpham> findByUserWithStatuses(String email,
-                                                List<TrangThaiSanPham> statuses,
-                                                Pageable pageable) {
+    public Page<Sanpham> findByUserWithStatusesAndKeyword(String email,
+                                                          List<TrangThaiSanPham> statuses,
+                                                          String keyword,
+                                                          Pageable pageable) {
         Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
 
@@ -82,9 +79,24 @@ public class SanphamService {
                         ? List.of(PENDING_APPROVAL, APPROVED, CANCELLED)
                         : statuses;
 
-        return sanphamRepository.findByTaiKhoan_MatkAndTrangthaiIn(
-                taikhoan.getMatk(), effectiveStatuses, pageable
-        );
+        Specification<Sanpham> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(cb.equal(root.get("taiKhoan").get("matk"), taikhoan.getMatk()));
+            predicates.add(root.get("trangthai").in(effectiveStatuses));
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String keywordLower = "%" + keyword.toLowerCase() + "%";
+                Predicate maspPredicate = cb.like(cb.lower(root.get("masp")), keywordLower);
+                Predicate tenspPredicate = cb.like(cb.lower(root.get("tensp")), keywordLower);
+                predicates.add(cb.or(maspPredicate, tenspPredicate));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // Sử dụng findAll với Specification
+        return sanphamRepository.findAll(spec, pageable);
     }
 
     public ProductDTO create(SanPhamCreationRequest request, String email) {

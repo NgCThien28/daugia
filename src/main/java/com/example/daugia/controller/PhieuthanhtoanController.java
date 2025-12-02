@@ -2,9 +2,7 @@ package com.example.daugia.controller;
 
 import com.example.daugia.core.custom.TokenValidator;
 import com.example.daugia.core.enums.TrangThaiPhieuThanhToan;
-import com.example.daugia.core.enums.TrangThaiPhieuThanhToanTienCoc;
 import com.example.daugia.dto.request.ApiResponse;
-import com.example.daugia.dto.response.DepositDTO;
 import com.example.daugia.dto.response.PaymentDTO;
 import com.example.daugia.service.PhieuthanhtoanService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -68,10 +66,11 @@ public class PhieuthanhtoanController {
     public ApiResponse<Page<PaymentDTO>> findByUserAndStatus(
             @RequestHeader("Authorization") String header,
             @RequestParam TrangThaiPhieuThanhToan status,
+            @RequestParam(required = false) String keyword,  // Thêm keyword (optional)
             @PageableDefault(size = 20, sort = "thoigianthanhtoan", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         String email = tokenValidator.authenticateAndGetEmail(header);
-        Page<PaymentDTO> page = phieuthanhtoanService.findByUserAndStatusPaged(email, status, pageable);
+        Page<PaymentDTO> page = phieuthanhtoanService.findByUserAndStatusPaged(email, status, keyword, pageable);
         return ApiResponse.success(page, "OK");
     }
 }

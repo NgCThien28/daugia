@@ -14,13 +14,16 @@ import com.example.daugia.exception.ValidationException;
 import com.example.daugia.repository.PhiendaugiaRepository;
 import com.example.daugia.repository.SanphamRepository;
 import com.example.daugia.repository.TaikhoanRepository;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -59,10 +62,25 @@ public class PhiendaugiaService {
         return toAuctionDTO(entity);
     }
 
-    public Page<AuctionDTO> findByUser(String email, Pageable pageable) {
+    public Page<AuctionDTO> findByUser(String email, String keyword, Pageable pageable) {
         Taikhoan tk = taikhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản người dùng"));
-        Page<Phiendaugia> page = phiendaugiaRepository.findByTaiKhoan_Matk(tk.getMatk(),pageable);
+
+        Specification<Phiendaugia> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(cb.equal(root.get("taiKhoan").get("matk"), tk.getMatk()));
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String keywordLower = "%" + keyword.toLowerCase() + "%";
+                Predicate maphiendgPredicate = cb.like(cb.lower(root.get("maphiendg")), keywordLower);
+                predicates.add(maphiendgPredicate);
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        Page<Phiendaugia> page = phiendaugiaRepository.findAll(spec, pageable);
         return page.map(this::toAuctionDTO);
     }
 
@@ -186,7 +204,8 @@ public class PhiendaugiaService {
                         phien.getTaiKhoan().getTenlot(),
                         phien.getTaiKhoan().getTen(),
                         phien.getTaiKhoan().getEmail(),
-                        phien.getTaiKhoan().getSdt()
+                        phien.getTaiKhoan().getSdt(),
+                        phien.getTaiKhoan().getDiachi()
                 ),
                 new ProductDTO(
                         phien.getSanPham().getTensp(),

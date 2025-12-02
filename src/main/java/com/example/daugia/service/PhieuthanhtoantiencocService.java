@@ -18,10 +18,12 @@ import com.example.daugia.repository.PhieuthanhtoantiencocRepository;
 import com.example.daugia.repository.TaikhoanRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
@@ -86,7 +88,6 @@ public class PhieuthanhtoantiencocService {
     }
 
     public DepositDTO create(PhieuthanhtoantiencocCreationRequest request, String email) {
-
         Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
         if (taikhoan.getXacthuctaikhoan() == TrangThaiTaiKhoan.INACTIVE) {
@@ -111,20 +112,27 @@ public class PhieuthanhtoantiencocService {
         phieuthanhtoantiencoc.setTaiKhoan(taikhoan);
         phieuthanhtoantiencoc.setPhienDauGia(phiendaugia);
         Timestamp now = Timestamp.from(Instant.now());
-        Timestamp thoigianktdk = phiendaugia.getThoigianktdk();
+        long paymentMillis = getPaymentMillis(phiendaugia, now);
+
+        phieuthanhtoantiencoc.setThoigianthanhtoan(new Timestamp(now.getTime() + paymentMillis));
+        phieuthanhtoantiencoc.setTrangthai(TrangThaiPhieuThanhToanTienCoc.UNPAID);
+        phieuthanhtoantiencocRepository.save(phieuthanhtoantiencoc);
+        return findById(phieuthanhtoantiencoc.getMatc());
+    }
+
+    private static long getPaymentMillis(Phiendaugia phiendaugia, Timestamp now) {
         Timestamp thoigianbd = phiendaugia.getThoigianbd();
-        if (now.after(thoigianktdk)) {
+        if (now.before(phiendaugia.getThoigianbddk())){
+            throw new ValidationException("Thời hạn đang ký chưa bắt đầu");
+        }
+        if (now.after(phiendaugia.getThoigianktdk())) {
             throw new ValidationException("Đã quá thời hạn đăng ký");
         }
 
         // Hạn thanh toán đến 1 ngày trước thoigianbd
         long oneDayBeforeStart = thoigianbd.getTime() - (24L * 60 * 60 * 1000); // 1 ngày trước thoigianbd
         long paymentMillis = Math.max(0, oneDayBeforeStart - now.getTime()); // Đảm bảo không âm
-
-        phieuthanhtoantiencoc.setThoigianthanhtoan(new Timestamp(now.getTime() + paymentMillis));
-        phieuthanhtoantiencoc.setTrangthai(TrangThaiPhieuThanhToanTienCoc.UNPAID);
-        phieuthanhtoantiencocRepository.save(phieuthanhtoantiencoc);
-        return findById(phieuthanhtoantiencoc.getMatc());
+        return paymentMillis;
     }
 
     public String createOrder(HttpServletRequest request) {
@@ -274,7 +282,6 @@ public class PhieuthanhtoantiencocService {
         Page<Phieuthanhtoantiencoc> page = phieuthanhtoantiencocRepository
                 .findByTaiKhoan_MatkAndTrangthai(matk, status, pageable);
 
-        // Map Page<Entity> -> Page<DTO> bằng Page.map(...)
         return page.map(p -> new DepositDTO(
                 p.getMatc(),
                 new UserShortDTO(p.getTaiKhoan().getMatk()),
@@ -287,12 +294,29 @@ public class PhieuthanhtoantiencocService {
         ));
     }
 
-    // Thêm method mới
-    public Page<DepositDTO> findByUserAndStatusPaged(String email, TrangThaiPhieuThanhToanTienCoc status, Pageable pageable) {
+    public Page<DepositDTO> findByUserAndStatusPaged(String email, TrangThaiPhieuThanhToanTienCoc status, String keyword, Pageable pageable) {
         Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
-        Page<Phieuthanhtoantiencoc> page = phieuthanhtoantiencocRepository
-                .findByTaiKhoan_MatkAndTrangthai(taikhoan.getMatk(), status, pageable);
+
+        Specification<Phieuthanhtoantiencoc> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Filter theo tài khoản và trạng thái
+            predicates.add(cb.equal(root.get("taiKhoan").get("matk"), taikhoan.getMatk()));
+            predicates.add(cb.equal(root.get("trangthai"), status));
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String keywordLower = "%" + keyword.toLowerCase() + "%";
+                Predicate matcPredicate = cb.like(cb.lower(root.get("matc")), keywordLower);
+                Predicate maphiendgPredicate = cb.like(cb.lower(root.get("phienDauGia").get("maphiendg")), keywordLower);
+                predicates.add(cb.or(matcPredicate, maphiendgPredicate));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        Page<Phieuthanhtoantiencoc> page = phieuthanhtoantiencocRepository.findAll(spec, pageable);
+
         return page.map(p -> new DepositDTO(
                 p.getMatc(),
                 new UserShortDTO(p.getTaiKhoan().getMatk()),
@@ -304,5 +328,4 @@ public class PhieuthanhtoantiencocService {
                 p.getTrangthai()
         ));
     }
-
 }
