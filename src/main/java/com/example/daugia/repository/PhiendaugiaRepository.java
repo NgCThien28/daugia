@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PhiendaugiaRepository extends JpaRepository<Phiendaugia, String> {
@@ -20,7 +21,8 @@ public interface PhiendaugiaRepository extends JpaRepository<Phiendaugia, String
 //    Page<Phiendaugia> findByTaiKhoan_Matk(String makh, Pageable pageable);
 
     boolean existsBySanPham_Masp(String masp);
-
+    @Query("SELECT p FROM Phiendaugia p LEFT JOIN FETCH p.phieuThanhToan WHERE p.maphiendg = :id")
+    Optional<Phiendaugia> findByIdWithPhieuThanhToan(@Param("id") String id);
 //    List<Phiendaugia> findByTrangthai(TrangThaiPhienDauGia trangthai);
 
 //    List<Phiendaugia> findByTrangthaiAndThoigianktBefore(TrangThaiPhienDauGia trangthai, Timestamp currentTime);

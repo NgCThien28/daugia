@@ -28,9 +28,9 @@ public class Phiendaugia {
     @JsonBackReference
     private Sanpham sanPham;
 
-    @OneToOne(mappedBy = "phienDauGia")
+    @OneToMany(mappedBy = "phienDauGia", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
-    private Phieuthanhtoan phieuThanhToan;
+    private List<Phieuthanhtoan> phieuThanhToan;
 
     @ManyToOne
     @JoinColumn(name = "maqtv")

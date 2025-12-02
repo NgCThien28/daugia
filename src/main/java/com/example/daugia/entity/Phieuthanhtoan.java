@@ -20,8 +20,8 @@ public class Phieuthanhtoan {
     @GenericGenerator(name = "prefix-id", strategy = "com.example.daugia.core.custom.PrefixIdGenerator")
     private String matt;
 
-    @OneToOne
-    @JoinColumn(name = "maphiendg", nullable = false, unique = true)
+    @ManyToOne
+    @JoinColumn(name = "maphiendg")
     @JsonManagedReference
     private Phiendaugia phienDauGia;
 
