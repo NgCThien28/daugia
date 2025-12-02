@@ -90,10 +90,11 @@ public class PhieuthanhtoantiencocController {
     public ApiResponse<Page<DepositDTO>> findByUserAndStatus(
             @RequestHeader("Authorization") String header,
             @RequestParam TrangThaiPhieuThanhToanTienCoc status,
+            @RequestParam(required = false) String keyword,
             @PageableDefault(size = 20, sort = "thoigianthanhtoan", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         String email = tokenValidator.authenticateAndGetEmail(header);
-        Page<DepositDTO> page = phieuthanhtoantiencocService.findByUserAndStatusPaged(email, status, pageable);
+        Page<DepositDTO> page = phieuthanhtoantiencocService.findByUserAndStatusPaged(email, status,keyword, pageable);
         return ApiResponse.success(page, "OK");
     }
 }

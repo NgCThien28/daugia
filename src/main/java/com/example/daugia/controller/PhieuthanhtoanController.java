@@ -3,10 +3,8 @@ package com.example.daugia.controller;
 import com.example.daugia.core.custom.TokenValidator;
 import com.example.daugia.core.enums.TrangThaiPhieuThanhToan;
 import com.example.daugia.dto.request.ApiResponse;
-import com.example.daugia.dto.request.ThongBaoCreationRequest;
 import com.example.daugia.dto.response.PaymentDTO;
 import com.example.daugia.service.PhieuthanhtoanService;
-import com.example.daugia.service.ThongbaoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +25,6 @@ public class PhieuthanhtoanController {
     private PhieuthanhtoanService phieuthanhtoanService;
     @Autowired
     private TokenValidator tokenValidator;
-    @Autowired
-    private ThongbaoService thongbaoService;
 
     @GetMapping("/find-all")
     public ApiResponse<List<PaymentDTO>> findAll() {
@@ -70,21 +66,11 @@ public class PhieuthanhtoanController {
     public ApiResponse<Page<PaymentDTO>> findByUserAndStatus(
             @RequestHeader("Authorization") String header,
             @RequestParam TrangThaiPhieuThanhToan status,
+            @RequestParam(required = false) String keyword,  // Thêm keyword (optional)
             @PageableDefault(size = 20, sort = "thoigianthanhtoan", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         String email = tokenValidator.authenticateAndGetEmail(header);
-        Page<PaymentDTO> page = phieuthanhtoanService.findByUserAndStatusPaged(email, status, pageable);
+        Page<PaymentDTO> page = phieuthanhtoanService.findByUserAndStatusPaged(email, status, keyword, pageable);
         return ApiResponse.success(page, "OK");
-    }
-
-    @PutMapping("/cancel-payment/{matt}")
-    public ApiResponse<PaymentDTO> cancelPayment(
-            @RequestBody ThongBaoCreationRequest request,
-            @PathVariable String matt,
-            @RequestHeader("Authorization") String header) {
-        String email = tokenValidator.authenticateAndGetEmail(header);
-        PaymentDTO paymentDTO = phieuthanhtoanService.cancel(matt);
-        thongbaoService.createForUser(request, email, paymentDTO.getTaiKhoanKhachThanhToan().getEmail());
-        return ApiResponse.success(paymentDTO, "Huỷ phiếu thanh toán thành công");
     }
 }

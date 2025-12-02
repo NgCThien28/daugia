@@ -39,7 +39,6 @@ public class TaikhoanController {
         return ApiResponse.success(created, "Tạo tài khoản thành công");
     }
 
-    // Endpoint redirect (302) – giữ try/catch để điều hướng đúng, không qua GlobalExceptionHandler
     @GetMapping("/verify")
     public ResponseEntity<?> verifyAccount(@RequestParam("token") String token) {
         try {
@@ -55,6 +54,14 @@ public class TaikhoanController {
                     .build();
         }
         return ResponseEntity.badRequest().build();
+    }
+
+    @PostMapping("/resend-verify-code")
+    public ApiResponse<String> resendVerifyCode(@RequestHeader("Authorization") String header) throws MessagingException, IOException {
+        String token = tokenValidator.extractBearerOrThrow(header);
+        String email = tokenValidator.validateAndGetEmailFromToken(token);
+        taikhoanService.resendVerificationEmail(email);
+        return ApiResponse.success("Send success","Đã gửi email xác thực đến tài khoản email của bạn");
     }
 
     @GetMapping("/find-all")

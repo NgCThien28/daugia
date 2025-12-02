@@ -4,6 +4,7 @@ import com.example.daugia.core.enums.TrangThaiPhieuThanhToanTienCoc;
 import com.example.daugia.entity.Phieuthanhtoantiencoc;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -22,10 +23,10 @@ public interface PhieuthanhtoantiencocRepository extends JpaRepository<Phieuthan
             Pageable pageable
     );
 
-    long countByPhienDauGia_MaphiendgAndTrangthai(
-            String maphiendg,
-            TrangThaiPhieuThanhToanTienCoc trangthai
-    );
+//    long countByPhienDauGia_MaphiendgAndTrangthai(
+//            String maphiendg,
+//            TrangThaiPhieuThanhToanTienCoc trangthai
+//    );
 
     List<Phieuthanhtoantiencoc> findByPhienDauGia_MaphiendgAndTrangthai(
             String maphiendg,
@@ -33,4 +34,6 @@ public interface PhieuthanhtoantiencocRepository extends JpaRepository<Phieuthan
     );
 
     List<Phieuthanhtoantiencoc> findByPhienDauGia_Maphiendg(String maphiendg);
+
+    Page<Phieuthanhtoantiencoc> findAll(Specification<Phieuthanhtoantiencoc> spec, Pageable pageable);
 }

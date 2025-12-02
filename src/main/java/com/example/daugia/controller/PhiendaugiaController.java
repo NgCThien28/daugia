@@ -43,10 +43,11 @@ public class PhiendaugiaController {
     @GetMapping("/find-by-user")
     public ApiResponse<Page<AuctionDTO>> findByUser(
             @RequestHeader("Authorization") String header,
+            @RequestParam(required = false) String keyword,
             @PageableDefault(size = 12, sort = "thoigianbd", direction = Sort.Direction.DESC)
             Pageable pageable) {
         String email = tokenValidator.authenticateAndGetEmail(header);
-        Page<AuctionDTO> list = phiendaugiaService.findByUser(email, pageable);
+        Page<AuctionDTO> list = phiendaugiaService.findByUser(email, keyword, pageable);
         return ApiResponse.success(list, "Thành công");
     }
 

@@ -23,7 +23,7 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    public void sendVerificationEmail(Taikhoan tk, String link) throws MessagingException, IOException {
+    public void sendVerificationEmail(Taikhoan tk, String token) throws MessagingException, IOException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
 
@@ -39,8 +39,7 @@ public class EmailService {
         String templatePath = "templates/verification-email.html";
         ClassPathResource resource = new ClassPathResource(templatePath);
         String html = Files.readString(resource.getFile().toPath());
-
-        // Thay {{link}} bằng link thực tế
+        String link = "http://localhost:8082/api/users/verify?token=" + token;
         html = html.replace("{{link}}", link);
         html= html.replace("{{name}}",name);
         helper.setText(html, true); // true = HTML
