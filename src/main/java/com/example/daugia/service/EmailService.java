@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -46,6 +47,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async
     public void sendAuctionBeginEmail(Taikhoan tk, Phiendaugia phiendaugia) throws MessagingException, IOException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
@@ -82,6 +84,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async
     public void sendAuctionEndEmail(Taikhoan tk, Phiendaugia phiendaugia, String lydo) throws MessagingException, IOException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
@@ -120,6 +123,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async
     public void sendAuctionWinEmail(Taikhoan winner, Phiendaugia phiendaugia, BigDecimal giaThang) throws MessagingException, IOException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
@@ -160,6 +164,7 @@ public class EmailService {
     }
 
     // Thêm method gửi email cho người thắng thứ 2
+    @Async
     public void sendAuctionTransferEmail(Taikhoan newWinner, Phiendaugia phiendaugia, BigDecimal giaThang) throws MessagingException, IOException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
@@ -199,6 +204,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async
     public void sendAuctionCancelWinEmail(Taikhoan oldWinner, Phiendaugia phiendaugia) throws MessagingException, IOException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
