@@ -21,8 +21,12 @@ public interface PhiendaugiaRepository extends JpaRepository<Phiendaugia, String
 //    Page<Phiendaugia> findByTaiKhoan_Matk(String makh, Pageable pageable);
 
     boolean existsBySanPham_Masp(String masp);
+
     @Query("SELECT p FROM Phiendaugia p LEFT JOIN FETCH p.phieuThanhToan WHERE p.maphiendg = :id")
     Optional<Phiendaugia> findByIdWithPhieuThanhToan(@Param("id") String id);
+
+    @Query("SELECT p FROM Phiendaugia p WHERE p.trangthai NOT IN :excludedStatuses")
+    List<Phiendaugia> findActiveAuctions(@Param("excludedStatuses") List<TrangThaiPhienDauGia> excludedStatuses);
 //    List<Phiendaugia> findByTrangthai(TrangThaiPhienDauGia trangthai);
 
 //    List<Phiendaugia> findByTrangthaiAndThoigianktBefore(TrangThaiPhienDauGia trangthai, Timestamp currentTime);
