@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -96,4 +97,8 @@ public interface PhiendaugiaRepository extends JpaRepository<Phiendaugia, String
     Page<Phiendaugia> findAuctionsPaidByEmail(@Param("email") String email, Pageable pageable);
 
     Page<Phiendaugia> findAll(Specification<Phiendaugia> spec, Pageable pageable);
+
+    @Modifying
+    @Query("DELETE FROM Phiendaugia p WHERE p.maphiendg = :id AND p.taiKhoan.email = :email AND p.trangthai = :trangthai")
+    int deletePendingByIdAndOwner(@Param("id") String id, @Param("email") String email, @Param("trangthai") TrangThaiPhienDauGia trangthai);
 }

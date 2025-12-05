@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -128,7 +129,7 @@ public class PhieuthanhtoantiencocService {
     private static long getPaymentMillis(Phiendaugia phiendaugia, Timestamp now) {
         Timestamp thoigianbd = phiendaugia.getThoigianbd();
         if (now.before(phiendaugia.getThoigianbddk())){
-            throw new ValidationException("Thời hạn đang ký chưa bắt đầu");
+            throw new ValidationException("Thời hạn đăng ký chưa bắt đầu");
         }
         if (now.after(phiendaugia.getThoigianktdk())) {
             throw new ValidationException("Đã quá thời hạn đăng ký");
@@ -219,6 +220,7 @@ public class PhieuthanhtoantiencocService {
         return PaymentConfig.vnp_PayUrl + "?" + queryUrl;
     }
 
+    @Transactional
     public int orderReturn(HttpServletRequest request) throws JsonProcessingException {
         Map<String, String> fields = new HashMap<>();
         for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements(); ) {
