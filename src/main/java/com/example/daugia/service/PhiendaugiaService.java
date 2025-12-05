@@ -26,6 +26,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.daugia.core.enums.TrangThaiPhienDauGia.PENDING_APPROVAL;
+
 @Service
 public class PhiendaugiaService {
     @Autowired
@@ -142,7 +144,7 @@ public class PhiendaugiaService {
         pdg.setBuocgia(request.getBuocgia());
         pdg.setTiencoc(request.getTiencoc());
         pdg.setGiacaonhatdatduoc(BigDecimal.ZERO);
-        pdg.setTrangthai(TrangThaiPhienDauGia.PENDING_APPROVAL);
+        pdg.setTrangthai(PENDING_APPROVAL);
 
         phiendaugiaRepository.save(pdg);
         // auctionSchedulerService.scheduleNewOrApprovedAuction(pdg.getMaphiendg());
@@ -161,7 +163,7 @@ public class PhiendaugiaService {
             throw new ForbiddenException("Bạn không có quyền chỉnh sửa phiên đấu giá này");
         }
 
-        if (pdg.getTrangthai() != TrangThaiPhienDauGia.PENDING_APPROVAL) {
+        if (pdg.getTrangthai() != PENDING_APPROVAL) {
             throw new ValidationException("Chỉ có thể chỉnh sửa phiên đấu giá đang chờ duyệt");
         }
 
@@ -175,6 +177,23 @@ public class PhiendaugiaService {
 
         Phiendaugia saved = phiendaugiaRepository.save(pdg);
         return toAuctionDTO(saved);
+    }
+
+    @Transactional
+    public String delete(String maphiendg, String email) {
+        // Kiểm tra tồn tại và quyền sở hữu (tùy chọn, nhưng giữ để validation rõ ràng)
+        Phiendaugia phiendaugia = phiendaugiaRepository.findById(maphiendg)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy phiên này"));
+        if (!email.equals(phiendaugia.getTaiKhoan().getEmail()))
+            throw new ValidationException("Bạn không phải chủ phiên này");
+        if (phiendaugia.getTrangthai() != PENDING_APPROVAL)
+            throw new ValidationException("Phiên đã được duyệt");
+
+        int deleted = phiendaugiaRepository.deletePendingByIdAndOwner(maphiendg, email, PENDING_APPROVAL);
+        if (deleted == 0) {
+            throw new ValidationException("Không thể xóa phiên này (có thể đã bị thay đổi)");
+        }
+        return "Xóa phiên thành công!";
     }
 
 //    //  PRIVATE HELPERS

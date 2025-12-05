@@ -124,4 +124,12 @@ public class PhiendaugiaController {
         AuctionDTO dto = phiendaugiaService.update(maphiendg, request, email);
         return ApiResponse.success(dto, "Cập nhật phiên đấu giá thành công");
     }
+
+    @DeleteMapping("/delete/{maphiendg}")
+    public ApiResponse<String> delete(@PathVariable String maphiendg,
+                                      @RequestHeader("Authorization") String header) {
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        String text = phiendaugiaService.delete(maphiendg, email);
+        return ApiResponse.success(null, text);
+    }
 }
