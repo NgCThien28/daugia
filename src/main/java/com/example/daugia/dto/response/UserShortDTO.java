@@ -41,8 +41,20 @@ public class UserShortDTO {
         this.ten = ten;
     }
 
+    public UserShortDTO(String matk, String ho, String tenlot, String ten) {
+        this.matk = matk;
+        this.ho = ho;
+        this.tenlot = tenlot;
+        this.ten = ten;
+    }
+
     public UserShortDTO(String matk) {
         this.matk = matk;
+    }
+
+    public UserShortDTO(String matk, String email) {
+        this.matk = matk;
+        this.email = email;
     }
 
     public UserShortDTO() {

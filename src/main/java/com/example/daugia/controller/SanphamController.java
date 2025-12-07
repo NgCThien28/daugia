@@ -4,9 +4,11 @@ import com.example.daugia.core.custom.TokenValidator;
 import com.example.daugia.core.enums.TrangThaiSanPham;
 import com.example.daugia.dto.request.ApiResponse;
 import com.example.daugia.dto.request.SanPhamCreationRequest;
+import com.example.daugia.dto.request.ThongBaoCreationRequest;
 import com.example.daugia.dto.response.ProductDTO;
 import com.example.daugia.entity.Sanpham;
 import com.example.daugia.service.SanphamService;
+import com.example.daugia.service.ThongbaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,8 @@ public class SanphamController {
     private SanphamService sanphamService;
     @Autowired
     private TokenValidator tokenValidator;
+    @Autowired
+    private ThongbaoService thongbaoService;
 
     @GetMapping("/find-all")
     public ApiResponse<List<ProductDTO>> findAll() {
@@ -71,19 +75,22 @@ public class SanphamController {
 
     @PutMapping("/approve/{masp}")
     public ApiResponse<ProductDTO> approveProduct(
+            @RequestBody SanPhamCreationRequest request,
             @PathVariable String masp,
             @RequestHeader("Authorization") String header) {
         String email = tokenValidator.authenticateAndGetEmail(header);
-        ProductDTO approved = sanphamService.approveProduct(masp, email);
+        ProductDTO approved = sanphamService.approveProduct(request, masp, email);
         return ApiResponse.success(approved, "Duyệt sản phẩm thành công");
     }
 
     @PutMapping("/reject/{masp}")
     public ApiResponse<ProductDTO> rejectProduct(
+            @RequestBody ThongBaoCreationRequest request,
             @PathVariable String masp,
             @RequestHeader("Authorization") String header) {
         String email = tokenValidator.authenticateAndGetEmail(header);
         ProductDTO rejected = sanphamService.rejectProduct(masp, email);
+        thongbaoService.createForUser(request, email, rejected.getTaiKhoanNguoiBan().getEmail());
         return ApiResponse.success(rejected, "Từ chối sản phẩm thành công");
     }
 

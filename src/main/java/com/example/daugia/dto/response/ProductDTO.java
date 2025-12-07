@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Setter
@@ -18,8 +19,10 @@ public class ProductDTO {
     private String tinhtrangsp;
     private String tensp;
     private String trangthai;
+    private BigDecimal giamongdoi;
+    private BigDecimal hoahong;
 
-    public ProductDTO(String masp, UserShortDTO taiKhoan,CityDTO thanhpho, List<ImageDTO> hinhAnh, String tinhtrangsp, String tensp, String trangthai) {
+    public ProductDTO(String masp, UserShortDTO taiKhoan,CityDTO thanhpho, List<ImageDTO> hinhAnh, String tinhtrangsp, String tensp, String trangthai, BigDecimal giamongdoi, BigDecimal hoahong) {
         this.masp = masp;
         this.taiKhoanNguoiBan = taiKhoan;
         this.thanhpho = thanhpho;
@@ -27,6 +30,8 @@ public class ProductDTO {
         this.tinhtrangsp = tinhtrangsp;
         this.tensp = tensp;
         this.trangthai = trangthai;
+        this.giamongdoi = giamongdoi;
+        this.hoahong = hoahong;
     }
 
     public ProductDTO(String tensp, String masp,String madm,CityDTO thanhpho, List<ImageDTO> hinhAnh) {

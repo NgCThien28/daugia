@@ -35,5 +35,4 @@ public class Phieuthanhtoan {
     private String vnptransactionno;
     private String bankcode;
     private String raw;
-
 }

@@ -45,7 +45,12 @@ public class PhieuthanhtoantiencocService {
         return phieuthanhtoantiencocList.stream()
                 .map(phieuthanhtoantiencoc -> new DepositDTO(
                         phieuthanhtoantiencoc.getMatc(),
-                        new UserShortDTO(phieuthanhtoantiencoc.getTaiKhoan().getMatk()),
+                        new UserShortDTO(
+                                phieuthanhtoantiencoc.getTaiKhoan().getMatk(),
+                                phieuthanhtoantiencoc.getTaiKhoan().getHo(),
+                                phieuthanhtoantiencoc.getTaiKhoan().getTenlot(),
+                                phieuthanhtoantiencoc.getTaiKhoan().getTen()
+                        ),
                         new AuctionDTO(
                                 phieuthanhtoantiencoc.getPhienDauGia().getMaphiendg(),
                                 phieuthanhtoantiencoc.getPhienDauGia().getGiacaonhatdatduoc()

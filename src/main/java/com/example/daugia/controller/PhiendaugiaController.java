@@ -4,8 +4,10 @@ import com.example.daugia.core.custom.TokenValidator;
 import com.example.daugia.core.enums.TrangThaiPhienDauGia;
 import com.example.daugia.dto.request.ApiResponse;
 import com.example.daugia.dto.request.PhiendaugiaCreationRequest;
+import com.example.daugia.dto.request.ThongBaoCreationRequest;
 import com.example.daugia.dto.response.AuctionDTO;
 import com.example.daugia.service.PhiendaugiaService;
+import com.example.daugia.service.ThongbaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +25,8 @@ public class PhiendaugiaController {
     private PhiendaugiaService phiendaugiaService;
     @Autowired
     private TokenValidator tokenValidator;
+    @Autowired
+    private ThongbaoService thongbaoService;
 
     @GetMapping("/find-all")
     public ApiResponse<List<AuctionDTO>> findAll() {
@@ -122,5 +126,26 @@ public class PhiendaugiaController {
         String email = tokenValidator.authenticateAndGetEmail(header);
         AuctionDTO dto = phiendaugiaService.update(maphiendg, request, email);
         return ApiResponse.success(dto, "Cập nhật phiên đấu giá thành công");
+    }
+
+    @PutMapping("/approve/{mapdg}")
+    public ApiResponse<AuctionDTO> approveAuction(
+            @RequestBody PhiendaugiaCreationRequest request,
+            @PathVariable String mapdg,
+            @RequestHeader("Authorization") String header) {
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        AuctionDTO approved = phiendaugiaService.approveAuction(request, mapdg, email);
+        return ApiResponse.success(approved, "Duyệt phiên đấu giá thành công");
+    }
+
+    @PutMapping("/reject/{mapdg}")
+    public ApiResponse<AuctionDTO> rejectAuction(
+            @RequestBody ThongBaoCreationRequest request,
+            @PathVariable String mapdg,
+            @RequestHeader("Authorization") String header) {
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        AuctionDTO rejected = phiendaugiaService.rejectAuction(mapdg, email);
+        thongbaoService.createForUser(request, email, rejected.getTaiKhoanNguoiBan().getEmail());
+        return ApiResponse.success(rejected, "Từ chối phiên đấu giá thành công");
     }
 }

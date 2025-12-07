@@ -37,6 +37,8 @@ public class SanphamService {
     private ThanhphoRepository thanhphoRepository;
     @Autowired
     private TaikhoanquantriRepository taikhoanquantriRepository;
+    @Autowired
+    private ThongbaoService thongbaoService;
 
     public List<ProductDTO> findAll() {
         List<Sanpham> sanphamList = sanphamRepository.findAll();
@@ -60,7 +62,9 @@ public class SanphamService {
                                 .toList(),
                         sp.getTinhtrangsp(),
                         sp.getTensp(),
-                        sp.getTrangthai().getValue()
+                        sp.getTrangthai().getValue(),
+                        sp.getGiamongdoi(),
+                        sp.getHoahong()
                 ))
                 .toList();
     }
@@ -111,10 +115,7 @@ public class SanphamService {
         CityDTO cityDTO = new CityDTO(sp.getThanhPho().getTentp());
         List<ImageDTO> hinhAnh = new ArrayList<>();
 
-        return new ProductDTO(
-                sp.getMasp(), userShortDTO, cityDTO, hinhAnh,
-                sp.getTinhtrangsp(), sp.getTensp(), sp.getTrangthai().getValue()
-        );
+        return convertToDTO(sp);
     }
 
     public ProductDTO update(SanPhamCreationRequest request, String email) {
@@ -135,10 +136,7 @@ public class SanphamService {
         CityDTO cityDTO = new CityDTO(sanpham.getThanhPho().getTentp());
         List<ImageDTO> hinhAnh = new ArrayList<>();
 
-        return new ProductDTO(
-                sanpham.getMasp(), userShortDTO, cityDTO, hinhAnh,
-                sanpham.getTinhtrangsp(), sanpham.getTensp(), sanpham.getTrangthai().getValue()
-        );
+        return convertToDTO(sanpham);
     }
 
     public String delete(String masp, String email) {
@@ -152,7 +150,7 @@ public class SanphamService {
         return "Xóa sản phẩm thành công!";
     }
 
-    public ProductDTO approveProduct(String masp, String emailAdmin) {
+    public ProductDTO approveProduct(SanPhamCreationRequest request, String masp, String emailAdmin) {
         Sanpham sanpham = sanphamRepository.findById(masp)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm với mã: " + masp));
         if (sanpham.getTrangthai() != TrangThaiSanPham.PENDING_APPROVAL) {
@@ -161,6 +159,10 @@ public class SanphamService {
         Taikhoanquantri admin = taikhoanquantriRepository.findByEmail(emailAdmin)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản quản trị"));
 
+        sanpham.setTensp(request.getTensp());
+        sanpham.setTinhtrangsp(request.getTinhtrangsp());
+        sanpham.setGiamongdoi(request.getGiamongdoi());
+        sanpham.setHoahong(request.getHoahong());
         sanpham.setTrangthai(TrangThaiSanPham.APPROVED);
         sanpham.setTaiKhoanQuanTri(admin);
 
@@ -180,14 +182,14 @@ public class SanphamService {
 
         sanpham.setTrangthai(TrangThaiSanPham.CANCELLED);
         sanpham.setTaiKhoanQuanTri(admin);
-
         Sanpham updatedProduct = sanphamRepository.save(sanpham);
 
         return convertToDTO(updatedProduct);
     }
 
     private ProductDTO convertToDTO(Sanpham sanpham) {
-        UserShortDTO userShortDTO = new UserShortDTO(sanpham.getTaiKhoan().getMatk());
+        UserShortDTO userShortDTO = new UserShortDTO(sanpham.getTaiKhoan().getMatk(),
+                sanpham.getTaiKhoan().getEmail());
         CityDTO cityDTO = new CityDTO(sanpham.getThanhPho().getTentp());
         List<ImageDTO> hinhAnh = new ArrayList<>();
 
@@ -198,7 +200,9 @@ public class SanphamService {
                 hinhAnh,
                 sanpham.getTinhtrangsp(),
                 sanpham.getTensp(),
-                sanpham.getTrangthai().getValue()
+                sanpham.getTrangthai().getValue(),
+                sanpham.getGiamongdoi(),
+                sanpham.getHoahong()
         );
     }
 

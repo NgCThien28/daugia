@@ -47,7 +47,12 @@ public class PhieuthanhtoanService {
         return phieuthanhtoanList.stream()
                 .map(phieuthanhtoan -> new PaymentDTO(
                         phieuthanhtoan.getMatt(),
-                        new UserShortDTO(phieuthanhtoan.getTaiKhoan().getMatk()),
+                        new UserShortDTO(
+                                phieuthanhtoan.getTaiKhoan().getMatk(),
+                                phieuthanhtoan.getTaiKhoan().getHo(),
+                                phieuthanhtoan.getTaiKhoan().getTenlot(),
+                                phieuthanhtoan.getTaiKhoan().getTen()
+                        ),
                         new AuctionDTO(
                                 phieuthanhtoan.getPhienDauGia().getMaphiendg(),
                                 phieuthanhtoan.getPhienDauGia().getGiacaonhatdatduoc()
@@ -289,5 +294,27 @@ public class PhieuthanhtoanService {
                 p.getTrangthai(),
                 p.getSotien()
         ));
+    }
+
+    public PaymentDTO cancel(String matt) {
+        Phieuthanhtoan ptt = phieuthanhtoanRepository.findById(matt)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy phiếu thanh toán"));
+        if (ptt.getTrangthai() != TrangThaiPhieuThanhToan.UNPAID)
+            throw new ValidationException("Phiếu đã được thanh toán hoặc bị huỷ");
+        ptt.setTrangthai(TrangThaiPhieuThanhToan.CANCELLED);
+        phieuthanhtoanRepository.save(ptt);
+        return new PaymentDTO(ptt.getMatt(),
+                new UserShortDTO(
+                        ptt.getTaiKhoan().getMatk(),
+                        ptt.getTaiKhoan().getEmail()
+                ),
+                new AuctionDTO(
+                        ptt.getPhienDauGia().getMaphiendg(),
+                        ptt.getPhienDauGia().getGiacaonhatdatduoc()
+                ),
+                ptt.getThoigianthanhtoan(),
+                ptt.getTrangthai(),
+                ptt.getSotien()
+        );
     }
 }
