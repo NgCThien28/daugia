@@ -61,7 +61,6 @@ public class PhientragiaController {
 
     public static record HistoryRequest(String maphienDauGia, Integer limit) {}
 
-    // Trả lịch sử trực tiếp cho session đã gửi /app/history
     @MessageMapping("/history")
     @SendToUser("/queue/history")
     public List<BiddingDTO> history(HistoryRequest req) {
