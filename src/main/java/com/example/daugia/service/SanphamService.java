@@ -132,11 +132,11 @@ public class SanphamService {
 
     public ProductDTO update(SanPhamCreationRequest request, String email) {
         Sanpham sanpham = sanphamRepository.findById(request.getMasp())
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài sản"));
         if(!email.equals(sanpham.getTaiKhoan().getEmail()))
             throw new ValidationException("Bạn không phải chủ sản phẩm");
         sanpham.setDanhMuc(danhmucRepository.findById(request.getMadm())
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy danh mục sản phẩm")));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy danh mục tài sản")));
         sanpham.setThanhPho(thanhphoRepository.findById(request.getMatp())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy thành phố")));
         sanpham.setTensp(request.getTensp());
@@ -153,9 +153,9 @@ public class SanphamService {
 
     public String delete(String masp, String email) {
         Sanpham sanpham = sanphamRepository.findById(masp)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài sản"));
         if(!email.equals(sanpham.getTaiKhoan().getEmail()))
-            throw new ValidationException("Bạn không phải chủ sản phẩm");
+            throw new ValidationException("Bạn không phải chủ tài sản");
         if(sanpham.getTrangthai() == AUCTION_CREATED)
             throw new ValidationException("Sản phẩm đã được tạo phiên");
         sanphamRepository.delete(sanpham);
@@ -164,7 +164,7 @@ public class SanphamService {
 
     public ProductDTO approveProduct(SanPhamCreationRequest request, String masp, String emailAdmin) {
         Sanpham sanpham = sanphamRepository.findById(masp)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm với mã: " + masp));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài sản với mã " + masp));
         if (sanpham.getTrangthai() != TrangThaiSanPham.PENDING_APPROVAL) {
             throw new ValidationException("Sản phẩm đã được duyệt");
         }
@@ -184,9 +184,9 @@ public class SanphamService {
 
     public ProductDTO rejectProduct(String masp, String emailAdmin) {
         Sanpham sanpham = sanphamRepository.findById(masp)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm với mã: " + masp));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài sản với mã " + masp));
         if (sanpham.getTrangthai() != TrangThaiSanPham.PENDING_APPROVAL) {
-            throw new ValidationException("Sản phẩm không ở trạng thái chờ duyệt");
+            throw new ValidationException("Tài sản không ở trạng thái chờ duyệt");
         }
         Taikhoanquantri admin = taikhoanquantriRepository.findByEmail(emailAdmin)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản quản trị"));

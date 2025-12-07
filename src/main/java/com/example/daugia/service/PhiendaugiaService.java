@@ -116,7 +116,6 @@ public class PhiendaugiaService {
     public AuctionDTO create(PhiendaugiaCreationRequest request, String email) {
         Taikhoan tk = taikhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản khách hàng"));
-
         boolean existsActive = phiendaugiaRepository.existsBySanPham_Masp(request.getMasp());
         if (existsActive) {
             throw new ConflictException("Sản phẩm đã có phiên đấu giá đang chờ hoặc đang diễn ra");
@@ -128,7 +127,8 @@ public class PhiendaugiaService {
         if (sp.getTrangthai() != TrangThaiSanPham.APPROVED) {
             throw new ValidationException("Sản phẩm chưa được duyệt");
         }
-
+        if(!email.equals(sp.getTaiKhoan().getEmail()))
+            throw new ValidationException("Bạn không phải chủ sản phẩm");
         Phiendaugia pdg = new Phiendaugia();
         pdg.setTaiKhoan(tk);
         pdg.setSanPham(sp);
@@ -160,7 +160,7 @@ public class PhiendaugiaService {
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy phiên đấu giá"));
 
         if (!pdg.getTaiKhoan().getMatk().equals(tk.getMatk())) {
-            throw new ForbiddenException("Bạn không có quyền chỉnh sửa phiên đấu giá này");
+            throw new ValidationException("Bạn không phải chủ phiên này");
         }
 
         if (pdg.getTrangthai() != PENDING_APPROVAL) {
