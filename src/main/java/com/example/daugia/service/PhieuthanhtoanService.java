@@ -44,6 +44,8 @@ public class PhieuthanhtoanService {
     @Autowired
     private PhientragiaRepository phientragiaRepository;
 
+    // TÌM KIẾM
+
     public List<PaymentDTO> findAll() {
         List<Phieuthanhtoan> phieuthanhtoanList = phieuthanhtoanRepository.findAll();
         return phieuthanhtoanList.stream()
@@ -96,7 +98,52 @@ public class PhieuthanhtoanService {
                 .toList();
     }
 
-    // Thêm method tạo phiếu cho winner cụ thể (cho fallback)
+    public Optional<Phieuthanhtoan> findByPhienDauGia(String maphiendg) {
+        return phieuthanhtoanRepository.findByPhienDauGia_Maphiendg(maphiendg);
+    }
+
+    public Page<PaymentDTO> findByUserAndStatus(String email, TrangThaiPhieuThanhToan status, String keyword, Pageable pageable) {
+        Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
+
+        // Tạo Specification (không dùng where() deprecated)
+        Specification<Phieuthanhtoan> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Filter theo tài khoản và trạng thái
+            predicates.add(cb.equal(root.get("taiKhoan").get("matk"), taikhoan.getMatk()));
+            predicates.add(cb.equal(root.get("trangthai"), status));
+
+            // Nếu có keyword, tìm kiếm trong matt hoặc maphiendg (case-insensitive)
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String keywordLower = "%" + keyword.toLowerCase() + "%";
+                Predicate mattPredicate = cb.like(cb.lower(root.get("matt")), keywordLower);
+                Predicate maphiendgPredicate = cb.like(cb.lower(root.get("phienDauGia").get("maphiendg")), keywordLower);
+                predicates.add(cb.or(mattPredicate, maphiendgPredicate));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // Sử dụng findAll với Specification
+        Page<Phieuthanhtoan> page = phieuthanhtoanRepository.findAll(spec, pageable);
+
+        return page.map(p -> new PaymentDTO(
+                p.getMatt(),
+                new UserShortDTO(p.getTaiKhoan().getMatk()),
+                new AuctionDTO(
+                        p.getPhienDauGia().getMaphiendg(),
+                        p.getPhienDauGia().getGiacaonhatdatduoc()
+                ),
+                p.getThoigianthanhtoan(),
+                p.getTrangthai(),
+                p.getSotien()
+        ));
+    }
+
+    // THANH TOÁN
+
+    // tạo phiếu cho winner cụ thể
     public Phieuthanhtoan createForWinner(Phiendaugia phienDauGia, Taikhoan winner, BigDecimal giaThang) {
         // Kiểm tra đã có phiếu chưa
         Optional<Phieuthanhtoan> existing = phieuthanhtoanRepository.findByPhienDauGia_Maphiendg(phienDauGia.getMaphiendg());
@@ -109,7 +156,6 @@ public class PhieuthanhtoanService {
         phieu.setPhienDauGia(phienDauGia);
         phieu.setTrangthai(TrangThaiPhieuThanhToan.UNPAID);
         phieu.setSotien(giaThang.subtract(phienDauGia.getTiencoc()));
-        // Thời gian thanh toán: 7 ngày từ bây giờ
         Timestamp now = Timestamp.from(Instant.now());
         long sevenDaysMs = 7L * 24 * 60 * 60 * 1000;
         phieu.setThoigianthanhtoan(new Timestamp(now.getTime() + sevenDaysMs));
@@ -117,7 +163,7 @@ public class PhieuthanhtoanService {
         return phieuthanhtoanRepository.save(phieu);
     }
 
-    // Giữ method cũ, gọi với winner từ bids
+    // gọi với winner từ bids
     public Phieuthanhtoan createForWinner(Phiendaugia phienDauGia) {
         List<Phientragia> bids = phientragiaRepository.findByPhienDauGia_Maphiendg(phienDauGia.getMaphiendg());
         if (bids.isEmpty()) {
@@ -131,24 +177,11 @@ public class PhieuthanhtoanService {
         return createForWinner(phienDauGia, winnerBid.getTaiKhoan(), winnerBid.getSotien());
     }
 
-    public Optional<Phieuthanhtoan> findByPhienDauGia(String maphiendg) {
-        return phieuthanhtoanRepository.findByPhienDauGia_Maphiendg(maphiendg);
-    }
-
     public String createOrder(HttpServletRequest request) {
         Phieuthanhtoan phieu = phieuthanhtoanRepository.findById(request.getParameter("matt"))
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy phiếu thanh toán"));
 
-        Timestamp thoigianThanhToanChoPhep = phieu.getThoigianthanhtoan();
-        Timestamp now = new Timestamp(System.currentTimeMillis());
-
-        // Chỉ tạo order nếu chưa quá hạn và chưa thanh toán
-        if (phieu.getTrangthai().equals(TrangThaiPhieuThanhToan.PAID)) {
-            throw new ConflictException("Phiếu đã được thanh toán.");
-        }
-        if (!thoigianThanhToanChoPhep.after(now)) {
-            throw new ValidationException("Đã quá thời hạn thanh toán.");
-        }
+        validatePhieuForPayment(phieu);
 
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
@@ -235,7 +268,6 @@ public class PhieuthanhtoanService {
             return -1;
         }
 
-        // Lấy mã phiếu từ vnp_OrderInfo
         String orderInfo = request.getParameter("vnp_OrderInfo");
         if (orderInfo == null || !orderInfo.contains("matt=")) {
             throw new ValidationException("Thiếu mã phiếu thanh toán trong OrderInfo.");
@@ -246,70 +278,33 @@ public class PhieuthanhtoanService {
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy phiếu thanh toán"));
 
         String status = request.getParameter("vnp_TransactionStatus");
-        Timestamp now = new Timestamp(System.currentTimeMillis());
-        Timestamp thoigianThanhToanChoPhep = phieu.getThoigianthanhtoan();
 
         if ("00".equals(status)) { // Thanh toán thành công
-            if (!phieu.getTrangthai().equals(TrangThaiPhieuThanhToan.PAID)) {
-                if (thoigianThanhToanChoPhep.after(now)) {
-                    phieu.setTrangthai(TrangThaiPhieuThanhToan.PAID);
-                    phieu.setVnptransactionno(fields.get("vnp_TransactionNo"));
-                    phieu.setBankcode(fields.get("vnp_BankCode"));
-                    try {
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        String rawJson = objectMapper.writeValueAsString(fields);
-                        phieu.setRaw(rawJson);
-                    } catch (JsonProcessingException ignore) {
-                    }
-                    phieuthanhtoanRepository.save(phieu);
-                    return 1;
-                } else {
-                    throw new ValidationException("Đã quá thời hạn thanh toán");
-                }
-            } else {
-                throw new ConflictException("Phiếu đã được thanh toán trước đó");
+            validatePhieuForPayment(phieu);
+            phieu.setTrangthai(TrangThaiPhieuThanhToan.PAID);
+            phieu.setVnptransactionno(fields.get("vnp_TransactionNo"));
+            phieu.setBankcode(fields.get("vnp_BankCode"));
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String rawJson = objectMapper.writeValueAsString(fields);
+                phieu.setRaw(rawJson);
+            } catch (JsonProcessingException ignore) {
             }
+            phieuthanhtoanRepository.save(phieu);
+            return 1;
         } else {
-            return 0; // Thanh toán thất bại hoặc bị hủy
+            return 0;
         }
     }
 
-    public Page<PaymentDTO> findByUserAndStatusPaged(String email, TrangThaiPhieuThanhToan status, String keyword, Pageable pageable) {
-        Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
+    // HELPER
 
-        // Tạo Specification (không dùng where() deprecated)
-        Specification<Phieuthanhtoan> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            // Filter theo tài khoản và trạng thái
-            predicates.add(cb.equal(root.get("taiKhoan").get("matk"), taikhoan.getMatk()));
-            predicates.add(cb.equal(root.get("trangthai"), status));
-
-            // Nếu có keyword, tìm kiếm trong matt hoặc maphiendg (case-insensitive)
-            if (keyword != null && !keyword.trim().isEmpty()) {
-                String keywordLower = "%" + keyword.toLowerCase() + "%";
-                Predicate mattPredicate = cb.like(cb.lower(root.get("matt")), keywordLower);
-                Predicate maphiendgPredicate = cb.like(cb.lower(root.get("phienDauGia").get("maphiendg")), keywordLower);
-                predicates.add(cb.or(mattPredicate, maphiendgPredicate));
-            }
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-
-        // Sử dụng findAll với Specification
-        Page<Phieuthanhtoan> page = phieuthanhtoanRepository.findAll(spec, pageable);
-
-        return page.map(p -> new PaymentDTO(
-                p.getMatt(),
-                new UserShortDTO(p.getTaiKhoan().getMatk()),
-                new AuctionDTO(
-                        p.getPhienDauGia().getMaphiendg(),
-                        p.getPhienDauGia().getGiacaonhatdatduoc()
-                ),
-                p.getThoigianthanhtoan(),
-                p.getTrangthai(),
-                p.getSotien()
-        ));
+    private void validatePhieuForPayment(Phieuthanhtoan phieu) {
+        if (phieu.getTrangthai().equals(TrangThaiPhieuThanhToan.PAID)) {
+            throw new ConflictException("Phiếu đã được thanh toán");
+        }
+        if (!phieu.getThoigianthanhtoan().after(new Timestamp(System.currentTimeMillis()))) {
+            throw new ValidationException("Đã quá thời hạn thanh toán");
+        }
     }
 }

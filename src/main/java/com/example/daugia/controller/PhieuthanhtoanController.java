@@ -70,7 +70,7 @@ public class PhieuthanhtoanController {
             @PageableDefault(size = 20, sort = "thoigianthanhtoan", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         String email = tokenValidator.authenticateAndGetEmail(header);
-        Page<PaymentDTO> page = phieuthanhtoanService.findByUserAndStatusPaged(email, status, keyword, pageable);
+        Page<PaymentDTO> page = phieuthanhtoanService.findByUserAndStatus(email, status, keyword, pageable);
         return ApiResponse.success(page, "OK");
     }
 }

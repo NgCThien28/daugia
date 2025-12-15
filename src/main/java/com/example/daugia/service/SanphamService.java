@@ -67,7 +67,7 @@ public class SanphamService {
                 .toList();
     }
 
-    public Page<Sanpham> findByUserWithStatusesAndKeyword(String email,
+    public Page<Sanpham> findByUser(String email,
                                                           List<TrangThaiSanPham> statuses,
                                                           String keyword,
                                                           Pageable pageable) {

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 public class TokenValidator {
     @Autowired
     private BlacklistService blacklistService;
+
     public String extractBearerOrThrow(String authorizationHeader) {
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             throw new UnauthorizedException("Thiếu token");
@@ -32,7 +33,6 @@ public class TokenValidator {
         return email;
     }
 
-    // Tiện ích gộp: nhận header Authorization → trả email sau khi xác thực
     public String authenticateAndGetEmail(String authorizationHeader) {
         String token = extractBearerOrThrow(authorizationHeader);
         return validateAndGetEmailFromToken(token);
