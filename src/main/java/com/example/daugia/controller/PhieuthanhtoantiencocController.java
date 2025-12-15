@@ -60,7 +60,6 @@ public class PhieuthanhtoantiencocController {
         return ApiResponse.success(paymentUrl, "Tạo URL thanh toán thành công");
     }
 
-    // Redirect endpoint giữ riêng, không dùng ApiResponse JSON
     @GetMapping("/vnpay-return")
     public ResponseEntity<?> orderReturn(HttpServletRequest request) throws JsonProcessingException {
         int result = phieuthanhtoantiencocService.orderReturn(request);
@@ -69,7 +68,7 @@ public class PhieuthanhtoantiencocController {
                     .header("Location", "http://localhost:5173/payment-success")
                     .build();
         }
-        // 0 = thất bại/hủy, -1 = chữ ký không hợp lệ → đều đưa về trang fail
+
         return ResponseEntity.status(HttpStatus.FOUND)
                 .header("Location", "http://localhost:5173/payment-fail")
                 .build();
@@ -82,7 +81,7 @@ public class PhieuthanhtoantiencocController {
             @PageableDefault(size = 20, sort = "thoigianthanhtoan", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
-        Page<DepositDTO> page = phieuthanhtoantiencocService.findByAccountAndStatusPaged(matk, status, pageable);
+        Page<DepositDTO> page = phieuthanhtoantiencocService.findByAccountAndStatus(matk, status, pageable);
         return ApiResponse.success(page, "OK");
     }
 
@@ -94,7 +93,7 @@ public class PhieuthanhtoantiencocController {
             @PageableDefault(size = 20, sort = "thoigianthanhtoan", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         String email = tokenValidator.authenticateAndGetEmail(header);
-        Page<DepositDTO> page = phieuthanhtoantiencocService.findByUserAndStatusPaged(email, status,keyword, pageable);
+        Page<DepositDTO> page = phieuthanhtoantiencocService.findByUserAndStatus(email, status,keyword, pageable);
         return ApiResponse.success(page, "OK");
     }
 }
