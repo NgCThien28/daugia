@@ -3,6 +3,7 @@ package com.example.daugia.service;
 import com.example.daugia.core.enums.TrangThaiTaiKhoan;
 import com.example.daugia.dto.request.TaiKhoanChangePasswordRequest;
 import com.example.daugia.dto.request.TaikhoanCreationRequest;
+import com.example.daugia.dto.response.UserShortDTO;
 import com.example.daugia.entity.Taikhoan;
 import com.example.daugia.exception.NotFoundException;
 import com.example.daugia.exception.ValidationException;
@@ -29,8 +30,18 @@ public class TaikhoanService {
     @Autowired
     private EmailService emailService;
 
-    public List<Taikhoan> findAll() {
-        return taikhoanRepository.findAll();
+    public List<UserShortDTO> findAll() {
+        List<Taikhoan> taikhoanList = taikhoanRepository.findAll();
+        return taikhoanList.stream()
+                .map(taikhoan -> new UserShortDTO(
+                        taikhoan.getMatk(),
+                        taikhoan.getHo(),
+                        taikhoan.getTenlot(),
+                        taikhoan.getTen(),
+                        taikhoan.getXacthuctaikhoan(),
+                        taikhoan.getTrangthaidangnhap()
+                ))
+                .toList();
     }
 
     public Taikhoan findByEmail(String email) {

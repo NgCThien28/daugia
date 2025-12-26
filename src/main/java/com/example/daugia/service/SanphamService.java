@@ -158,7 +158,6 @@ public class SanphamService {
         }
         Taikhoanquantri admin = taikhoanquantriRepository.findByEmail(emailAdmin)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản quản trị"));
-
         sanpham.setTensp(request.getTensp());
         sanpham.setTinhtrangsp(request.getTinhtrangsp());
         sanpham.setGiamongdoi(request.getGiamongdoi());

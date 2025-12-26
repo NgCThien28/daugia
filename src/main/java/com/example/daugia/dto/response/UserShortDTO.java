@@ -1,5 +1,6 @@
 package com.example.daugia.dto.response;
 
+import com.example.daugia.core.enums.TrangThaiTaiKhoan;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,8 @@ public class UserShortDTO {
     private String email;
     private String sdt;
     private String diachi;
+    private TrangThaiTaiKhoan xacthuctaikhoan;
+    private TrangThaiTaiKhoan trangthaidangnhap;
 
     public UserShortDTO(String matk, String ho, String tenlot, String ten, String email, String sdt) {
         this.matk = matk;
@@ -23,6 +26,15 @@ public class UserShortDTO {
         this.ten = ten;
         this.email = email;
         this.sdt = sdt;
+    }
+
+    public UserShortDTO(String matk, String ho, String tenlot, String ten, TrangThaiTaiKhoan xacthuctaikhoan, TrangThaiTaiKhoan trangthaidangnhap) {
+        this.matk = matk;
+        this.ho = ho;
+        this.tenlot = tenlot;
+        this.ten = ten;
+        this.xacthuctaikhoan = xacthuctaikhoan;
+        this.trangthaidangnhap = trangthaidangnhap;
     }
 
     public UserShortDTO(String matk, String ho, String tenlot, String ten, String email, String sdt, String diachi) {
