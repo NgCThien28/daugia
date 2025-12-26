@@ -13,9 +13,11 @@ import com.example.daugia.entity.Taikhoanquantri;
 import com.example.daugia.exception.NotFoundException;
 import com.example.daugia.exception.ValidationException;
 import com.example.daugia.repository.*;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -69,15 +71,10 @@ public class SanphamService {
                 .toList();
     }
 
-    // Mặc định lọc 3 trạng thái: PENDING_APPROVAL, APPROVED, CANCELLED
-    public Page<Sanpham> findByUser(String email, Pageable pageable) {
-        List<TrangThaiSanPham> defaultStatuses = List.of(PENDING_APPROVAL, APPROVED, CANCELLED);
-        return findByUserWithStatuses(email, defaultStatuses, pageable);
-    }
-
-    public Page<Sanpham> findByUserWithStatuses(String email,
-                                                List<TrangThaiSanPham> statuses,
-                                                Pageable pageable) {
+    public Page<Sanpham> findByUser(String email,
+                                                          List<TrangThaiSanPham> statuses,
+                                                          String keyword,
+                                                          Pageable pageable) {
         Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
 
@@ -86,9 +83,24 @@ public class SanphamService {
                         ? List.of(PENDING_APPROVAL, APPROVED, CANCELLED)
                         : statuses;
 
-        return sanphamRepository.findByTaiKhoan_MatkAndTrangthaiIn(
-                taikhoan.getMatk(), effectiveStatuses, pageable
-        );
+        Specification<Sanpham> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(cb.equal(root.get("taiKhoan").get("matk"), taikhoan.getMatk()));
+            predicates.add(root.get("trangthai").in(effectiveStatuses));
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String keywordLower = "%" + keyword.toLowerCase() + "%";
+                Predicate maspPredicate = cb.like(cb.lower(root.get("masp")), keywordLower);
+                Predicate tenspPredicate = cb.like(cb.lower(root.get("tensp")), keywordLower);
+                predicates.add(cb.or(maspPredicate, tenspPredicate));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // Sử dụng findAll với Specification
+        return sanphamRepository.findAll(spec, pageable);
     }
 
     public ProductDTO create(SanPhamCreationRequest request, String email) {
@@ -120,11 +132,11 @@ public class SanphamService {
 
     public ProductDTO update(SanPhamCreationRequest request, String email) {
         Sanpham sanpham = sanphamRepository.findById(request.getMasp())
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài sản"));
         if(!email.equals(sanpham.getTaiKhoan().getEmail()))
             throw new ValidationException("Bạn không phải chủ sản phẩm");
         sanpham.setDanhMuc(danhmucRepository.findById(request.getMadm())
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy danh mục sản phẩm")));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy danh mục tài sản")));
         sanpham.setThanhPho(thanhphoRepository.findById(request.getMatp())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy thành phố")));
         sanpham.setTensp(request.getTensp());
@@ -141,9 +153,9 @@ public class SanphamService {
 
     public String delete(String masp, String email) {
         Sanpham sanpham = sanphamRepository.findById(masp)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài sản"));
         if(!email.equals(sanpham.getTaiKhoan().getEmail()))
-            throw new ValidationException("Bạn không phải chủ sản phẩm");
+            throw new ValidationException("Bạn không phải chủ tài sản");
         if(sanpham.getTrangthai() == AUCTION_CREATED)
             throw new ValidationException("Sản phẩm đã được tạo phiên");
         sanphamRepository.delete(sanpham);
@@ -152,7 +164,7 @@ public class SanphamService {
 
     public ProductDTO approveProduct(SanPhamCreationRequest request, String masp, String emailAdmin) {
         Sanpham sanpham = sanphamRepository.findById(masp)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm với mã: " + masp));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài sản với mã " + masp));
         if (sanpham.getTrangthai() != TrangThaiSanPham.PENDING_APPROVAL) {
             throw new ValidationException("Sản phẩm đã được duyệt");
         }
@@ -172,9 +184,9 @@ public class SanphamService {
 
     public ProductDTO rejectProduct(String masp, String emailAdmin) {
         Sanpham sanpham = sanphamRepository.findById(masp)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm với mã: " + masp));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài sản với mã " + masp));
         if (sanpham.getTrangthai() != TrangThaiSanPham.PENDING_APPROVAL) {
-            throw new ValidationException("Sản phẩm không ở trạng thái chờ duyệt");
+            throw new ValidationException("Tài sản không ở trạng thái chờ duyệt");
         }
         Taikhoanquantri admin = taikhoanquantriRepository.findByEmail(emailAdmin)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản quản trị"));

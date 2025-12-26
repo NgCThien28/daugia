@@ -46,12 +46,6 @@ public class PhientragiaService {
                 .toList();
     }
 
-    /**
-     * Tối ưu cho tải cao:
-     * - Dùng Optimistic Lock với @Version ở entity Phiendaugia
-     * - Retry tối đa MAX_RETRY lần khi gặp xung đột cập nhật
-     * - Backoff ngẫu nhiên 10~30ms để giảm va chạm
-     */
     @Transactional
     public BiddingDTO createBid(String maphienDauGia, String makh, int solan) {
         if (solan < 0) {

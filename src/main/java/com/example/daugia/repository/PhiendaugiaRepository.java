@@ -4,28 +4,35 @@ import com.example.daugia.core.enums.TrangThaiPhienDauGia;
 import com.example.daugia.entity.Phiendaugia;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PhiendaugiaRepository extends JpaRepository<Phiendaugia, String> {
-    List<Phiendaugia> findByTaiKhoan_Matk(String makh);
+//    List<Phiendaugia> findByTaiKhoan_Matk(String makh);
 
-    Page<Phiendaugia> findByTaiKhoan_Matk(String makh, Pageable pageable);
+//    Page<Phiendaugia> findByTaiKhoan_Matk(String makh, Pageable pageable);
 
     boolean existsBySanPham_Masp(String masp);
 
-    List<Phiendaugia> findByTrangthai(TrangThaiPhienDauGia trangthai);
+    @Query("SELECT p FROM Phiendaugia p LEFT JOIN FETCH p.phieuThanhToan WHERE p.maphiendg = :id")
+    Optional<Phiendaugia> findByIdWithPhieuThanhToan(@Param("id") String id);
 
-    List<Phiendaugia> findByTrangthaiAndThoigianktBefore(TrangThaiPhienDauGia trangthai, Timestamp currentTime);
+    @Query("SELECT p FROM Phiendaugia p WHERE p.trangthai NOT IN :excludedStatuses")
+    List<Phiendaugia> findActiveAuctions(@Param("excludedStatuses") List<TrangThaiPhienDauGia> excludedStatuses);
+//    List<Phiendaugia> findByTrangthai(TrangThaiPhienDauGia trangthai);
 
-    Page<Phiendaugia> findByTrangthai(TrangThaiPhienDauGia trangthai, Pageable pageable);
+//    List<Phiendaugia> findByTrangthaiAndThoigianktBefore(TrangThaiPhienDauGia trangthai, Timestamp currentTime);
+
+//    Page<Phiendaugia> findByTrangthai(TrangThaiPhienDauGia trangthai, Pageable pageable);
 
     Page<Phiendaugia> findByTrangthaiIn(List<TrangThaiPhienDauGia> statuses, Pageable pageable);
 
@@ -88,4 +95,10 @@ public interface PhiendaugiaRepository extends JpaRepository<Phiendaugia, String
                       and tc.trangthai = com.example.daugia.core.enums.TrangThaiPhieuThanhToanTienCoc.PAID
                     """)
     Page<Phiendaugia> findAuctionsPaidByEmail(@Param("email") String email, Pageable pageable);
+
+    Page<Phiendaugia> findAll(Specification<Phiendaugia> spec, Pageable pageable);
+
+    @Modifying
+    @Query("DELETE FROM Phiendaugia p WHERE p.maphiendg = :id AND p.taiKhoan.email = :email AND p.trangthai = :trangthai")
+    int deletePendingByIdAndOwner(@Param("id") String id, @Param("email") String email, @Param("trangthai") TrangThaiPhienDauGia trangthai);
 }

@@ -66,16 +66,13 @@ public class TaikhoanService {
         tk.setTrangthaidangnhap(TrangThaiTaiKhoan.OFFLINE);
         tk.setXacthuctaikhoan(TrangThaiTaiKhoan.INACTIVE);
 
-        // Sinh token xác thực (24h)
         String token = UUID.randomUUID().toString();
         tk.setTokenxacthuc(token);
         tk.setTokenhethan(new Timestamp(System.currentTimeMillis() + 24L * 60 * 60 * 1000));
 
         Taikhoan saved = taikhoanRepository.save(tk);
-
         emailService.sendVerificationEmail(saved, token);
 
-        // Ẩn mật khẩu khi trả về
         saved.setMatkhau(null);
         return saved;
     }
@@ -94,6 +91,23 @@ public class TaikhoanService {
         user.setTokenhethan(null);
         taikhoanRepository.save(user);
         return true;
+    }
+
+    public void resendVerificationEmail(String email) throws MessagingException, IOException {
+        Taikhoan user = taikhoanRepository.findByEmail(email)
+                .orElseThrow(() -> new ValidationException("Email không tồn tại"));
+
+        if (user.getXacthuctaikhoan().equals(TrangThaiTaiKhoan.ACTIVE)) {
+            throw new ValidationException("Tài khoản đã được xác thực");
+        }
+
+        // Sinh token mới và cập nhật
+        String newToken = UUID.randomUUID().toString();
+        user.setTokenxacthuc(newToken);
+        user.setTokenhethan(new Timestamp(System.currentTimeMillis() + 24L * 60 * 60 * 1000));
+        taikhoanRepository.save(user);
+
+        emailService.sendVerificationEmail(user, newToken);
     }
 
     public Taikhoan login(String email, String rawPassword) {

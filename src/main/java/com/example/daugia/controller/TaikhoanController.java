@@ -39,7 +39,6 @@ public class TaikhoanController {
         return ApiResponse.success(created, "Tạo tài khoản thành công");
     }
 
-    // Endpoint redirect (302) – giữ try/catch để điều hướng đúng, không qua GlobalExceptionHandler
     @GetMapping("/verify")
     public ResponseEntity<?> verifyAccount(@RequestParam("token") String token) {
         try {
@@ -55,6 +54,13 @@ public class TaikhoanController {
                     .build();
         }
         return ResponseEntity.badRequest().build();
+    }
+
+    @PostMapping("/resend-verify-code")
+    public ApiResponse<String> resendVerifyEmail(@RequestHeader("Authorization") String header) throws MessagingException, IOException {
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        taikhoanService.resendVerificationEmail(email);
+        return ApiResponse.success("OK", "Đã gửi email xác thực đến tài khoản email của bạn");
     }
 
     @GetMapping("/find-all")
@@ -74,14 +80,12 @@ public class TaikhoanController {
     @PutMapping("/change-password")
     public ApiResponse<String> changePassword(@RequestBody TaiKhoanChangePasswordRequest request,
                                               @RequestHeader("Authorization") String header) {
-        // Lấy token và email thông qua TokenValidator
         String token = tokenValidator.extractBearerOrThrow(header);
         String email = tokenValidator.validateAndGetEmailFromToken(token);
 
-        // Đổi mật khẩu
         taikhoanService.changePassword(request, email);
 
-        // Vô hiệu hóa token hiện tại để bắt người dùng đăng nhập lại
+        // Vô hiệu hóa token
         Date exp = JwtUtil.getExpiration(token);
         if (exp != null) {
             blacklistService.addToken(token, exp.getTime());

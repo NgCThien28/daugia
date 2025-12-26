@@ -28,9 +28,9 @@ public class Phiendaugia {
     @JsonBackReference
     private Sanpham sanPham;
 
-    @OneToOne(mappedBy = "phienDauGia")
+    @OneToMany(mappedBy = "phienDauGia")
     @JsonBackReference
-    private Phieuthanhtoan phieuThanhToan;
+    private List<Phieuthanhtoan> phieuThanhToan;
 
     @ManyToOne
     @JoinColumn(name = "maqtv")
@@ -42,11 +42,11 @@ public class Phiendaugia {
     @JsonManagedReference
     private Taikhoan taiKhoan;
 
-    @OneToMany(mappedBy = "phienDauGia", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "phienDauGia")
     @JsonIgnore
     private List<Phientragia> phienTraGia;
 
-    @OneToMany(mappedBy = "phienDauGia", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "phienDauGia")
     @JsonBackReference
     private List<Phieuthanhtoantiencoc> phieuThanhToanTienCoc;
 

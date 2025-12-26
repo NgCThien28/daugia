@@ -47,7 +47,8 @@ public class ProductDTO {
         this.tensp = tensp;
     }
 
-    public ProductDTO() {
+    public ProductDTO(String tensp) {
+        this.tensp = tensp;
     }
 
 }
