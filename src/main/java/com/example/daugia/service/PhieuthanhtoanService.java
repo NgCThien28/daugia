@@ -4,6 +4,7 @@ import com.example.daugia.config.PaymentConfig;
 import com.example.daugia.core.enums.TrangThaiPhieuThanhToan;
 import com.example.daugia.dto.response.AuctionDTO;
 import com.example.daugia.dto.response.PaymentDTO;
+import com.example.daugia.dto.response.ProductDTO;
 import com.example.daugia.dto.response.UserShortDTO;
 import com.example.daugia.entity.*;
 import com.example.daugia.exception.ConflictException;
@@ -138,7 +139,8 @@ public class PhieuthanhtoanService {
                 new UserShortDTO(p.getTaiKhoan().getMatk()),
                 new AuctionDTO(
                         p.getPhienDauGia().getMaphiendg(),
-                        p.getPhienDauGia().getGiacaonhatdatduoc()
+                        p.getPhienDauGia().getGiacaonhatdatduoc(),
+                        new ProductDTO(p.getPhienDauGia().getSanPham().getTensp())
                 ),
                 p.getThoigianthanhtoan(),
                 p.getTrangthai(),
