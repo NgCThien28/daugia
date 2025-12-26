@@ -327,7 +327,6 @@ public class AuctionSchedulerService {
                         createNotification(p.getTaiKhoan().getEmail(), "Hoàn tiền cọc", "Tiền cọc của bạn đã được hoàn lại do phiên đấu giá " + phien.getMaphiendg() + " với sản phẩm là " + phien.getSanPham().getTensp() + " thất bại.");
                     }
                 }
-                // Gui email that bai
                 try {
                     emailService.sendAuctionEndEmail(phien.getTaiKhoan(), phien, lydo);
                 } catch (Exception e) {
@@ -732,7 +731,6 @@ public class AuctionSchedulerService {
         return formatter.format(amount) + " đ";
     }
 
-    // Method mới: Lấy phiếu active (không CANCELLED), ưu tiên phiếu mới nhất
     private Phieuthanhtoan getActivePhieu(Phiendaugia phien) {
         return phien.getPhieuThanhToan().stream()
                 .filter(p -> p.getTrangthai() != TrangThaiPhieuThanhToan.CANCELLED)
