@@ -4,6 +4,7 @@ import com.example.daugia.core.custom.TokenValidator;
 import com.example.daugia.dto.request.ApiResponse;
 import com.example.daugia.dto.request.TaiKhoanChangePasswordRequest;
 import com.example.daugia.dto.request.TaikhoanCreationRequest;
+import com.example.daugia.dto.response.UserShortDTO;
 import com.example.daugia.entity.Taikhoan;
 import com.example.daugia.service.ActiveTokenService;
 import com.example.daugia.service.BlacklistService;
@@ -57,8 +58,8 @@ public class TaikhoanController {
     }
 
     @GetMapping("/find-all")
-    public ApiResponse<List<Taikhoan>> findAll() {
-        List<Taikhoan> list = taikhoanService.findAll();
+    public ApiResponse<List<UserShortDTO>> findAll() {
+        List<UserShortDTO> list = taikhoanService.findAll();
         return ApiResponse.success(list, "Thành công");
     }
 

@@ -88,7 +88,7 @@ public class ThongbaoService {
         thongbaoRepository.markAllAsReadByTaiKhoan_Matk(user.getMatk());
     }
 
-    public Thongbao createForUser(ThongBaoCreationRequest request, String adminEmail, String userEmail) {
+    public void createForUser(ThongBaoCreationRequest request, String adminEmail, String userEmail) {
         Taikhoanquantri admin = taikhoanquantriRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản quản trị"));
         Taikhoan user = taikhoanRepository.findByEmail(userEmail)
@@ -102,10 +102,8 @@ public class ThongbaoService {
         tb.setThoigian(Timestamp.from(Instant.now()));
         tb.setTrangthai(TrangThaiThongBao.NOT_VIEWED);
         Thongbao saved = thongbaoRepository.save(tb);
-
         // Push SSE
         notificationService.sendNotification(userEmail, saved);
-        return saved;
     }
 
     public void createForUser(ThongBaoCreationRequest request, String userEmail) {
