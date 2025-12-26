@@ -3,8 +3,10 @@ package com.example.daugia.controller;
 import com.example.daugia.core.custom.TokenValidator;
 import com.example.daugia.core.enums.TrangThaiPhieuThanhToan;
 import com.example.daugia.dto.request.ApiResponse;
+import com.example.daugia.dto.request.ThongBaoCreationRequest;
 import com.example.daugia.dto.response.PaymentDTO;
 import com.example.daugia.service.PhieuthanhtoanService;
+import com.example.daugia.service.ThongbaoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,8 @@ public class PhieuthanhtoanController {
     private PhieuthanhtoanService phieuthanhtoanService;
     @Autowired
     private TokenValidator tokenValidator;
+    @Autowired
+    private ThongbaoService thongbaoService;
 
     @GetMapping("/find-all")
     public ApiResponse<List<PaymentDTO>> findAll() {
@@ -72,5 +76,17 @@ public class PhieuthanhtoanController {
         String email = tokenValidator.authenticateAndGetEmail(header);
         Page<PaymentDTO> page = phieuthanhtoanService.findByUserAndStatus(email, status, keyword, pageable);
         return ApiResponse.success(page, "OK");
+    }
+
+    //Admin
+    @PutMapping("/cancel-payment/{matt}")
+    public ApiResponse<PaymentDTO> cancelPayment(
+            @RequestBody ThongBaoCreationRequest request,
+            @PathVariable String matt,
+            @RequestHeader("Authorization") String header) {
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        PaymentDTO paymentDTO = phieuthanhtoanService.cancel(matt);
+        thongbaoService.createForUser(request, email, paymentDTO.getTaiKhoanKhachThanhToan().getEmail());
+        return ApiResponse.success(paymentDTO, "Huỷ phiếu thanh toán thành công");
     }
 }

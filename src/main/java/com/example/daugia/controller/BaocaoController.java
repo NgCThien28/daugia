@@ -60,6 +60,7 @@ public class BaocaoController {
         return ApiResponse.success(null, "Xoá thành công");
     }
 
+    //Admin
     @GetMapping("/export-excel")
     public void exportToExcel(HttpServletResponse response) throws IOException {
         //setup

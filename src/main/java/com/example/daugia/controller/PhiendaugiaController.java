@@ -8,6 +8,7 @@ import com.example.daugia.dto.request.ThongBaoCreationRequest;
 import com.example.daugia.dto.response.AuctionDTO;
 import com.example.daugia.service.PhiendaugiaService;
 import com.example.daugia.service.ThongbaoService;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -129,16 +131,18 @@ public class PhiendaugiaController {
         return ApiResponse.success(dto, "Cập nhật phiên đấu giá thành công");
     }
 
+    //Admin
     @PutMapping("/approve/{mapdg}")
     public ApiResponse<AuctionDTO> approveAuction(
             @RequestBody PhiendaugiaCreationRequest request,
             @PathVariable String mapdg,
-            @RequestHeader("Authorization") String header) {
+            @RequestHeader("Authorization") String header) throws MessagingException, IOException {
         String email = tokenValidator.authenticateAndGetEmail(header);
         AuctionDTO approved = phiendaugiaService.approveAuction(request, mapdg, email);
         return ApiResponse.success(approved, "Duyệt phiên đấu giá thành công");
     }
 
+    //Admin
     @PutMapping("/reject/{mapdg}")
     public ApiResponse<AuctionDTO> rejectAuction(
             @RequestBody ThongBaoCreationRequest request,

@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface TaikhoanquantriRepository extends JpaRepository<Taikhoanquantri, String> {
     Optional<Taikhoanquantri> findByEmail(String email);
+    boolean existsByEmail(String email);
 }
