@@ -6,6 +6,7 @@ import com.example.daugia.core.enums.TrangThaiTaiKhoan;
 import com.example.daugia.dto.request.PhieuthanhtoantiencocCreationRequest;
 import com.example.daugia.dto.response.AuctionDTO;
 import com.example.daugia.dto.response.DepositDTO;
+import com.example.daugia.dto.response.ProductDTO;
 import com.example.daugia.dto.response.UserShortDTO;
 import com.example.daugia.entity.Phiendaugia;
 import com.example.daugia.entity.Phieuthanhtoantiencoc;
@@ -138,7 +139,8 @@ public class PhieuthanhtoantiencocService {
                 new UserShortDTO(p.getTaiKhoan().getMatk()),
                 new AuctionDTO(
                         p.getPhienDauGia().getTiencoc(),
-                        p.getPhienDauGia().getMaphiendg()
+                        p.getPhienDauGia().getMaphiendg(),
+                        new ProductDTO(p.getPhienDauGia().getSanPham().getTensp())
                 ),
                 p.getThoigianthanhtoan(),
                 p.getTrangthai()
