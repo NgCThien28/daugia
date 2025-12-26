@@ -315,6 +315,7 @@ public class PhieuthanhtoanService {
         }
     }
 
+    //Admin
     public PaymentDTO cancel(String matt) {
         Phieuthanhtoan ptt = phieuthanhtoanRepository.findById(matt)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy phiếu thanh toán"));

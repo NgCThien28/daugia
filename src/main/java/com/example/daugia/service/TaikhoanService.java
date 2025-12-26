@@ -8,15 +8,17 @@ import com.example.daugia.entity.Taikhoan;
 import com.example.daugia.exception.NotFoundException;
 import com.example.daugia.exception.ValidationException;
 import com.example.daugia.repository.TaikhoanRepository;
+import com.example.daugia.repository.TaikhoanquantriRepository;
 import com.example.daugia.repository.ThanhphoRepository;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -29,10 +31,12 @@ public class TaikhoanService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private TaikhoanquantriRepository taikhoanquantriRepository;
 
-    public List<UserShortDTO> findAll() {
-        List<Taikhoan> taikhoanList = taikhoanRepository.findAll();
-        return taikhoanList.stream()
+    public Page<UserShortDTO> findAll(Pageable pageable) {
+        Page<Taikhoan> taikhoanList = taikhoanRepository.findAll(pageable);
+        return taikhoanList
                 .map(taikhoan -> new UserShortDTO(
                         taikhoan.getMatk(),
                         taikhoan.getHo(),
@@ -40,8 +44,12 @@ public class TaikhoanService {
                         taikhoan.getTen(),
                         taikhoan.getXacthuctaikhoan(),
                         taikhoan.getTrangthaidangnhap()
-                ))
-                .toList();
+                ));
+    }
+
+    public Taikhoan findById(String id) {
+        return taikhoanRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng"));
     }
 
     public Taikhoan findByEmail(String email) {
@@ -52,10 +60,9 @@ public class TaikhoanService {
 
     public Taikhoan createUser(TaikhoanCreationRequest request) throws MessagingException, IOException {
         String email = normalizeEmail(request.getEmail());
-        if (taikhoanRepository.existsByEmail(email)) {
+        if (taikhoanRepository.existsByEmail(email) || taikhoanquantriRepository.existsByEmail(email)) {
             throw new ValidationException("Email đã được sử dụng");
         }
-
         Taikhoan tk = new Taikhoan();
         tk.setHo(request.getHo());
         tk.setTenlot(request.getTenlot());

@@ -38,6 +38,7 @@ public class TaikhoanquantriService {
         return admin;
     }
 
+    //Admin
     public Taikhoan bannedUser(String matk){
         Taikhoan taikhoan = taikhoanRepository.findById(matk).
                 orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng"));
@@ -49,6 +50,7 @@ public class TaikhoanquantriService {
         return taikhoanRepository.save(taikhoan);
     }
 
+    //Admin
     public Taikhoan unBanUser(String matk){
         Taikhoan taikhoan = taikhoanRepository.findById(matk).
                 orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng"));
