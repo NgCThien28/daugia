@@ -30,8 +30,12 @@ public class SanphamController {
     private ThongbaoService thongbaoService;
 
     @GetMapping("/find-all")
-    public ApiResponse<List<ProductDTO>> findAll() {
-        List<ProductDTO> list = sanphamService.findAll();
+    public ApiResponse<Page<ProductDTO>> findAll(
+            @RequestParam(required = false) TrangThaiSanPham trangthai,
+            @PageableDefault(size = 12, sort = "masp", direction = Sort.Direction.ASC)
+            Pageable pageable
+    ) {
+        Page<ProductDTO> list = sanphamService.findAll(trangthai, pageable);
         return ApiResponse.success(list, "Thành công");
     }
 
@@ -79,6 +83,7 @@ public class SanphamController {
             @RequestHeader("Authorization") String header) {
         String email = tokenValidator.authenticateAndGetEmail(header);
         ProductDTO approved = sanphamService.approveProduct(request, masp, email);
+        thongbaoService.createForProductToUser(approved.getMasp(), email, approved.getTaiKhoanNguoiBan().getEmail());
         return ApiResponse.success(approved, "Duyệt sản phẩm thành công");
     }
 

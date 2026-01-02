@@ -139,6 +139,7 @@ public class PhiendaugiaController {
             @RequestHeader("Authorization") String header) throws MessagingException, IOException {
         String email = tokenValidator.authenticateAndGetEmail(header);
         AuctionDTO approved = phiendaugiaService.approveAuction(request, mapdg, email);
+        thongbaoService.createForUser(approved.getMaphiendg(), email, approved.getTaiKhoanNguoiBan().getEmail());
         return ApiResponse.success(approved, "Duyệt phiên đấu giá thành công");
     }
 

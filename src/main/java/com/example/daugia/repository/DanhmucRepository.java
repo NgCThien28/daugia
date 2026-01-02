@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DanhmucRepository extends JpaRepository<Danhmuc, String> {
+    boolean existsByTendmIgnoreCase(String tendm);
 }

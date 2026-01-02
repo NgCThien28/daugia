@@ -42,9 +42,13 @@ public class SanphamService {
     @Autowired
     private ThongbaoService thongbaoService;
 
-    public List<ProductDTO> findAll() {
-        List<Sanpham> sanphamList = sanphamRepository.findAll();
-        return sanphamList.stream()
+    public Page<ProductDTO> findAll(TrangThaiSanPham trangthai, Pageable pageable) {
+        Page<Sanpham> sanphamList;
+        if (trangthai == null)
+            sanphamList = sanphamRepository.findAll(pageable);
+        else
+            sanphamList = sanphamRepository.findByTrangthai(trangthai, pageable);
+        return sanphamList
                 .map(sp -> new ProductDTO(
                         sp.getMasp(),
                         new UserShortDTO(
@@ -67,8 +71,7 @@ public class SanphamService {
                         sp.getTrangthai().getValue(),
                         sp.getGiamongdoi(),
                         sp.getHoahong()
-                ))
-                .toList();
+                ));
     }
 
     public Page<Sanpham> findByUser(String email,

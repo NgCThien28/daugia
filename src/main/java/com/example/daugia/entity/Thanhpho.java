@@ -25,5 +25,4 @@ public class Thanhpho {
     private List<Sanpham> sanphamList;
 
     private String tentp;
-
 }

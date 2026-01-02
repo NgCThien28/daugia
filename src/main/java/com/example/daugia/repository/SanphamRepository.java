@@ -1,5 +1,6 @@
 package com.example.daugia.repository;
 
+import com.example.daugia.core.enums.TrangThaiSanPham;
 import com.example.daugia.entity.Sanpham;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,4 +16,5 @@ public interface SanphamRepository extends JpaRepository<Sanpham, String> {
 //                                                    Pageable pageable);
 
     Page<Sanpham> findAll(Specification<Sanpham> spec, Pageable pageable);
+    Page<Sanpham> findByTrangthai(TrangThaiSanPham trangthai, Pageable pageable);
 }
