@@ -32,6 +32,7 @@ public class ThongbaoService {
     private TaikhoanRepository taikhoanRepository;
     @Autowired
     private NotificationService notificationService;
+
     public List<NotificationDTO> findAll() {
         List<Thongbao> list = thongbaoRepository.findAll();
         return list.stream()
@@ -114,6 +115,42 @@ public class ThongbaoService {
         tb.setTaiKhoan(user);
         tb.setTieude(request.getTieude());
         tb.setNoidung(request.getNoidung());
+        tb.setThoigian(Timestamp.from(Instant.now()));
+        tb.setTrangthai(TrangThaiThongBao.NOT_VIEWED);
+        Thongbao saved = thongbaoRepository.save(tb);
+        // Push SSE
+        notificationService.sendNotification(userEmail, saved);
+    }
+
+    public void createForUser(String mapdg, String adminEmail, String userEmail) {
+        Taikhoanquantri admin = taikhoanquantriRepository.findByEmail(adminEmail)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản quản trị"));
+        Taikhoan user = taikhoanRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản user"));
+
+        Thongbao tb = new Thongbao();
+        tb.setTaiKhoanQuanTri(admin);
+        tb.setTaiKhoan(user);
+        tb.setTieude("Chúc mừng phiên đã duyệt");
+        tb.setNoidung("Phiên đấu giá của khách hàng có mã " + mapdg + " đã được duyệt!");
+        tb.setThoigian(Timestamp.from(Instant.now()));
+        tb.setTrangthai(TrangThaiThongBao.NOT_VIEWED);
+        Thongbao saved = thongbaoRepository.save(tb);
+        // Push SSE
+        notificationService.sendNotification(userEmail, saved);
+    }
+
+    public void createForProductToUser(String masp, String adminEmail, String userEmail) {
+        Taikhoanquantri admin = taikhoanquantriRepository.findByEmail(adminEmail)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản quản trị"));
+        Taikhoan user = taikhoanRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản user"));
+
+        Thongbao tb = new Thongbao();
+        tb.setTaiKhoanQuanTri(admin);
+        tb.setTaiKhoan(user);
+        tb.setTieude("Chúc mừng tài sản đã được duyệt");
+        tb.setNoidung("Tài sản của khách hàng có mã " + masp + " đã được duyệt!");
         tb.setThoigian(Timestamp.from(Instant.now()));
         tb.setTrangthai(TrangThaiThongBao.NOT_VIEWED);
         Thongbao saved = thongbaoRepository.save(tb);

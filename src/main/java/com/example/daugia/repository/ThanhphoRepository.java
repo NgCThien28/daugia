@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ThanhphoRepository extends JpaRepository<Thanhpho, String> {
+    boolean existsByTentpIgnoreCase(String tentp);
 }

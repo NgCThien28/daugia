@@ -17,10 +17,12 @@ import com.example.daugia.exception.ValidationException;
 import com.example.daugia.repository.PhiendaugiaRepository;
 import com.example.daugia.repository.PhieuthanhtoantiencocRepository;
 import com.example.daugia.repository.TaikhoanRepository;
+import com.example.daugia.util.excel.BaseExport;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,11 +30,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -62,7 +66,8 @@ public class PhieuthanhtoantiencocService {
                                 phieuthanhtoantiencoc.getPhienDauGia().getGiacaonhatdatduoc()
                         ),
                         phieuthanhtoantiencoc.getThoigianthanhtoan(),
-                        phieuthanhtoantiencoc.getTrangthai()
+                        phieuthanhtoantiencoc.getTrangthai(),
+                        phieuthanhtoantiencoc.getPhienDauGia().getTiencoc()
                 ))
                 .toList();
     }
@@ -333,5 +338,87 @@ public class PhieuthanhtoantiencocService {
         long oneDayBeforeStart = thoigianbd.getTime() - (24L * 60 * 60 * 1000);
         // Đảm bảo không âm
         return Math.max(0, oneDayBeforeStart - now.getTime());
+    }
+
+    public DepositDTO cancel(String matc) {
+        Phieuthanhtoantiencoc ptc = phieuthanhtoantiencocRepository.findById(matc)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy phiếu thanh toán tiền cọc"));
+        if (ptc.getTrangthai() != TrangThaiPhieuThanhToanTienCoc.UNPAID)
+            throw new ValidationException("Phiếu đã được thanh toán hoặc bị huỷ");
+        ptc.setTrangthai(TrangThaiPhieuThanhToanTienCoc.CANCELLED);
+        phieuthanhtoantiencocRepository.save(ptc);
+        return new DepositDTO(
+                ptc.getMatc(),
+                new UserShortDTO(
+                        ptc.getTaiKhoan().getMatk(),
+                        ptc.getTaiKhoan().getEmail()
+                ),
+                new AuctionDTO(
+                        ptc.getPhienDauGia().getMaphiendg(),
+                        ptc.getPhienDauGia().getGiacaonhatdatduoc()
+                ),
+                ptc.getThoigianthanhtoan(),
+                ptc.getTrangthai()
+        );
+    }
+
+    public List<DepositDTO> filter(
+            LocalDate fromDate,
+            LocalDate toDate,
+            TrangThaiPhieuThanhToanTienCoc status
+    ) {
+        Timestamp from = null;
+        Timestamp to = null;
+
+        if (fromDate != null) {
+            from = Timestamp.valueOf(fromDate.atStartOfDay());
+        }
+
+        if (toDate != null) {
+            to = Timestamp.valueOf(toDate.atTime(23, 59, 59));
+        }
+
+        return phieuthanhtoantiencocRepository.filter(from, to, status)
+                .stream()
+                .map(phieuthanhtoantiencoc -> new DepositDTO(
+                        phieuthanhtoantiencoc.getMatc(),
+                        new UserShortDTO(
+                                phieuthanhtoantiencoc.getTaiKhoan().getMatk(),
+                                phieuthanhtoantiencoc.getTaiKhoan().getHo(),
+                                phieuthanhtoantiencoc.getTaiKhoan().getTenlot(),
+                                phieuthanhtoantiencoc.getTaiKhoan().getTen()
+                        ),
+                        new AuctionDTO(
+                                phieuthanhtoantiencoc.getPhienDauGia().getMaphiendg(),
+                                phieuthanhtoantiencoc.getPhienDauGia().getGiacaonhatdatduoc()
+                        ),
+                        phieuthanhtoantiencoc.getThoigianthanhtoan(),
+                        phieuthanhtoantiencoc.getTrangthai(),
+                        phieuthanhtoantiencoc.getPhienDauGia().getTiencoc()
+                ))
+                .toList();
+    }
+
+    public void export(LocalDate from,
+                       LocalDate to,
+                       TrangThaiPhieuThanhToanTienCoc status,
+                       HttpServletResponse response) throws IOException {
+        List<DepositDTO> listPTC = this.filter(from, to, status);
+
+        BaseExport export = new BaseExport();
+
+        // Sheet 1 - Thanh toán
+        export.createSheet("Tiền cọc");
+        export.writeHeader(
+                new String[]{"Mã phiếu", "Ngày thanh toán", "Số tiền", "Trạng thái"},
+                0
+        ).writeData(
+                listPTC,
+                new String[]{"matc", "thoigianthanhtoan", "sotien", "trangthai"},
+                DepositDTO.class,
+                1
+        );
+
+        export.export(response);
     }
 }
