@@ -12,13 +12,16 @@ import com.example.daugia.service.TaikhoanService;
 import com.example.daugia.util.JwtUtil;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -31,6 +34,22 @@ public class TaikhoanController {
     private BlacklistService blacklistService;
     @Autowired
     private ActiveTokenService activeTokenService;
+
+    //Admin
+    @GetMapping("/find-all")
+    public ApiResponse<Page<UserShortDTO>> find_All(
+            @PageableDefault(size = 12, sort = "matk", direction = Sort.Direction.ASC)
+            Pageable pageable) {
+        Page<UserShortDTO> list = taikhoanService.findAll(pageable);
+        return ApiResponse.success(list, "Thành công");
+    }
+
+    //Admin
+    @GetMapping("/{matk}")
+    public ApiResponse<Taikhoan> findById(@PathVariable String matk){
+        Taikhoan taikhoan = taikhoanService.findById(matk);
+        return ApiResponse.success(taikhoan, "Thành công");
+    }
 
     @PostMapping("/create")
     public ApiResponse<Taikhoan> createUser(@RequestBody TaikhoanCreationRequest request)
@@ -61,12 +80,6 @@ public class TaikhoanController {
         String email = tokenValidator.authenticateAndGetEmail(header);
         taikhoanService.resendVerificationEmail(email);
         return ApiResponse.success("OK", "Đã gửi email xác thực đến tài khoản email của bạn");
-    }
-
-    @GetMapping("/find-all")
-    public ApiResponse<List<UserShortDTO>> findAll() {
-        List<UserShortDTO> list = taikhoanService.findAll();
-        return ApiResponse.success(list, "Thành công");
     }
 
     @PutMapping("/update-info")

@@ -6,8 +6,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,4 +39,17 @@ public interface PhieuthanhtoantiencocRepository extends JpaRepository<Phieuthan
     List<Phieuthanhtoantiencoc> findByPhienDauGia_Maphiendg(String maphiendg);
 
     Page<Phieuthanhtoantiencoc> findAll(Specification<Phieuthanhtoantiencoc> spec, Pageable pageable);
+
+    @Query("""
+            SELECT p
+            FROM Phieuthanhtoantiencoc p
+            WHERE(:from IS NULL OR p.thoigianthanhtoan >= :from)
+            AND (:to IS NULL OR p.thoigianthanhtoan <= :to)
+            AND (:status IS NULL OR p.trangthai = :status)
+            """)
+    List<Phieuthanhtoantiencoc> filter(
+            @Param("from") Timestamp from,
+            @Param("to") Timestamp to,
+            @Param("status") TrangThaiPhieuThanhToanTienCoc status
+    );
 }

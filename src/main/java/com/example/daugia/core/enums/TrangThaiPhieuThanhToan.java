@@ -1,15 +1,21 @@
 package com.example.daugia.core.enums;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
+import org.apache.poi.ss.usermodel.IndexedColors;
 
+@Getter
 public enum TrangThaiPhieuThanhToan {
-    UNPAID("Chưa thanh toán"),
-    PAID("Đã thanh toán"),
-    CANCELLED("Bị hủy");
-    private final String value;
+    UNPAID("Chưa thanh toán", IndexedColors.LIGHT_YELLOW),
+    PAID("Đã thanh toán", IndexedColors.GREEN),
+    CANCELLED("Bị hủy", IndexedColors.RED);
 
-    TrangThaiPhieuThanhToan(String value) {
+    private final String value;
+    private final IndexedColors color;
+
+    TrangThaiPhieuThanhToan(String value, IndexedColors color) {
         this.value = value;
+        this.color = color;
     }
 
     @JsonValue

@@ -6,18 +6,23 @@ import com.example.daugia.dto.response.AuctionDTO;
 import com.example.daugia.dto.response.PaymentDTO;
 import com.example.daugia.dto.response.ProductDTO;
 import com.example.daugia.dto.response.UserShortDTO;
-import com.example.daugia.entity.*;
+import com.example.daugia.entity.Phiendaugia;
+import com.example.daugia.entity.Phientragia;
+import com.example.daugia.entity.Phieuthanhtoan;
+import com.example.daugia.entity.Taikhoan;
 import com.example.daugia.exception.ConflictException;
 import com.example.daugia.exception.NotFoundException;
 import com.example.daugia.exception.ValidationException;
-import com.example.daugia.repository.PhieuthanhtoanRepository;
 import com.example.daugia.repository.PhiendaugiaRepository;
 import com.example.daugia.repository.PhientragiaRepository;
+import com.example.daugia.repository.PhieuthanhtoanRepository;
 import com.example.daugia.repository.TaikhoanRepository;
+import com.example.daugia.util.excel.BaseExport;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,13 +30,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -305,6 +311,7 @@ public class PhieuthanhtoanService {
         }
     }
 
+    //Admin
     public PaymentDTO cancel(String matt) {
         Phieuthanhtoan ptt = phieuthanhtoanRepository.findById(matt)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy phiếu thanh toán"));
@@ -325,5 +332,65 @@ public class PhieuthanhtoanService {
                 ptt.getTrangthai(),
                 ptt.getSotien()
         );
+    }
+
+    public List<PaymentDTO> filter(
+            LocalDate fromDate,
+            LocalDate toDate,
+            TrangThaiPhieuThanhToan status
+    ) {
+        Timestamp from = null;
+        Timestamp to = null;
+
+        if (fromDate != null) {
+            from = Timestamp.valueOf(fromDate.atStartOfDay());
+        }
+
+        if (toDate != null) {
+            to = Timestamp.valueOf(toDate.atTime(23, 59, 59));
+        }
+
+        return phieuthanhtoanRepository.filter(from, to, status)
+                .stream()
+                .map(phieuthanhtoan -> new PaymentDTO(
+                        phieuthanhtoan.getMatt(),
+                        new UserShortDTO(
+                                phieuthanhtoan.getTaiKhoan().getMatk(),
+                                phieuthanhtoan.getTaiKhoan().getHo(),
+                                phieuthanhtoan.getTaiKhoan().getTenlot(),
+                                phieuthanhtoan.getTaiKhoan().getTen()
+                        ),
+                        new AuctionDTO(
+                                phieuthanhtoan.getPhienDauGia().getMaphiendg(),
+                                phieuthanhtoan.getPhienDauGia().getGiacaonhatdatduoc()
+                        ),
+                        phieuthanhtoan.getThoigianthanhtoan(),
+                        phieuthanhtoan.getTrangthai(),
+                        phieuthanhtoan.getSotien()
+                ))
+                .toList();
+    }
+
+    public void export(LocalDate from,
+                       LocalDate to,
+                       TrangThaiPhieuThanhToan status,
+                       HttpServletResponse response) throws IOException {
+        List<PaymentDTO> listPTT = this.filter(from, to, status);
+
+        BaseExport export = new BaseExport();
+
+        // Sheet 1 - Thanh toán
+        export.createSheet("Thanh toán");
+        export.writeHeader(
+                new String[]{"Mã phiếu", "Ngày thanh toán", "Số tiền", "Trạng thái"},
+                0
+        ).writeData(
+                listPTT,
+                new String[]{"matt", "thoigianthanhtoan", "sotien", "trangthai"},
+                PaymentDTO.class,
+                1
+        );
+
+        export.export(response);
     }
 }

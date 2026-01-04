@@ -8,8 +8,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 
 @Repository
 public interface SanphamRepository extends JpaRepository<Sanpham, String> {
@@ -18,4 +16,5 @@ public interface SanphamRepository extends JpaRepository<Sanpham, String> {
 //                                                    Pageable pageable);
 
     Page<Sanpham> findAll(Specification<Sanpham> spec, Pageable pageable);
+    Page<Sanpham> findByTrangthai(TrangThaiSanPham trangthai, Pageable pageable);
 }

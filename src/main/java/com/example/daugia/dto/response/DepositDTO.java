@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Setter
@@ -16,6 +17,7 @@ public class DepositDTO {
     private AuctionDTO phienDauGia;
     private Timestamp thoigianthanhtoan;
     private TrangThaiPhieuThanhToanTienCoc trangthai;
+    private BigDecimal sotien;
 
     public DepositDTO(String matc, UserShortDTO taiKhoanKhachThanhToan, AuctionDTO phienDauGia, Timestamp thoigianthanhtoan, TrangThaiPhieuThanhToanTienCoc trangthai) {
         this.matc = matc;
@@ -28,4 +30,12 @@ public class DepositDTO {
     public DepositDTO() {
     }
 
+    public DepositDTO(String matc, UserShortDTO taiKhoanKhachThanhToan, AuctionDTO phienDauGia, Timestamp thoigianthanhtoan, TrangThaiPhieuThanhToanTienCoc trangthai, BigDecimal sotien) {
+        this.matc = matc;
+        this.taiKhoanKhachThanhToan = taiKhoanKhachThanhToan;
+        this.phienDauGia = phienDauGia;
+        this.thoigianthanhtoan = thoigianthanhtoan;
+        this.trangthai = trangthai;
+        this.sotien = sotien;
+    }
 }

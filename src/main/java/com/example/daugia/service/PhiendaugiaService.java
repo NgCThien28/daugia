@@ -9,7 +9,6 @@ import com.example.daugia.entity.Sanpham;
 import com.example.daugia.entity.Taikhoan;
 import com.example.daugia.entity.Taikhoanquantri;
 import com.example.daugia.exception.ConflictException;
-import com.example.daugia.exception.ForbiddenException;
 import com.example.daugia.exception.NotFoundException;
 import com.example.daugia.exception.ValidationException;
 import com.example.daugia.repository.PhiendaugiaRepository;
@@ -45,6 +44,9 @@ public class PhiendaugiaService {
     private TaikhoanquantriRepository taikhoanquantriRepository;
     @Autowired
     private AuctionSchedulerService auctionSchedulerService;
+    @Autowired
+    private TaikhoanquantriRepository taikhoanquantriRepository;
+
 
     public List<AuctionDTO> findAllDTO() {
         return phiendaugiaRepository.findAll()
@@ -273,6 +275,47 @@ public class PhiendaugiaService {
 //            throw new ValidationException("Thời gian kết thúc đăng ký phải trước thời gian bắt đầu phiên");
 //        }
 //    }
+
+    //Admin
+    public AuctionDTO approveAuction(PhiendaugiaCreationRequest request, String mapdg, String email) throws MessagingException, IOException {
+        Phiendaugia phiendaugia = phiendaugiaRepository.findById(mapdg)
+                .orElseThrow(() ->new NotFoundException("Không tìm thấy phiên đấu giá"));
+        if (phiendaugia.getTrangthai() != TrangThaiPhienDauGia.PENDING_APPROVAL)
+            throw new ValidationException("Phiên đấu giá đã được duyệt");
+        Taikhoanquantri admin = taikhoanquantriRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản quản trị"));
+
+        phiendaugia.setThoigianbddk(request.getThoigianbddk());
+        phiendaugia.setThoigianktdk(request.getThoigianktdk());
+        phiendaugia.setThoigianbd(request.getThoigianbd());
+        phiendaugia.setThoigiankt(request.getThoigiankt());
+        phiendaugia.setGiakhoidiem(request.getGiakhoidiem());
+        phiendaugia.setBuocgia(request.getBuocgia());
+        phiendaugia.setTiencoc(request.getTiencoc());
+        phiendaugia.setTrangthai(TrangThaiPhienDauGia.APPROVED);
+        phiendaugia.setTaiKhoanQuanTri(admin);
+
+        Phiendaugia saved = phiendaugiaRepository.save(phiendaugia);
+        auctionSchedulerService.scheduleNewOrApprovedAuction(phiendaugia.getMaphiendg());
+        return toAuctionDTO(saved);
+    }
+
+    //Admin
+    public AuctionDTO rejectAuction(String mapdg, String email) {
+        Phiendaugia phiendaugia = phiendaugiaRepository.findById(mapdg)
+                .orElseThrow(() ->new NotFoundException("Không tìm thấy phiên đấu giá"));
+        if (phiendaugia.getTrangthai() != TrangThaiPhienDauGia.PENDING_APPROVAL)
+            throw new ValidationException("Phiên đấu giá đã được duyệt");
+        Taikhoanquantri admin = taikhoanquantriRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản quản trị"));
+
+        phiendaugia.setTrangthai(TrangThaiPhienDauGia.CANCELLED);
+        phiendaugia.setTaiKhoanQuanTri(admin);
+
+        Phiendaugia saved = phiendaugiaRepository.save(phiendaugia);
+        auctionSchedulerService.cancelAuction(phiendaugia.getMaphiendg(), "Hahaha");
+        return toAuctionDTO(saved);
+    }
 
     private AuctionDTO toAuctionDTO(Phiendaugia phien) {
         return new AuctionDTO(

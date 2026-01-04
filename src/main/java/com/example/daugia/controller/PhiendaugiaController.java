@@ -139,6 +139,7 @@ public class PhiendaugiaController {
         return ApiResponse.success(dto, "Cập nhật phiên đấu giá thành công");
     }
 
+    //Admin
     @PutMapping("/approve/{mapdg}")
     public ApiResponse<AuctionDTO> approveAuction(
             @RequestBody PhiendaugiaCreationRequest request,
@@ -146,9 +147,11 @@ public class PhiendaugiaController {
             @RequestHeader("Authorization") String header) throws MessagingException, IOException {
         String email = tokenValidator.authenticateAndGetEmail(header);
         AuctionDTO approved = phiendaugiaService.approveAuction(request, mapdg, email);
+        thongbaoService.createForUser(approved.getMaphiendg(), email, approved.getTaiKhoanNguoiBan().getEmail());
         return ApiResponse.success(approved, "Duyệt phiên đấu giá thành công");
     }
 
+    //Admin
     @PutMapping("/reject/{mapdg}")
     public ApiResponse<AuctionDTO> rejectAuction(
             @RequestBody ThongBaoCreationRequest request,
