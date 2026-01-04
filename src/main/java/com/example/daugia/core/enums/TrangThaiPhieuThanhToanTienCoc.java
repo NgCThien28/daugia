@@ -10,8 +10,8 @@ public enum TrangThaiPhieuThanhToanTienCoc {
     PAID("Đã thanh toán", IndexedColors.GREEN),
     REFUNDING("Đang hoàn tiền", IndexedColors.LIGHT_YELLOW),
     REFUNDED("Đã hoàn tiền", IndexedColors.GREEN),
-    CANCELLED("Bị hủy", IndexedColors.RED);
-
+    CANCELLED("Bị hủy", IndexedColors.RED),
+    LOST("Mất cọc", IndexedColors.RED);
     private final String value;
     private final IndexedColors color;
 
