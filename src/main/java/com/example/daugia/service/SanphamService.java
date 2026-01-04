@@ -80,7 +80,7 @@ public class SanphamService {
 
         List<TrangThaiSanPham> effectiveStatuses =
                 (statuses == null || statuses.isEmpty())
-                        ? List.of(PENDING_APPROVAL, APPROVED, CANCELLED)
+                        ? List.of(NOT_REGISTERED, PENDING_APPROVAL, APPROVED, CANCELLED)
                         : statuses;
 
         Specification<Sanpham> spec = (root, query, cb) -> {
@@ -119,15 +119,20 @@ public class SanphamService {
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy thành phố")));
         sp.setTensp(request.getTensp());
         sp.setTinhtrangsp(request.getTinhtrangsp());
-        sp.setTrangthai(PENDING_APPROVAL);
+        sp.setTrangthai(NOT_REGISTERED);
         sp.setGiamongdoi(request.getGiamongdoi());
         sanphamRepository.save(sp);
-
-        UserShortDTO userShortDTO = new UserShortDTO(sp.getTaiKhoan().getMatk());
-        CityDTO cityDTO = new CityDTO(sp.getThanhPho().getTentp());
-        List<ImageDTO> hinhAnh = new ArrayList<>();
-
         return convertToDTO(sp);
+    }
+
+    public ProductDTO register(String masp, String email){
+        Sanpham sanpham = sanphamRepository.findById(masp)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài sản"));
+        if(!email.equals(sanpham.getTaiKhoan().getEmail()))
+            throw new ValidationException("Bạn không phải chủ sản phẩm");
+        sanpham.setTrangthai(PENDING_APPROVAL);
+        sanphamRepository.save(sanpham);
+        return convertToDTO(sanpham);
     }
 
     public ProductDTO update(SanPhamCreationRequest request, String email) {
@@ -143,11 +148,6 @@ public class SanphamService {
         sanpham.setTinhtrangsp(request.getTinhtrangsp());
         sanpham.setGiamongdoi(request.getGiamongdoi());
         sanphamRepository.save(sanpham);
-
-        UserShortDTO userShortDTO = new UserShortDTO(sanpham.getTaiKhoan().getMatk());
-        CityDTO cityDTO = new CityDTO(sanpham.getThanhPho().getTentp());
-        List<ImageDTO> hinhAnh = new ArrayList<>();
-
         return convertToDTO(sanpham);
     }
 

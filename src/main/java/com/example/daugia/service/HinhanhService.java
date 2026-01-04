@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Service
 public class HinhanhService {
 
-    private static final int MAX_IMAGES = 3;
+    private static final int MAX_IMAGES = 10;
 
     @Autowired
     private HinhanhRepository hinhanhRepository;
@@ -36,7 +36,7 @@ public class HinhanhService {
         return hinhanhRepository.findAll();
     }
 
-    /* ================== INIT ================== */
+    // INIT
     @Transactional
     public List<Hinhanh> createInitial(String masp, List<MultipartFile> files) {
         validateFilesNotEmpty(files);
@@ -57,7 +57,7 @@ public class HinhanhService {
         return sp.getHinhAnh();
     }
 
-    /* ================== APPEND ================== */
+    // APPEND
     @Transactional
     public List<Hinhanh> append(String masp, List<MultipartFile> files) {
         validateFilesNotEmpty(files);
@@ -74,7 +74,7 @@ public class HinhanhService {
         return sp.getHinhAnh();
     }
 
-    /* ================== REPLACE PARTIAL ================== */
+    // REPLACE PARTIAL
     @Transactional
     public List<Hinhanh> replaceIndices(String masp, Map<Integer, MultipartFile> replaceMap) {
         if (replaceMap == null || replaceMap.isEmpty()) {
@@ -96,7 +96,8 @@ public class HinhanhService {
             Hinhanh old = current.get(idx);
             try {
                 Files.deleteIfExists(dir.resolve(old.getTenanh()));
-            } catch (IOException ignore) {}
+            } catch (IOException ignore) {
+            }
 
             String original = file.getOriginalFilename();
             if (original == null || original.isBlank()) {
@@ -115,7 +116,7 @@ public class HinhanhService {
         return current;
     }
 
-    /* ================== REPLACE ALL ================== */
+    // REPLACE ALL
     @Transactional
     public List<Hinhanh> replaceAll(String masp, List<MultipartFile> files) {
         validateFilesNotEmpty(files);
@@ -131,10 +132,10 @@ public class HinhanhService {
         for (Hinhanh h : new ArrayList<>(current)) {
             try {
                 Files.deleteIfExists(dir.resolve(h.getTenanh()));
-            } catch (IOException ignore) {}
+            } catch (IOException ignore) {
+            }
             hinhanhRepository.delete(h);
         }
-        // Không set list mới — chỉ clear() rồi addAll()
         current.clear();
 
         List<Hinhanh> added = internalAppend(sp, files, MAX_IMAGES);
@@ -144,7 +145,7 @@ public class HinhanhService {
         return current;
     }
 
-    /* ================== REMOVE ================== */
+    // REMOVE
     @Transactional
     public List<Hinhanh> removeByIndices(String masp, List<Integer> indices) {
         if (indices == null || indices.isEmpty()) {
@@ -165,7 +166,8 @@ public class HinhanhService {
             Hinhanh h = current.get(idx);
             try {
                 Files.deleteIfExists(dir.resolve(h.getTenanh()));
-            } catch (IOException ignore) {}
+            } catch (IOException ignore) {
+            }
             hinhanhRepository.delete(h);
             current.remove((int) idx);
         }
@@ -189,7 +191,8 @@ public class HinhanhService {
             if (imageIds.contains(h.getMaanh())) {
                 try {
                     Files.deleteIfExists(dir.resolve(h.getTenanh()));
-                } catch (IOException ignore) {}
+                } catch (IOException ignore) {
+                }
                 hinhanhRepository.delete(h);
                 it.remove();
             }
@@ -198,7 +201,7 @@ public class HinhanhService {
         return current;
     }
 
-    /* ================== REORDER ================== */
+    // REORDER
     @Transactional
     public List<Hinhanh> reorder(String masp, List<Integer> newOrder) {
         if (newOrder == null || newOrder.isEmpty()) {
@@ -233,7 +236,7 @@ public class HinhanhService {
         return current;
     }
 
-    /* ================== UPSERT HỖN HỢP ================== */
+    // UPSERT HỖN HỢP
     @Transactional
     public List<Hinhanh> upsertMixed(ImageUpsertRequest meta, List<MultipartFile> files) {
         if (meta == null || meta.getMasp() == null) {
@@ -267,27 +270,32 @@ public class HinhanhService {
                 case REMOVE -> {
                     Integer idx = op.getIndex();
                     if (idx == null) throw new ValidationException("Thiếu index cho REMOVE");
-                    if (idx < 0 || idx >= current.size()) throw new ValidationException("Index REMOVE không hợp lệ: " + idx);
+                    if (idx < 0 || idx >= current.size())
+                        throw new ValidationException("Index REMOVE không hợp lệ: " + idx);
                     Hinhanh h = current.get(idx);
                     try {
                         Files.deleteIfExists(dir.resolve(h.getTenanh()));
-                    } catch (IOException ignore) {}
+                    } catch (IOException ignore) {
+                    }
                     hinhanhRepository.delete(h);
                     current.remove((int) idx);
                 }
                 case REPLACE -> {
                     Integer idx = op.getIndex();
                     if (idx == null) throw new ValidationException("Thiếu index cho REPLACE");
-                    if (idx < 0 || idx >= current.size()) throw new ValidationException("Index REPLACE không hợp lệ: " + idx);
+                    if (idx < 0 || idx >= current.size())
+                        throw new ValidationException("Index REPLACE không hợp lệ: " + idx);
                     MultipartFile mf = fileQueue.poll();
                     if (mf == null) throw new ValidationException("Thiếu file cho REPLACE index " + idx);
                     String original = mf.getOriginalFilename();
-                    if (original == null || original.isBlank()) throw new ValidationException("Tên file rỗng ở REPLACE index " + idx);
+                    if (original == null || original.isBlank())
+                        throw new ValidationException("Tên file rỗng ở REPLACE index " + idx);
 
                     Hinhanh old = current.get(idx);
                     try {
                         Files.deleteIfExists(dir.resolve(old.getTenanh()));
-                    } catch (IOException ignore) {}
+                    } catch (IOException ignore) {
+                    }
                     String unique = resolveUniqueFilename(dir, sanitizeFilename(original));
                     try {
                         mf.transferTo(dir.resolve(unique).toFile());
@@ -330,7 +338,7 @@ public class HinhanhService {
         return current;
     }
 
-    /* ================= Helpers ================= */
+// Helpers
 
     private Sanpham loadSanpham(String masp) {
         return sanphamRepository.findById(masp)

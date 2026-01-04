@@ -28,10 +28,9 @@ public class Phieuthanhtoantiencoc {
     @JsonManagedReference
     private Taikhoan taiKhoan;
 
+    private Timestamp hanthanhtoan;
     private Timestamp thoigianthanhtoan;
     private TrangThaiPhieuThanhToanTienCoc trangthai;
     private String vnptransactionno;
     private String bankcode;
-    private String raw;
-
 }

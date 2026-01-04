@@ -8,6 +8,7 @@ import com.example.daugia.dto.request.ThongBaoCreationRequest;
 import com.example.daugia.dto.response.AuctionDTO;
 import com.example.daugia.service.PhiendaugiaService;
 import com.example.daugia.service.ThongbaoService;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -115,7 +117,15 @@ public class PhiendaugiaController {
                                           @RequestHeader("Authorization") String header) {
         String email = tokenValidator.authenticateAndGetEmail(header);
         AuctionDTO dto = phiendaugiaService.create(request, email);
-        return ApiResponse.success(dto, "Tạo phiên thành công");
+        return ApiResponse.success(dto, "Tạo thông tin phiên thành công");
+    }
+
+    @PutMapping("/register")
+    public ApiResponse<AuctionDTO> register(@RequestParam(name = "maphiendg") String maphiendg,
+                                            @RequestHeader("Authorization") String header){
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        AuctionDTO dto = phiendaugiaService.register(maphiendg,email);
+        return ApiResponse.success(dto,"Yêu cầu tạo phiên thành công");
     }
 
     @PutMapping("/update/{maphiendg}")
@@ -133,7 +143,7 @@ public class PhiendaugiaController {
     public ApiResponse<AuctionDTO> approveAuction(
             @RequestBody PhiendaugiaCreationRequest request,
             @PathVariable String mapdg,
-            @RequestHeader("Authorization") String header) {
+            @RequestHeader("Authorization") String header) throws MessagingException, IOException {
         String email = tokenValidator.authenticateAndGetEmail(header);
         AuctionDTO approved = phiendaugiaService.approveAuction(request, mapdg, email);
         return ApiResponse.success(approved, "Duyệt phiên đấu giá thành công");

@@ -7,7 +7,8 @@ public enum TrangThaiPhieuThanhToanTienCoc {
     PAID("Đã thanh toán"),
     REFUNDING("Đang hoàn tiền"),
     REFUNDED("Đã hoàn tiền"),
-    CANCELLED("Bị hủy");
+    CANCELLED("Bị hủy"),
+    LOST("Mất cọc");
     private final String value;
 
     TrangThaiPhieuThanhToanTienCoc(String value) {

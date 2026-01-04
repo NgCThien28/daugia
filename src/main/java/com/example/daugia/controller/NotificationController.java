@@ -23,4 +23,9 @@ public class NotificationController {
         return notificationService.createEmitter(email);
     }
 
+    @GetMapping(value = "/connect-auction", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter connectAuction(@RequestParam("maphiendg") String maphiendg) {
+        return notificationService.createAuctionEmitter(maphiendg);
+    }
+
 }

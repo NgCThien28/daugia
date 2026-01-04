@@ -47,7 +47,6 @@ public class PhieuthanhtoanController {
         return ApiResponse.success(paymentUrl, "Tạo URL thanh toán thành công");
     }
 
-    // Redirect endpoint giữ riêng, không dùng ApiResponse JSON
     @GetMapping("/vnpay-return")
     public ResponseEntity<?> orderReturn(HttpServletRequest request) throws JsonProcessingException {
         int result = phieuthanhtoanService.orderReturn(request);
@@ -56,7 +55,6 @@ public class PhieuthanhtoanController {
                     .header("Location", "http://localhost:5173/payment-success")
                     .build();
         }
-        // 0 = thất bại/hủy, -1 = chữ ký không hợp lệ → đều đưa về trang fail
         return ResponseEntity.status(HttpStatus.FOUND)
                 .header("Location", "http://localhost:5173/payment-fail")
                 .build();
@@ -66,7 +64,7 @@ public class PhieuthanhtoanController {
     public ApiResponse<Page<PaymentDTO>> findByUserAndStatus(
             @RequestHeader("Authorization") String header,
             @RequestParam TrangThaiPhieuThanhToan status,
-            @RequestParam(required = false) String keyword,  // Thêm keyword (optional)
+            @RequestParam(required = false) String keyword,
             @PageableDefault(size = 20, sort = "thoigianthanhtoan", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         String email = tokenValidator.authenticateAndGetEmail(header);

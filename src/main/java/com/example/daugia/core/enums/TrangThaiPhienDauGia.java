@@ -3,6 +3,7 @@ package com.example.daugia.core.enums;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum TrangThaiPhienDauGia {
+    NOT_REQUESTED("Chưa yêu cầu"),
     PENDING_APPROVAL("Chờ duyệt"),
     APPROVED("Đã duyệt"),
     NOT_STARTED("Chưa bắt đầu"),

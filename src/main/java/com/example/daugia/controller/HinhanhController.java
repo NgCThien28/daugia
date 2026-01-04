@@ -69,7 +69,7 @@ public class HinhanhController {
         }
     }
 
-    /* Replace chỉ số cụ thể (partial): indices[] đi kèm files[] */
+    // Replace index cu the (partial): indices[] di kem files[]
     @PutMapping(value = "/replace-indices", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<List<Hinhanh>> replaceIndices(
             @RequestParam("masp") String masp,
@@ -95,7 +95,7 @@ public class HinhanhController {
         }
     }
 
-    /* Replace toàn bộ */
+    // Replace all
     @PutMapping(value = "/replace-all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<List<Hinhanh>> replaceAll(
             @RequestParam("masp") String masp,
@@ -113,7 +113,7 @@ public class HinhanhController {
         }
     }
 
-    /* Remove theo index (nhiều) */
+    // Remove theo index
     @DeleteMapping("/remove-indices")
     public ApiResponse<List<Hinhanh>> removeIndices(@RequestParam("masp") String masp,
                                                     @RequestParam("indices") List<Integer> indices) {
@@ -128,7 +128,7 @@ public class HinhanhController {
         }
     }
 
-    /* Remove theo id ảnh (nhiều) */
+    // Remove theo id anh
     @DeleteMapping("/remove-ids")
     public ApiResponse<List<Hinhanh>> removeIds(@RequestParam("masp") String masp,
                                                 @RequestParam("imageIds") List<String> imageIds) {
@@ -143,7 +143,7 @@ public class HinhanhController {
         }
     }
 
-    /* Reorder ảnh */
+    // Reorder anh
     @PatchMapping("/reorder")
     public ApiResponse<List<Hinhanh>> reorder(@RequestParam("masp") String masp,
                                               @RequestParam("order") List<Integer> order) {
@@ -158,7 +158,7 @@ public class HinhanhController {
         }
     }
 
-    /* Upsert hỗn hợp: multipart gồm meta + files */
+    // Upsert hon hop: multipart gom meta + files
     @PostMapping(value = "/upsert", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<?> upsertMixed(
             @RequestPart("meta") String metaJson,

@@ -13,7 +13,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 public class RawWebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new SimpleTextWebSocketHandler(), "/ws-auction-raw")
+        registry.addHandler(new SimpleTextWebSocketHandler(), "/ws-auction-raw") //endpoint
                 .setAllowedOrigins("*");
     }
     @Component

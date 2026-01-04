@@ -25,7 +25,7 @@ public class HistoryCache {
         if (auctionId == null || dto == null) return;
         Deque<BiddingDTO> q = store.computeIfAbsent(auctionId, k -> new ArrayDeque<>(maxPerAuction));
         synchronized (q) {
-            q.addFirst(dto);               // mới nhất vào đầu
+            q.addFirst(dto); //Moi nhat vao dau
             while (q.size() > maxPerAuction) {
                 q.removeLast();
             }
