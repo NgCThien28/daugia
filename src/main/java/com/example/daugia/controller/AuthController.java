@@ -137,4 +137,5 @@ public class AuthController {
         long blacklistUntil = (exp != null) ? exp.getTime() : (System.currentTimeMillis() + 60_000);
         blacklistService.addToken(token, blacklistUntil);
     }
+
 }

@@ -2,6 +2,9 @@ package com.example.daugia.service;
 
 import com.example.daugia.entity.Phiendaugia;
 import com.example.daugia.entity.Taikhoan;
+import com.example.daugia.exception.NotFoundException;
+import com.example.daugia.repository.PhiendaugiaRepository;
+import com.example.daugia.repository.TaikhoanRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,10 @@ public class EmailService {
 
     @Autowired
     private JavaMailSender mailSender;
+    @Autowired
+    private TaikhoanRepository taikhoanRepository;
+    @Autowired
+    private PhiendaugiaRepository phiendaugiaRepository;
 
     public void sendVerificationEmail(Taikhoan tk, String token) throws MessagingException, IOException {
         MimeMessage message = mailSender.createMimeMessage();
@@ -226,6 +233,49 @@ public class EmailService {
         html = html.replace("{{name}}", name);
         html = html.replace("{{tensp}}", phiendaugia.getSanPham().getTensp());
         html = html.replace("{{maphien}}", phiendaugia.getMaphiendg());
+
+        helper.setText(html, true); // true = HTML
+        mailSender.send(message);
+    }
+
+    @Async
+    public void sendAuctionEndEmail(String matk, String maphiendg, String lydo) throws MessagingException, IOException {
+        Taikhoan tk = taikhoanRepository.findById(matk)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
+        Phiendaugia phiendaugia = phiendaugiaRepository.findById(maphiendg)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy phiên đấu giá"));
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+        helper.setTo(tk.getEmail());
+        String subject = "Thông báo kết thúc phiên đấu giá " + phiendaugia.getMaphiendg();
+        helper.setSubject(subject);
+        String name = String.join(" ",
+                tk.getHo() == null ? "" : tk.getHo(),
+                tk.getTenlot() == null ? "" : tk.getTenlot(),
+                tk.getTen() == null ? "" : tk.getTen()
+        ).trim();
+        if (name.isEmpty()) name = "Bạn";
+
+        String templatePath = "templates/auction-end-email.html";
+        ClassPathResource resource = new ClassPathResource(templatePath);
+        String html = Files.readString(resource.getFile().toPath());
+
+        // Format dữ liệu
+        Locale vi = new Locale("vi", "VN");
+        SimpleDateFormat dtf = new SimpleDateFormat("dd/MM/yyyy HH:mm", vi);
+        NumberFormat numberFmt = NumberFormat.getNumberInstance(vi);
+        String thoigiankt = phiendaugia.getThoigiankt() == null ? "-" : dtf.format(phiendaugia.getThoigiankt());
+        String giacaonhat = phiendaugia.getGiacaonhatdatduoc() == null
+                ? "-"
+                : numberFmt.format(phiendaugia.getGiacaonhatdatduoc());
+
+        html = html.replace("{{name}}", name);
+        html = html.replace("{{tensp}}", phiendaugia.getSanPham().getTensp());
+        html = html.replace("{{maphien}}", phiendaugia.getMaphiendg());
+        html = html.replace("{{thoigiankt}}", thoigiankt);
+        html = html.replace("{{trangthai}}", phiendaugia.getTrangthai().getValue());
+        html = html.replace("{{giacaonhat}}", giacaonhat);
+        html = html.replace("{{lydo}}", lydo);
 
         helper.setText(html, true); // true = HTML
         mailSender.send(message);

@@ -31,4 +31,8 @@ public class PaymentDTO {
     public PaymentDTO() {
     }
 
+    public PaymentDTO(Timestamp thoigianthanhtoan, BigDecimal sotien) {
+        this.thoigianthanhtoan = thoigianthanhtoan;
+        this.sotien = sotien;
+    }
 }

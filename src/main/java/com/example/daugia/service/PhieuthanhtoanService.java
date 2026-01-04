@@ -2,10 +2,7 @@ package com.example.daugia.service;
 
 import com.example.daugia.config.PaymentConfig;
 import com.example.daugia.core.enums.TrangThaiPhieuThanhToan;
-import com.example.daugia.dto.response.AuctionDTO;
-import com.example.daugia.dto.response.PaymentDTO;
-import com.example.daugia.dto.response.ProductDTO;
-import com.example.daugia.dto.response.UserShortDTO;
+import com.example.daugia.dto.response.*;
 import com.example.daugia.entity.Phiendaugia;
 import com.example.daugia.entity.Phientragia;
 import com.example.daugia.entity.Phieuthanhtoan;
@@ -39,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PhieuthanhtoanService {
@@ -392,5 +390,68 @@ public class PhieuthanhtoanService {
         );
 
         export.export(response);
+    }
+
+    public List<TransactionDTO> getSuccessfulTransactions(
+            LocalDate fromDate,
+            LocalDate toDate
+    ) {
+        Timestamp from = null;
+        Timestamp to = null;
+
+        if (fromDate != null) {
+            from = Timestamp.valueOf(fromDate.atStartOfDay());
+        }
+
+        if (toDate != null) {
+            to = Timestamp.valueOf(toDate.atTime(23, 59, 59));
+        }
+        List<Object[]> results = phieuthanhtoanRepository.
+                findSuccessfulTransactions(from, to, TrangThaiPhieuThanhToan.PAID);
+        return results.stream()
+                .map(row -> new TransactionDTO((Date) row[0], (Long) row[1]))
+                .collect(Collectors.toList());
+    }
+
+    public List<TransactionAmountDTO> getGrossMerchandiseValue(
+            LocalDate fromDate,
+            LocalDate toDate
+    ) {
+        Timestamp from = null;
+        Timestamp to = null;
+
+        if (fromDate != null) {
+            from = Timestamp.valueOf(fromDate.atStartOfDay());
+        }
+
+        if (toDate != null) {
+            to = Timestamp.valueOf(toDate.atTime(23, 59, 59));
+        }
+        List<Object[]> results = phieuthanhtoanRepository.
+                findGrossMerchandiseValue(from, to, TrangThaiPhieuThanhToan.PAID);
+        return results.stream()
+                .map(row -> new TransactionAmountDTO((Date) row[0], (BigDecimal) row[1]))
+                .toList();
+    }
+
+    public List<TransactionAmountDTO> getCommission(
+            LocalDate fromDate,
+            LocalDate toDate
+    ) {
+        Timestamp from = null;
+        Timestamp to = null;
+
+        if (fromDate != null) {
+            from = Timestamp.valueOf(fromDate.atStartOfDay());
+        }
+
+        if (toDate != null) {
+            to = Timestamp.valueOf(toDate.atTime(23, 59, 59));
+        }
+        List<Object[]> results = phieuthanhtoanRepository.
+                findCommission(from, to, TrangThaiPhieuThanhToan.PAID);
+        return results.stream()
+                .map(row -> new TransactionAmountDTO((Date) row[0], (BigDecimal) row[1]))
+                .toList();
     }
 }

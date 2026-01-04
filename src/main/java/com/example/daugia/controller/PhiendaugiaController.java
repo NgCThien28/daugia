@@ -6,6 +6,8 @@ import com.example.daugia.dto.request.ApiResponse;
 import com.example.daugia.dto.request.PhiendaugiaCreationRequest;
 import com.example.daugia.dto.request.ThongBaoCreationRequest;
 import com.example.daugia.dto.response.AuctionDTO;
+import com.example.daugia.service.AuctionSchedulerService;
+import com.example.daugia.service.EmailService;
 import com.example.daugia.service.PhiendaugiaService;
 import com.example.daugia.service.ThongbaoService;
 import jakarta.mail.MessagingException;
@@ -29,6 +31,8 @@ public class PhiendaugiaController {
     private TokenValidator tokenValidator;
     @Autowired
     private ThongbaoService thongbaoService;
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("/find-all")
     public ApiResponse<List<AuctionDTO>> findAll() {
@@ -156,10 +160,12 @@ public class PhiendaugiaController {
     public ApiResponse<AuctionDTO> rejectAuction(
             @RequestBody ThongBaoCreationRequest request,
             @PathVariable String mapdg,
-            @RequestHeader("Authorization") String header) {
+            @RequestHeader("Authorization") String header) throws MessagingException, IOException {
         String email = tokenValidator.authenticateAndGetEmail(header);
         AuctionDTO rejected = phiendaugiaService.rejectAuction(mapdg, email);
         thongbaoService.createForUser(request, email, rejected.getTaiKhoanNguoiBan().getEmail());
+        emailService.sendAuctionEndEmail(rejected.getTaiKhoanNguoiBan().getMatk(),
+                rejected.getMaphiendg(), "Phien dau gia da bi huy: " + request.getNoidung());
         return ApiResponse.success(rejected, "Từ chối phiên đấu giá thành công");
     }
 }
