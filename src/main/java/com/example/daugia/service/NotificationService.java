@@ -1,5 +1,7 @@
 package com.example.daugia.service;
+import com.example.daugia.dto.response.AuctionDTO;
 import com.example.daugia.dto.response.NotificationDTO;
+import com.example.daugia.entity.Phiendaugia;
 import com.example.daugia.entity.Thongbao;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -9,9 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class NotificationService {
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
-
+    private final Map<String, SseEmitter> auctionEmitters = new ConcurrentHashMap<>();
     public SseEmitter createEmitter(String email) {
-        // Nếu emitter cũ còn tồn tại -> hủy trước
+        // Nếu emitter cũ còn tồn tại thi huy
         SseEmitter oldEmitter = emitters.remove(email);
         if (oldEmitter != null) {
             try {
@@ -25,6 +27,24 @@ public class NotificationService {
         emitter.onCompletion(() -> emitters.remove(email));
         emitter.onTimeout(() -> emitters.remove(email));
         emitter.onError((ex) -> emitters.remove(email));
+
+        return emitter;
+    }
+
+    public SseEmitter createAuctionEmitter(String maphiendg) {
+        SseEmitter oldEmitter = auctionEmitters.remove(maphiendg);
+        if (oldEmitter != null) {
+            try {
+                oldEmitter.complete();
+            } catch (Exception ignored) {}
+        }
+
+        SseEmitter emitter = new SseEmitter(0L);
+        auctionEmitters.put(maphiendg, emitter);
+
+        emitter.onCompletion(() -> auctionEmitters.remove(maphiendg));
+        emitter.onTimeout(() -> auctionEmitters.remove(maphiendg));
+        emitter.onError((ex) -> auctionEmitters.remove(maphiendg));
 
         return emitter;
     }
@@ -80,6 +100,19 @@ public class NotificationService {
                         )));
             } catch (Exception e) {
                 emitters.remove(email);
+            }
+        }
+    }
+
+    public void sendNumberOfParticipants(Phiendaugia phiendaugia) {
+        SseEmitter emitter = auctionEmitters.get(phiendaugia.getMaphiendg());
+        if (emitter != null) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("number-of-participants")
+                        .data(phiendaugia.getSlnguoithamgia()));
+            } catch (Exception e) {
+                auctionEmitters.remove(phiendaugia.getMaphiendg());
             }
         }
     }

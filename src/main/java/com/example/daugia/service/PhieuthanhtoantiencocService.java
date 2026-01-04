@@ -47,6 +47,8 @@ public class PhieuthanhtoantiencocService {
     private TaikhoanRepository taikhoanRepository;
     @Autowired
     private PhiendaugiaRepository phiendaugiaRepository;
+    @Autowired
+    private NotificationService notificationService;
 
     // TÌM KIẾM
 
@@ -95,7 +97,7 @@ public class PhieuthanhtoantiencocService {
                                 phieuthanhtoantiencoc.getPhienDauGia().getTiencoc(),
                                 phieuthanhtoantiencoc.getPhienDauGia().getMaphiendg()
                         ),
-                        phieuthanhtoantiencoc.getThoigianthanhtoan(),
+                        phieuthanhtoantiencoc.getHanthanhtoan(),
                         phieuthanhtoantiencoc.getTrangthai()
                 ))
                 .toList();
@@ -114,7 +116,7 @@ public class PhieuthanhtoantiencocService {
                         p.getPhienDauGia().getMaphiendg(),
                         p.getPhienDauGia().getGiacaonhatdatduoc()
                 ),
-                p.getThoigianthanhtoan(),
+                p.getHanthanhtoan(),
                 p.getTrangthai()
         ));
     }
@@ -128,7 +130,7 @@ public class PhieuthanhtoantiencocService {
         Specification<Phieuthanhtoantiencoc> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // Filter theo tài khoản và trạng thái
+            // Filter tài khoản và trạng thái
             predicates.add(cb.equal(root.get("taiKhoan").get("matk"), taikhoan.getMatk()));
             predicates.add(cb.equal(root.get("trangthai"), status));
 
@@ -152,7 +154,7 @@ public class PhieuthanhtoantiencocService {
                         p.getPhienDauGia().getMaphiendg(),
                         new ProductDTO(p.getPhienDauGia().getSanPham().getTensp())
                 ),
-                p.getThoigianthanhtoan(),
+                p.getHanthanhtoan(),
                 p.getTrangthai()
         ));
     }
@@ -186,7 +188,7 @@ public class PhieuthanhtoantiencocService {
         Timestamp now = Timestamp.from(Instant.now());
         long paymentMillis = getPaymentMillis(phiendaugia, now);
 
-        phieuthanhtoantiencoc.setThoigianthanhtoan(new Timestamp(now.getTime() + paymentMillis));
+        phieuthanhtoantiencoc.setHanthanhtoan(new Timestamp(now.getTime() + paymentMillis));
         phieuthanhtoantiencoc.setTrangthai(TrangThaiPhieuThanhToanTienCoc.UNPAID);
         phieuthanhtoantiencocRepository.save(phieuthanhtoantiencoc);
         return findById(phieuthanhtoantiencoc.getMatc());
@@ -299,16 +301,12 @@ public class PhieuthanhtoantiencocService {
             phieu.setTrangthai(TrangThaiPhieuThanhToanTienCoc.PAID);
             phieu.setVnptransactionno(fields.get("vnp_TransactionNo"));
             phieu.setBankcode(fields.get("vnp_BankCode"));
-            try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                String rawJson = objectMapper.writeValueAsString(fields);
-                phieu.setRaw(rawJson);
-            } catch (JsonProcessingException ignore) {
-            }
+            phieu.setThoigianthanhtoan(Timestamp.valueOf(LocalDateTime.now()));
             Phiendaugia phien = phieu.getPhienDauGia();
             phien.setSlnguoithamgia(phien.getSlnguoithamgia() + 1);
             phiendaugiaRepository.save(phien);
             phieuthanhtoantiencocRepository.save(phieu);
+            notificationService.sendNumberOfParticipants(phien);
             return 1;
         } else {
             return 0;
@@ -321,7 +319,7 @@ public class PhieuthanhtoantiencocService {
         if (phieu.getTrangthai().equals(TrangThaiPhieuThanhToanTienCoc.PAID)) {
             throw new ConflictException("Phiếu đã được thanh toán");
         }
-        if (!phieu.getThoigianthanhtoan().after(new Timestamp(System.currentTimeMillis()))) {
+        if (!phieu.getHanthanhtoan().after(new Timestamp(System.currentTimeMillis()))) {
             throw new ValidationException("Đã quá thời hạn thanh toán");
         }
     }

@@ -60,7 +60,7 @@ public class AuthController {
         String token = tokenValidator.extractBearerOrThrow(header);
         String email = tokenValidator.validateAndGetEmailFromToken(token);
 
-        // Token hợp lệ nhưng không phải token phiên hiện tại → bị đăng nhập ở nơi khác
+        // Token hợp lệ nhưng không phải token phiên hiện tại
         if (!activeTokenService.isSameToken(email, token)) {
             throw new ForbiddenException("Tài khoản đã đăng nhập ở thiết bị khác. Vui lòng đăng nhập lại.");
         }
@@ -125,7 +125,7 @@ public class AuthController {
             if (expOld != null) {
                 blacklistService.addToken(oldToken, expOld.getTime());
             } else {
-                // TTL fallback nếu không lấy được exp
+                // TTL fallback neu khong lay duoc exp
                 blacklistService.addToken(oldToken, System.currentTimeMillis() + 60_000);
             }
             notificationService.sendLogoutEvent(email, false);

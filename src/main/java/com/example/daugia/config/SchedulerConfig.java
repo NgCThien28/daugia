@@ -11,7 +11,7 @@ public class SchedulerConfig {
     @Bean
     public ThreadPoolTaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(10); // số luồng chạy song song
+        scheduler.setPoolSize(10); //So luong
         scheduler.setThreadNamePrefix("auction-scheduler-");
         scheduler.initialize();
         return scheduler;

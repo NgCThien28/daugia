@@ -23,7 +23,7 @@ public class JwtFilter implements Filter {
 
         String path = request.getRequestURI();
 
-        // Bỏ qua các endpoint public
+        //Bo qua endpoint public
         if (path.startsWith("/api")) {
             chain.doFilter(req, res);
             return;
@@ -38,7 +38,7 @@ public class JwtFilter implements Filter {
 
         String token = header.substring(7);
 
-        // Kiểm tra nếu token bị blacklist
+        //Kiem tra blacklist
         if (blacklistService.isBlacklisted(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Token đã bị vô hiệu (đăng xuất)");

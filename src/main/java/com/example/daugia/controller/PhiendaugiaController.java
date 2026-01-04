@@ -117,7 +117,15 @@ public class PhiendaugiaController {
                                           @RequestHeader("Authorization") String header) {
         String email = tokenValidator.authenticateAndGetEmail(header);
         AuctionDTO dto = phiendaugiaService.create(request, email);
-        return ApiResponse.success(dto, "Tạo phiên thành công");
+        return ApiResponse.success(dto, "Tạo thông tin phiên thành công");
+    }
+
+    @PutMapping("/register")
+    public ApiResponse<AuctionDTO> register(@RequestParam(name = "maphiendg") String maphiendg,
+                                            @RequestHeader("Authorization") String header){
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        AuctionDTO dto = phiendaugiaService.register(maphiendg,email);
+        return ApiResponse.success(dto,"Yêu cầu tạo phiên thành công");
     }
 
     @PutMapping("/update/{maphiendg}")

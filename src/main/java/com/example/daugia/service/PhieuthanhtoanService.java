@@ -52,8 +52,7 @@ public class PhieuthanhtoanService {
     @Autowired
     private PhientragiaRepository phientragiaRepository;
 
-    // TÌM KIẾM
-
+    // TIM KIEM
     public List<PaymentDTO> findAll() {
         List<Phieuthanhtoan> phieuthanhtoanList = phieuthanhtoanRepository.findAll();
         return phieuthanhtoanList.stream()
@@ -69,7 +68,7 @@ public class PhieuthanhtoanService {
                                 phieuthanhtoan.getPhienDauGia().getMaphiendg(),
                                 phieuthanhtoan.getPhienDauGia().getGiacaonhatdatduoc()
                         ),
-                        phieuthanhtoan.getThoigianthanhtoan(),
+                        phieuthanhtoan.getHanthanhtoan(),
                         phieuthanhtoan.getTrangthai(),
                         phieuthanhtoan.getSotien()
                 ))
@@ -86,7 +85,7 @@ public class PhieuthanhtoanService {
                         phieuthanhtoan.getPhienDauGia().getMaphiendg(),
                         phieuthanhtoan.getPhienDauGia().getGiacaonhatdatduoc()
                 ),
-                phieuthanhtoan.getThoigianthanhtoan(),
+                phieuthanhtoan.getHanthanhtoan(),
                 phieuthanhtoan.getTrangthai(),
                 phieuthanhtoan.getSotien()
         );
@@ -104,7 +103,7 @@ public class PhieuthanhtoanService {
                                 phieuthanhtoan.getPhienDauGia().getMaphiendg(),
                                 phieuthanhtoan.getPhienDauGia().getGiacaonhatdatduoc()
                         ),
-                        phieuthanhtoan.getThoigianthanhtoan(),
+                        phieuthanhtoan.getHanthanhtoan(),
                         phieuthanhtoan.getTrangthai(),
                         phieuthanhtoan.getSotien()
                 ))
@@ -119,15 +118,14 @@ public class PhieuthanhtoanService {
         Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
 
-        // Tạo Specification (không dùng where() deprecated)
         Specification<Phieuthanhtoan> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // Filter theo tài khoản và trạng thái
+            // Filter tài khoản và trạng thái
             predicates.add(cb.equal(root.get("taiKhoan").get("matk"), taikhoan.getMatk()));
             predicates.add(cb.equal(root.get("trangthai"), status));
 
-            // Nếu có keyword, tìm kiếm trong matt hoặc maphiendg (case-insensitive)
+            // keyword, tìm kiếm trong matt hoặc maphiendg (case-insensitive)
             if (keyword != null && !keyword.trim().isEmpty()) {
                 String keywordLower = "%" + keyword.toLowerCase() + "%";
                 Predicate mattPredicate = cb.like(cb.lower(root.get("matt")), keywordLower);
@@ -138,7 +136,6 @@ public class PhieuthanhtoanService {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
-        // Sử dụng findAll với Specification
         Page<Phieuthanhtoan> page = phieuthanhtoanRepository.findAll(spec, pageable);
 
         return page.map(p -> new PaymentDTO(
@@ -149,17 +146,15 @@ public class PhieuthanhtoanService {
                         p.getPhienDauGia().getGiacaonhatdatduoc(),
                         new ProductDTO(p.getPhienDauGia().getSanPham().getTensp())
                 ),
-                p.getThoigianthanhtoan(),
+                p.getHanthanhtoan(),
                 p.getTrangthai(),
                 p.getSotien()
         ));
     }
 
-    // THANH TOÁN
-
-    // tạo phiếu cho winner cụ thể
+    // THANH TOAN
+    // Tao phieu winner cu the
     public Phieuthanhtoan createForWinner(Phiendaugia phienDauGia, Taikhoan winner, BigDecimal giaThang) {
-        // Kiểm tra đã có phiếu chưa
         Optional<Phieuthanhtoan> existing = phieuthanhtoanRepository.findByPhienDauGia_Maphiendg(phienDauGia.getMaphiendg());
         if (existing.isPresent()) {
             return existing.get();
@@ -172,12 +167,12 @@ public class PhieuthanhtoanService {
         phieu.setSotien(giaThang.subtract(phienDauGia.getTiencoc()));
         Timestamp now = Timestamp.from(Instant.now());
         long sevenDaysMs = 7L * 24 * 60 * 60 * 1000;
-        phieu.setThoigianthanhtoan(new Timestamp(now.getTime() + sevenDaysMs));
+        phieu.setHanthanhtoan(new Timestamp(now.getTime() + sevenDaysMs));
 
         return phieuthanhtoanRepository.save(phieu);
     }
 
-    // gọi với winner từ bids
+    // Goi winner tu bids
     public Phieuthanhtoan createForWinner(Phiendaugia phienDauGia) {
         List<Phientragia> bids = phientragiaRepository.findByPhienDauGia_Maphiendg(phienDauGia.getMaphiendg());
         if (bids.isEmpty()) {
@@ -298,12 +293,7 @@ public class PhieuthanhtoanService {
             phieu.setTrangthai(TrangThaiPhieuThanhToan.PAID);
             phieu.setVnptransactionno(fields.get("vnp_TransactionNo"));
             phieu.setBankcode(fields.get("vnp_BankCode"));
-            try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                String rawJson = objectMapper.writeValueAsString(fields);
-                phieu.setRaw(rawJson);
-            } catch (JsonProcessingException ignore) {
-            }
+            phieu.setThoigianthanhtoan(Timestamp.valueOf(LocalDateTime.now()));
             phieuthanhtoanRepository.save(phieu);
             return 1;
         } else {
@@ -312,12 +302,11 @@ public class PhieuthanhtoanService {
     }
 
     // HELPER
-
     private void validatePhieuForPayment(Phieuthanhtoan phieu) {
         if (phieu.getTrangthai().equals(TrangThaiPhieuThanhToan.PAID)) {
             throw new ConflictException("Phiếu đã được thanh toán");
         }
-        if (!phieu.getThoigianthanhtoan().after(new Timestamp(System.currentTimeMillis()))) {
+        if (!phieu.getHanthanhtoan().after(new Timestamp(System.currentTimeMillis()))) {
             throw new ValidationException("Đã quá thời hạn thanh toán");
         }
     }
@@ -339,7 +328,7 @@ public class PhieuthanhtoanService {
                         ptt.getPhienDauGia().getMaphiendg(),
                         ptt.getPhienDauGia().getGiacaonhatdatduoc()
                 ),
-                ptt.getThoigianthanhtoan(),
+                ptt.getHanthanhtoan(),
                 ptt.getTrangthai(),
                 ptt.getSotien()
         );

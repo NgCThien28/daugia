@@ -8,6 +8,7 @@ import com.example.daugia.entity.Phiendaugia;
 import com.example.daugia.entity.Phientragia;
 import com.example.daugia.entity.Phieuthanhtoan;
 import com.example.daugia.entity.Phieuthanhtoantiencoc;
+import com.example.daugia.exception.NotFoundException;
 import com.example.daugia.repository.PhiendaugiaRepository;
 import com.example.daugia.repository.PhieuthanhtoanRepository;
 import com.example.daugia.repository.PhieuthanhtoantiencocRepository;
@@ -38,8 +39,8 @@ import java.util.concurrent.ScheduledFuture;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+//Lap lich, xu ly trang thai, thong bao + email, dong bo du lieu dtb
 public class AuctionSchedulerService {
-
     @Autowired
     private ThreadPoolTaskScheduler scheduler;
     @Autowired
@@ -56,44 +57,48 @@ public class AuctionSchedulerService {
     private EmailService emailService;
     @Autowired
     private ThongbaoService thongbaoService;
-    // _start, _end, _notify, _payment_check
+
+    //Key: _start, _end, _notify, _payment_check
     private final Map<String, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
     private final Set<String> preStartNotifiedSessions = ConcurrentHashMap.newKeySet();
 
-    // per-auction locks to avoid concurrent finalize for same auction
+    //Khoa rieng cho phien tranh hoan tat dong thoi cung 1 phien
     private final Map<String, Object> finalizationLocks = new ConcurrentHashMap<>();
 
     private static final long ONE_DAY_MS = 24L * 60 * 60 * 1000;
     private static final long SEVEN_DAYS_MS = 7L * ONE_DAY_MS;
 
+    //Khoi tao
     @PostConstruct
     public void init() {
         log.info("Khoi tao AuctionSchedulerService...");
         try {
-            syncAndScheduleAllAuctions();  // Chạy lần đầu ngay
+            syncAndScheduleAllAuctions();
         } catch (Exception e) {
             log.error("Loi khoi tao dau tien syncAndScheduleAllAuctions", e);
         }
-        // Periodic resync từ sau 30 phút, cứ 30 phút
+        //Dong bo moi 30 phut
         Date startTime = new Date(System.currentTimeMillis() + 30 * 60_000L);
         scheduler.scheduleAtFixedRate(this::safeSyncAndScheduleAllAuctions, startTime, 30 * 60_000L);
-        log.info("Khoi tao AuctionSchedulerService xong (resync 30m).");
+        log.info("Khoi tao AuctionSchedulerService xong.");
     }
 
     private void safeSyncAndScheduleAllAuctions() {
         try {
             syncAndScheduleAllAuctions();
         } catch (Exception e) {
-            log.error("Loi trong resync dinh ky", e);
+            log.error("Loi trong dong bo dinh ky ", e);
         }
     }
 
+    //Dong bo hoa phien dau gia
     private void syncAndScheduleAllAuctions() throws MessagingException, IOException {
         List<TrangThaiPhienDauGia> excludedStatuses = List.of(
                 TrangThaiPhienDauGia.SUCCESS,
                 TrangThaiPhienDauGia.FAILED,
                 TrangThaiPhienDauGia.CANCELLED,
-                TrangThaiPhienDauGia.PENDING_APPROVAL
+                TrangThaiPhienDauGia.PENDING_APPROVAL,
+                TrangThaiPhienDauGia.NOT_REQUESTED
         );
         List<Phiendaugia> all = phiendaugiaRepository.findActiveAuctions(excludedStatuses);
         long now = System.currentTimeMillis();
@@ -101,6 +106,7 @@ public class AuctionSchedulerService {
 
         for (Phiendaugia phien : all) {
             try {
+                //Kiem tra sai sot du lieu
                 if (phien == null || phien.getMaphiendg() == null
                         || phien.getThoigianbd() == null || phien.getThoigiankt() == null) {
                     continue;
@@ -111,20 +117,22 @@ public class AuctionSchedulerService {
                 long startTime = phien.getThoigianbd().getTime();
                 long endTime = phien.getThoigiankt().getTime();
 
-                // Schedule notify BEFORE anything else
+                //Thong bao truoc khi bat dau phien
                 schedulePreStartNotifyOnce(phien, now, startTime);
 
-                // 1) Qua thoi gian ket thuc
+                //1. Qua thoi gian ket thuc
                 if (now >= endTime) {
+                    //Ket thuc phien neu phien IN_PROGRESS, NOT_STARTED
                     if (phien.getTrangthai() != TrangThaiPhienDauGia.WAITING_FOR_PAYMENT
                             && phien.getTrangthai() != TrangThaiPhienDauGia.SUCCESS
                             && phien.getTrangthai() != TrangThaiPhienDauGia.FAILED
                             && phien.getTrangthai() != TrangThaiPhienDauGia.CANCELLED) {
                         endAuctionSafe(phien);
                     } else {
+                        //Huy toan bo lich khong can thiet
                         cancelScheduledTask(phien.getMaphiendg());
                     }
-                    // Reschedule payment check neu WAITING_FOR_PAYMENT (vi task cu mat sau restart)
+                    //Len lich lai kt thanh toan khi khoi dong BE neu phien WAITING_FOR_PAYMENT
                     if (phien.getTrangthai() == TrangThaiPhienDauGia.WAITING_FOR_PAYMENT) {
                         Phiendaugia fresh = phiendaugiaRepository.findByIdWithPhieuThanhToan(phien.getMaphiendg()).orElse(phien);
                         Phieuthanhtoan phieu = getActivePhieu(fresh);
@@ -138,7 +146,7 @@ public class AuctionSchedulerService {
                     continue;
                 }
 
-                // 2) Dang trong phien
+                //2. Dang trong phien, lap lich ket thuc phien
                 if (now >= startTime) {
                     if (phien.getTrangthai() == TrangThaiPhienDauGia.NOT_STARTED
                             || phien.getTrangthai() == TrangThaiPhienDauGia.APPROVED) {
@@ -148,7 +156,7 @@ public class AuctionSchedulerService {
                     continue;
                 }
 
-                // 3) Chua toi gio bat dau
+                //3. Chua toi gio bat dau, lap lich bat dau va ket thuc phien
                 if (phien.getTrangthai() == TrangThaiPhienDauGia.APPROVED) {
                     phien.setTrangthai(TrangThaiPhienDauGia.NOT_STARTED);
                     try {
@@ -165,6 +173,8 @@ public class AuctionSchedulerService {
         }
     }
 
+    //Bat dau lai phien khi khoi dong BE
+    //Loai bo lich cu trong danh sach va huy lich cu
     private void startAuctionSafe(Phiendaugia phien) {
         String startKey = phien.getMaphiendg() + "_start";
         ScheduledFuture<?> f = scheduledTasks.remove(startKey);
@@ -177,6 +187,8 @@ public class AuctionSchedulerService {
         startAuction(phien);
     }
 
+    //Ket thuc phien khi khoi dong BE
+    //Loai bo lich cu trong danh sach va huy lich cu
     private void endAuctionSafe(Phiendaugia phien) {
         cancelScheduledTask(phien.getMaphiendg());
         if (phien.getTrangthai() == TrangThaiPhienDauGia.WAITING_FOR_PAYMENT
@@ -185,13 +197,17 @@ public class AuctionSchedulerService {
         endAuction(phien);
     }
 
+    //Len lich bat dau cho phien
     private void scheduleStartOnce(Phiendaugia phien) {
         String key = phien.getMaphiendg() + "_start";
+        //Kiem tra phien duoc lap lich hay chua
         if (scheduledTasks.containsKey(key)) return;
 
+        //Thoi gian cho <=0 khong lap lich
         long delay = phien.getThoigianbd().getTime() - System.currentTimeMillis();
         if (delay <= 0) return;
 
+        //Len lich
         ScheduledFuture<?> future = scheduler.schedule(() -> {
             try {
                 Phiendaugia fresh = phiendaugiaRepository.findByIdWithPhieuThanhToan(phien.getMaphiendg()).orElse(phien);
@@ -206,16 +222,20 @@ public class AuctionSchedulerService {
         scheduledTasks.put(key, future);
     }
 
+    //Len lich ket thuc phien
     private void scheduleEndOnce(Phiendaugia phien) {
         String key = phien.getMaphiendg() + "_end";
+        //Kiem tra phien duoc lap lich hay chua
         if (scheduledTasks.containsKey(key)) return;
 
+        //Thoi gian cho <=0 khong lap lich
         long delay = phien.getThoigiankt().getTime() - System.currentTimeMillis();
         if (delay <= 0) {
             endAuctionSafe(phien);
             return;
         }
 
+        //Lap lich
         ScheduledFuture<?> future = scheduler.schedule(() -> {
             try {
                 Phiendaugia fresh = phiendaugiaRepository.findByIdWithPhieuThanhToan(phien.getMaphiendg()).orElse(phien);
@@ -230,6 +250,7 @@ public class AuctionSchedulerService {
         scheduledTasks.put(key, future);
     }
 
+    //Bat dau phien
     private void startAuction(Phiendaugia phien) {
         try {
             int participantCount = phien.getSlnguoithamgia();
@@ -247,16 +268,16 @@ public class AuctionSchedulerService {
                     }
                 }
                 preStartNotifiedSessions.remove(phien.getMaphiendg());
-                // Gui email that bai
+                //Gui email that bai
                 try {
-                    emailService.sendAuctionEndEmail(phien.getTaiKhoan(), phien, "Không đủ số lượng người tham gia (tối thiệu 5 người).");
+                    emailService.sendAuctionEndEmail(phien.getTaiKhoan(), phien, "Không đủ số lượng người tham gia (tối thiểu 5 người).");
                     createEndNotification(phien, "Không đủ số lượng người tham gia.", false);
                 } catch (Exception e) {
                     log.error("Loi gui email that bai cho phien {}: {}", phien.getMaphiendg(), e.getMessage());
                 }
                 return;
             }
-
+            //Phien chua dien ra, cap nhat trang thai dang dien ra
             if (phien.getTrangthai() == TrangThaiPhienDauGia.IN_PROGRESS) return;
             phien.setTrangthai(TrangThaiPhienDauGia.IN_PROGRESS);
             phiendaugiaRepository.save(phien);
@@ -266,40 +287,44 @@ public class AuctionSchedulerService {
         }
     }
 
+    //Ket thuc phien
     @Transactional
     private void endAuction(Phiendaugia phien) {
         try {
             List<Phientragia> validBids = phientragiaRepository.findByPhienDauGia_Maphiendg(phien.getMaphiendg());
             boolean hasValidBid = !validBids.isEmpty();
-            BigDecimal highestBid = phientragiaRepository.findMaxSotienByPhienDauGia_Maphiendg(phien.getMaphiendg())
-                    .orElse(BigDecimal.ZERO);
-
             String lydo = "";
+
             if (hasValidBid) {
-                // Tao phieu thanh toan cho nguoi thang
+                //Tao phieu thanh toan cho nguoi thang
                 try {
                     Phieuthanhtoan phieu = phieuthanhtoanService.createForWinner(phien);
                     phien.getPhieuThanhToan().add(phieu);
                 } catch (Exception e) {
                     log.error("Loi tao phieu thanh toan cho {}: {}", phien.getMaphiendg(), e.getMessage());
                 }
-
                 phien.setTrangthai(TrangThaiPhienDauGia.WAITING_FOR_PAYMENT);
                 phiendaugiaRepository.save(phien);
                 List<Phieuthanhtoantiencoc> allDeposits = phieuthanhtoantiencocRepository.findByPhienDauGia_Maphiendg(phien.getMaphiendg());
-                // Xác định người thắng đầu tiên (người trả giá cao nhất)
+
+                //Xac dinh nguoi thang dau tien
                 Phientragia firstWinnerBid = validBids.stream()
                         .max(Comparator.comparing(Phientragia::getSotien))
                         .orElse(null);
                 String firstWinnerId = (firstWinnerBid != null && firstWinnerBid.getTaiKhoan() != null) ? firstWinnerBid.getTaiKhoan().getMatk() : null;
                 log.debug("Nguoi tra gia cao nhat (nguoi thang dau tien) trong phien {}: {}", phien.getMaphiendg(), firstWinnerId);
+                //Dang hoan coc, tru nguoi thang
                 for (Phieuthanhtoantiencoc p : allDeposits) {
                     if (p.getTrangthai() == TrangThaiPhieuThanhToanTienCoc.PAID && !p.getTaiKhoan().getMatk().equals(firstWinnerId)) {
                         p.setTrangthai(TrangThaiPhieuThanhToanTienCoc.REFUNDING);
                         phieuthanhtoantiencocRepository.save(p);
-                        createNotification(p.getTaiKhoan().getEmail(), "Đang tiến hành hoàn cọc", "Tiền cọc từ phiên " + phien.getMaphiendg() + " với sản phẩm là " + phien.getSanPham().getTensp() + " của bạn đang được xử lý hoàn lại.");
+                        createNotification(p.getTaiKhoan().getEmail(), "Đang tiến hành hoàn cọc",
+                                "Tiền cọc từ phiên " + phien.getMaphiendg() +
+                                        " với sản phẩm là " + phien.getSanPham().getTensp() +
+                                        " của bạn đang được xử lý hoàn lại.");
                     }
                 }
+                //Gui mail thong bao cho nguoi thang
                 try {
                     Phientragia winnerBid = phientragiaRepository.findByPhienDauGia_Maphiendg(phien.getMaphiendg())
                             .stream()
@@ -315,18 +340,25 @@ public class AuctionSchedulerService {
                 }
                 schedulePaymentCheck(phien);
                 log.info("Phien {} → WAITING_FOR_PAYMENT", phien.getMaphiendg());
-            } else {
+            }
+            //Khong ai tra gia
+            else {
                 phien.setTrangthai(TrangThaiPhienDauGia.FAILED);
                 phiendaugiaRepository.save(phien);
                 lydo = "Không có người tham gia trả giá.";
+                //Hoan tien coc
                 List<Phieuthanhtoantiencoc> allDeposits = phieuthanhtoantiencocRepository.findByPhienDauGia_Maphiendg(phien.getMaphiendg());
                 for (Phieuthanhtoantiencoc p : allDeposits) {
                     if (p.getTrangthai() == TrangThaiPhieuThanhToanTienCoc.PAID) {
                         p.setTrangthai(TrangThaiPhieuThanhToanTienCoc.REFUNDED);
                         phieuthanhtoantiencocRepository.save(p);
-                        createNotification(p.getTaiKhoan().getEmail(), "Hoàn tiền cọc", "Tiền cọc của bạn đã được hoàn lại do phiên đấu giá " + phien.getMaphiendg() + " với sản phẩm là " + phien.getSanPham().getTensp() + " thất bại.");
+                        createNotification(p.getTaiKhoan().getEmail(), "Hoàn tiền cọc",
+                                "Tiền cọc của bạn đã được hoàn lại do phiên đấu giá " +
+                                        phien.getMaphiendg() + " với sản phẩm là " +
+                                        phien.getSanPham().getTensp() + " thất bại.");
                     }
                 }
+                //Thong bao email cho chu phien
                 try {
                     emailService.sendAuctionEndEmail(phien.getTaiKhoan(), phien, lydo);
                 } catch (Exception e) {
@@ -334,7 +366,7 @@ public class AuctionSchedulerService {
                 }
                 log.info("Phien {} → FAILED ({})", phien.getMaphiendg(), lydo);
             }
-
+            //xoa tat ca lich nhiem vu, xoa phien khoi danh sach da thong bao
             scheduledTasks.remove(phien.getMaphiendg() + "_start");
             scheduledTasks.remove(phien.getMaphiendg() + "_end");
             scheduledTasks.remove(phien.getMaphiendg() + "_notify");
@@ -344,17 +376,20 @@ public class AuctionSchedulerService {
         }
     }
 
+    //Len lich kiem tra thanh toan
     private void schedulePaymentCheck(Phiendaugia phien) {
+        //Lay phieu thanh toan moi nhat cua phien
         Phieuthanhtoan phieu = getActivePhieu(phien);
         if (phieu == null) return;
 
         String key = phien.getMaphiendg() + "_payment_check";
-        long paymentCheckTime = phieu.getThoigianthanhtoan().getTime();
+        long paymentCheckTime = phieu.getHanthanhtoan().getTime();
         long now = System.currentTimeMillis();
         long delay = Math.max(0, paymentCheckTime - now);
 
         log.debug("Len lich kiem tra thanh toan cho {} vao {} (delay={}ms)", phien.getMaphiendg(), paymentCheckTime, delay);
 
+        //Len lich
         scheduledTasks.computeIfAbsent(key, k -> scheduler.schedule(() -> {
             try {
                 try {
@@ -371,11 +406,13 @@ public class AuctionSchedulerService {
         }, Instant.ofEpochMilli(now + delay)));
     }
 
+    //Kiem tra thanh toan
     @Transactional
     private void checkPaymentAndFinalize(Phiendaugia phien) {
         String maphiendg = phien.getMaphiendg();
+        //Lay khoa hien tai, neu chua co thi tao moi
         Object lock = finalizationLocks.computeIfAbsent(maphiendg, k -> new Object());
-        synchronized (lock) {
+        synchronized (lock) { //1 luong xu ly phien
             try {
                 Phiendaugia fresh = phiendaugiaRepository.findByIdWithPhieuThanhToan(maphiendg).orElse(phien);
                 if (fresh.getTrangthai() != TrangThaiPhienDauGia.WAITING_FOR_PAYMENT) {
@@ -384,13 +421,15 @@ public class AuctionSchedulerService {
                 }
 
                 Phieuthanhtoan phieu = getActivePhieu(fresh);
+
                 boolean winnerPaid = phieu != null && phieu.getTrangthai() == TrangThaiPhieuThanhToan.PAID;
+                //Nguoi thang thanh toan
                 if (winnerPaid) {
                     fresh.setTrangthai(TrangThaiPhienDauGia.SUCCESS);
                     phiendaugiaRepository.save(fresh);
 
                     List<Phieuthanhtoantiencoc> allDeposits = phieuthanhtoantiencocRepository.findByPhienDauGia_Maphiendg(fresh.getMaphiendg());
-                    // Hoàn tiền cho các phiếu REFUNDING còn lại
+                    //Tien hanh hoan tien coc
                     for (Phieuthanhtoantiencoc p : allDeposits) {
                         if (p.getTrangthai() == TrangThaiPhieuThanhToanTienCoc.REFUNDING) {
                             if (p.getTaiKhoan().getEmail().equals(phieu.getTaiKhoan().getEmail())) {
@@ -403,7 +442,7 @@ public class AuctionSchedulerService {
                             createNotification(p.getTaiKhoan().getEmail(), "Hoàn tiền cọc", "Tiền cọc của bạn đã được hoàn lại từ phiên đấu giá " + phien.getMaphiendg() + " với sản phẩm là " + phien.getSanPham().getTensp() + " thất bại.");
                         }
                     }
-
+                    //Thong bao cho chu phien
                     try {
                         emailService.sendAuctionEndEmail(fresh.getTaiKhoan(), fresh, "Phiên đấu giá thành công. Người thắng đã thanh toán.");
                         createEndNotification(fresh, "Phiên đấu giá thành công. Người thắng đã thanh toán.", true);
@@ -411,12 +450,17 @@ public class AuctionSchedulerService {
                         log.error("Loi gui email thanh cong cho phien {}: {}", fresh.getMaphiendg(), e.getMessage());
                     }
                     log.info("Phien {} → SUCCESS (nguoi thang da thanh toan)", fresh.getMaphiendg());
-                } else {
+                }
+                //Nguoi thang khong thanh toan
+                else {
                     List<Phientragia> bids = phientragiaRepository.findByPhienDauGia_Maphiendg(fresh.getMaphiendg());
                     if (!bids.isEmpty()) {
+                        //Xac dinh nguoi thang dau tien (tra gia cao nhat)
                         Phientragia highestBidder = bids.stream().filter(b -> b.getSotien().equals(
                                 bids.stream().map(Phientragia::getSotien).max(Comparator.naturalOrder()).orElse(BigDecimal.ZERO)
                         )).findFirst().orElse(null);
+
+                        //Kiem tra phien co nguoi thang thu 2 khong
                         if (phieu != null && phieu.getTaiKhoan() != null) {
                             boolean hasTransferredToSecond = !phieu.getTaiKhoan().getMatk().equals(
                                     bids.stream().filter(b -> {
@@ -424,20 +468,23 @@ public class AuctionSchedulerService {
                                         return b.getSotien().equals(highestBidder.getSotien());
                                     }).findFirst().orElse(new Phientragia()).getTaiKhoan().getMatk()
                             );
+
+                            //Nguoi thang thu 2 khong thanh toan
                             if (hasTransferredToSecond) {
-                                if (phieu.getThoigianthanhtoan().before(new java.util.Date())) {
+                                if (phieu.getHanthanhtoan().before(new java.util.Date())) {
                                     phieu.setTrangthai(TrangThaiPhieuThanhToan.CANCELLED);
                                     phieuthanhtoanRepository.save(phieu);
                                     fresh.setTrangthai(TrangThaiPhienDauGia.FAILED);
                                     phiendaugiaRepository.save(fresh);
-                                    // Khi FAILED do người 1 và 2 không thanh toán
+
+                                    //Hoan tien coc cho nhung nguoi con lai (tru 1 va 2)
                                     List<Phieuthanhtoantiencoc> allDeposits = phieuthanhtoantiencocRepository.findByPhienDauGia_Maphiendg(fresh.getMaphiendg());
                                     String firstWinnerId = highestBidder.getTaiKhoan().getMatk();
                                     String secondWinnerId = (bids.size() > 1) ? bids.stream().sorted(Comparator.comparing(Phientragia::getSotien).reversed()).skip(1).findFirst().get().getTaiKhoan().getMatk() : null;
                                     if (secondWinnerId != null) {
                                         for (Phieuthanhtoantiencoc p : allDeposits) {
                                             if (p.getTaiKhoan().getMatk().equals(secondWinnerId) && p.getTrangthai() == TrangThaiPhieuThanhToanTienCoc.REFUNDING) {
-                                                p.setTrangthai(TrangThaiPhieuThanhToanTienCoc.PAID);
+                                                p.setTrangthai(TrangThaiPhieuThanhToanTienCoc.LOST);
                                                 phieuthanhtoantiencocRepository.save(p);
                                                 createNotification(p.getTaiKhoan().getEmail(), "Hình phạt không thanh toán phiên", "Tiền cọc của bạn đã mất do không thanh toán phiên " + fresh.getMaphiendg() + ".");
                                             }
@@ -450,6 +497,7 @@ public class AuctionSchedulerService {
                                             createNotification(p.getTaiKhoan().getEmail(), "Hoàn tiền cọc", "Tiền cọc của bạn đã được hoàn lại do phiên đấu giá " + fresh.getMaphiendg() + " với sản phẩm là " + fresh.getSanPham().getTensp() + " thất bại.");
                                         }
                                     }
+                                    //Thong bao cho chu phien
                                     try {
                                         emailService.sendAuctionEndEmail(fresh.getTaiKhoan(), fresh, "Người thắng thứ hai không thanh toán.");
                                         createEndNotification(fresh, "Người thắng thứ hai không thanh toán.", false);
@@ -465,36 +513,42 @@ public class AuctionSchedulerService {
                             }
                         }
                     }
-
+                    //Gia tra cao thu 2
                     BigDecimal secondHighestBid = bids.stream()
                             .map(Phientragia::getSotien)
                             .sorted(Comparator.reverseOrder())
-                            .skip(1)
+                            .skip(1) //Bo qua luot tra gia cao nhat
                             .findFirst()
                             .orElse(BigDecimal.ZERO);
 
                     if (bids.size() > 1) {
+                        //Thong tin nguoi tra gia cao thu 2
                         Phientragia secondWinnerBid = bids.stream()
                                 .sorted(Comparator.comparing(Phientragia::getSotien).reversed())
-                                .skip(1)
+                                .skip(1) //Lay luot tra gia cao thu 2
                                 .findFirst()
                                 .orElse(null);
 
                         if (secondWinnerBid != null) {
                             if (phieu == null) throw new AssertionError();
+                            //Thong bao hinh phat cho nguoi thu 1
                             if (phieu.getTaiKhoan() == null) throw new AssertionError();
                             emailService.sendAuctionCancelWinEmail(phieu.getTaiKhoan(), fresh);
+                            Phieuthanhtoantiencoc phieuthanhtoantiencoc = phieuthanhtoantiencocRepository.findByTaiKhoan_MatkAndPhienDauGia_Maphiendg(phieu.getTaiKhoan().getMatk(), fresh.getMaphiendg())
+                                    .orElseThrow(() -> new NotFoundException("Không tìm thấy phiếu thanh toán"));
+                            phieuthanhtoantiencoc.setTrangthai(TrangThaiPhieuThanhToanTienCoc.LOST);
+                            phieuthanhtoantiencocRepository.save(phieuthanhtoantiencoc);
                             createNotification(phieu.getTaiKhoan().getEmail(), "Hình phạt không thanh toán phiên", "Tiền cọc của bạn đã mất do không thanh toán phiên " + fresh.getMaphiendg() + ".");
-                            // Tạo phiếu thanh toán mới cho người thứ hai
+                            //Tao phieu thanh toan cho nguoi thu 2
                             Phieuthanhtoan newPhieu = new Phieuthanhtoan();
                             newPhieu.setPhienDauGia(fresh);
                             newPhieu.setTaiKhoan(secondWinnerBid.getTaiKhoan());
                             newPhieu.setSotien(secondHighestBid.subtract(fresh.getTiencoc()));
-                            newPhieu.setThoigianthanhtoan(new Timestamp(System.currentTimeMillis() + SEVEN_DAYS_MS));
+                            newPhieu.setHanthanhtoan(new Timestamp(System.currentTimeMillis() + SEVEN_DAYS_MS));
                             newPhieu.setTrangthai(TrangThaiPhieuThanhToan.UNPAID);
                             fresh.getPhieuThanhToan().add(newPhieu);
                             phieuthanhtoanRepository.save(newPhieu);
-                            // Set phiếu cũ thành CANCELLED
+                            //Huy phieu cua nguoi thu 1, cap nhat gia cao nhat cho phien
                             phieu.setTrangthai(TrangThaiPhieuThanhToan.CANCELLED);
                             phieuthanhtoanRepository.save(phieu);
                             fresh.setGiacaonhatdatduoc(secondHighestBid);
@@ -504,14 +558,16 @@ public class AuctionSchedulerService {
                                     String.format("Phiên đấu giá %s với sản phẩm là '%s' đã chuyển cho bạn với giá %s.", fresh.getMaphiendg(), fresh.getSanPham().getTensp(), formatCurrency(secondHighestBid)));
                             schedulePaymentCheck(fresh);
                             log.info("Phien {}: Chuyen cho nguoi thang thu hai {}", fresh.getMaphiendg(), secondWinnerBid.getTaiKhoan().getEmail());
-                        } else {
+                        }
+                        //Khong co nguoi thang thu 2
+                        else {
                             log.warn("Khong tim thay nguoi thang thu hai cho {}", fresh.getMaphiendg());
                             fresh.setTrangthai(TrangThaiPhienDauGia.FAILED);
                             phiendaugiaRepository.save(fresh);
-                            // Khi FAILED do không có người kế tiếp, chuyển REFUNDED cho REFUNDING của những người còn lại, giữ PAID cho người 1 và 2
+                            //Hoan coc (tru nguoi thu 1)
                             List<Phieuthanhtoantiencoc> allDeposits = phieuthanhtoantiencocRepository.findByPhienDauGia_Maphiendg(fresh.getMaphiendg());
                             String firstWinnerId = bids.stream().max(Comparator.comparing(Phientragia::getSotien)).get().getTaiKhoan().getMatk();
-                            String secondWinnerId = null; // Không có người 2
+                            String secondWinnerId = null;
                             for (Phieuthanhtoantiencoc p : allDeposits) {
                                 if (p.getTrangthai() == TrangThaiPhieuThanhToanTienCoc.REFUNDING && !p.getTaiKhoan().getMatk().equals(firstWinnerId) && (secondWinnerId == null || !p.getTaiKhoan().getMatk().equals(secondWinnerId))) {
                                     p.setTrangthai(TrangThaiPhieuThanhToanTienCoc.REFUNDED);
@@ -525,10 +581,12 @@ public class AuctionSchedulerService {
                             } catch (Exception ignored) {
                             }
                         }
-                    } else {
+                    }
+                    //Khong co nguoi thang thu 2
+                    else {
                         fresh.setTrangthai(TrangThaiPhienDauGia.FAILED);
                         phiendaugiaRepository.save(fresh);
-                        // Khi FAILED do người thắng không thanh toán và không có người kế tiếp đủ điều kiện, chuyển REFUNDED cho REFUNDING của những người còn lại, giữ PAID cho người 1
+                        //Hoan coc (tru nguoi 1)
                         List<Phieuthanhtoantiencoc> allDeposits = phieuthanhtoantiencocRepository.findByPhienDauGia_Maphiendg(fresh.getMaphiendg());
                         String firstWinnerId = bids.stream().max(Comparator.comparing(Phientragia::getSotien)).get().getTaiKhoan().getMatk();
                         for (Phieuthanhtoantiencoc p : allDeposits) {
@@ -553,6 +611,7 @@ public class AuctionSchedulerService {
         }
     }
 
+    //Huy toan bo lich cua phien
     public void cancelScheduledTask(String maphiendg) {
         if (maphiendg == null) return;
         for (String suffix : new String[]{"_start", "_end", "_notify", "_payment_check"}) {
@@ -567,6 +626,7 @@ public class AuctionSchedulerService {
         }
     }
 
+    //Huy phien
     public void cancelAuction(String maphiendg, String reason) {
         try {
             Phiendaugia phien = phiendaugiaRepository.findByIdWithPhieuThanhToan(maphiendg).orElse(null);
@@ -590,17 +650,19 @@ public class AuctionSchedulerService {
         }
     }
 
+
     private void schedulePreStartNotifyOnce(Phiendaugia phien, long now, long startTime) throws MessagingException, IOException {
+        //Da thong bao khong xu ly lai
         if (preStartNotifiedSessions.contains(phien.getMaphiendg())) return;
         long diff = startTime - now;
-
+        //phien dang dien ra khong can len lich
         if (diff <= 0) {
             return;
         }
-
+        //Len lich
         if (diff > ONE_DAY_MS) {
             long notifyAt = startTime - ONE_DAY_MS;
-            long delay = notifyAt - now;
+//            long delay = notifyAt - now;
             String key = phien.getMaphiendg() + "_notify";
             if (scheduledTasks.containsKey(key)) return;
 
@@ -617,7 +679,7 @@ public class AuctionSchedulerService {
             scheduledTasks.put(key, future);
             return;
         }
-
+        //Tgian <= 1 ngay thong bao ngay
         doNotifyPreStart(phien);
     }
 
@@ -636,7 +698,7 @@ public class AuctionSchedulerService {
 
         log.debug("Gui thong bao bat dau truoc (24h) cho {} -> {} phieu coc da thanh toan",
                 fresh.getMaphiendg(), paid.size());
-
+        //Thong bao
         for (Phieuthanhtoantiencoc p : paid) {
             if (p.getTaiKhoan() != null) {
                 emailService.sendAuctionBeginEmail(p.getTaiKhoan(), fresh);  // @Async sẽ handle
@@ -644,7 +706,7 @@ public class AuctionSchedulerService {
                         String.format("Phiên %s với sản phẩm là '%s' sẽ bắt đầu trong 24 giờ.", phien.getMaphiendg(), fresh.getSanPham().getTensp()));
             }
         }
-
+        //Huy phieu coc chua thanh toan
         List<Phieuthanhtoantiencoc> unpaid = phieuthanhtoantiencocRepository.findByPhienDauGia_MaphiendgAndTrangthai(
                 fresh.getMaphiendg(), TrangThaiPhieuThanhToanTienCoc.UNPAID);
         for (Phieuthanhtoantiencoc p : unpaid) {
@@ -657,6 +719,7 @@ public class AuctionSchedulerService {
         preStartNotifiedSessions.add(fresh.getMaphiendg());
     }
 
+    //Duyet phien
     public void scheduleNewOrApprovedAuction(String maphiendg) throws MessagingException, IOException {
         if (maphiendg == null) return;
         Phiendaugia phien = phiendaugiaRepository.findByIdWithPhieuThanhToan(maphiendg).orElse(null);
@@ -696,8 +759,7 @@ public class AuctionSchedulerService {
             ThongBaoCreationRequest request = new ThongBaoCreationRequest();
             request.setTieude(tieude);
             request.setNoidung(noidung);
-            // Giả sử admin system email (hoặc lấy từ config)
-            String adminEmail = "admin@system.com";  // Thay bằng email admin thực
+            String adminEmail = "congtan123@gmail.com";
             thongbaoService.createForUser(request, userEmail);
         } catch (Exception e) {
             log.error("Loi tao thong bao cho {}: {}", userEmail, e.getMessage());
@@ -734,7 +796,7 @@ public class AuctionSchedulerService {
     private Phieuthanhtoan getActivePhieu(Phiendaugia phien) {
         return phien.getPhieuThanhToan().stream()
                 .filter(p -> p.getTrangthai() != TrangThaiPhieuThanhToan.CANCELLED)
-                .max(Comparator.comparing(Phieuthanhtoan::getThoigianthanhtoan))  // Lấy phiếu mới nhất
+                .max(Comparator.comparing(Phieuthanhtoan::getHanthanhtoan))  // Lấy phiếu mới nhất
                 .orElse(null);
     }
 }
