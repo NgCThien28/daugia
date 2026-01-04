@@ -34,18 +34,21 @@ public class ProductDTO {
         this.hoahong = hoahong;
     }
 
-    public ProductDTO(String tensp, String masp,String madm,CityDTO thanhpho, List<ImageDTO> hinhAnh) {
+    public ProductDTO(String tensp, String masp,String madm,CityDTO thanhpho, List<ImageDTO> hinhAnh,String tinhtrangsp) {
         this.tensp = tensp;
         this.masp = masp;
         this.madm = madm;
         this.thanhpho = thanhpho;
         this.hinhAnh = hinhAnh;
+        this.tinhtrangsp = tinhtrangsp;
     }
 
     public ProductDTO(String masp, String tensp) {
         this.masp = masp;
         this.tensp = tensp;
     }
+
+
 
     public ProductDTO(String tensp) {
         this.tensp = tensp;

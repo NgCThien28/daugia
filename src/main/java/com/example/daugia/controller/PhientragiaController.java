@@ -59,14 +59,14 @@ public class PhientragiaController {
         }
     }
 
-    public static record HistoryRequest(String maphienDauGia, Integer limit) {}
+    public record HistoryRequest(String maphienDauGia, Integer limit) {}
 
     @MessageMapping("/history")
     @SendToUser("/queue/history")
     public List<BiddingDTO> history(HistoryRequest req) {
         String id = req.maphienDauGia();
-        int limit = (req.limit() == null ? 20 : req.limit());
-        if (id == null || id.isBlank()) return List.of();
+        int limit = (req.limit() == null ? 20 : req.limit()); //default 20
+        if (id == null || id.isBlank()) return List.of(); //request hop le tra ve rong
         return historyCache.getLast(id, limit);
     }
 }

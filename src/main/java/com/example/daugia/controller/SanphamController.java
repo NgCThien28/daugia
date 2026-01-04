@@ -57,7 +57,15 @@ public class SanphamController {
                                           @RequestHeader("Authorization") String header) {
         String email = tokenValidator.authenticateAndGetEmail(header);
         ProductDTO dto = sanphamService.create(request, email);
-        return ApiResponse.success(dto, "Tạo sản phẩm thành công");
+        return ApiResponse.success(dto, "Tạo tài sản thành công");
+    }
+
+    @PutMapping("/register")
+    public ApiResponse<ProductDTO> register(@RequestParam(name = "masp") String masp,
+                                            @RequestHeader("Authorization") String header){
+        String email = tokenValidator.authenticateAndGetEmail(header);
+        ProductDTO dto = sanphamService.register(masp,email);
+        return ApiResponse.success(dto, "Đăng ký tài sản thành công");
     }
 
     @PutMapping("/update")
@@ -65,7 +73,7 @@ public class SanphamController {
                                           @RequestHeader("Authorization") String header) {
         String email = tokenValidator.authenticateAndGetEmail(header);
         ProductDTO updated = sanphamService.update(request, email);
-        return ApiResponse.success(updated, "Cập nhật sản phẩm thành công");
+        return ApiResponse.success(updated, "Cập nhật tài sản thành công");
     }
 
     @DeleteMapping("/delete/{masp}")
@@ -95,7 +103,7 @@ public class SanphamController {
         String email = tokenValidator.authenticateAndGetEmail(header);
         ProductDTO rejected = sanphamService.rejectProduct(masp, email);
         thongbaoService.createForUser(request, email, rejected.getTaiKhoanNguoiBan().getEmail());
-        return ApiResponse.success(rejected, "Từ chối sản phẩm thành công");
+        return ApiResponse.success(rejected, "Từ chối tài sản thành công");
     }
 
 }

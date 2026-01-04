@@ -36,7 +36,7 @@ public class PhientragiaService {
 
     private static final int WAIT_SECONDS = 10;
 
-    // số lần retry khi gặp xung đột optimistic lock
+    // So lan retry khi gap xung dot optimistic lock
     private static final int MAX_RETRY = 3;
 
     public List<BiddingDTO> findAll() {
@@ -56,13 +56,13 @@ public class PhientragiaService {
         while (true) {
             attempt++;
             try {
-                // Đọc dữ liệu mới nhất, tính giá, update phien với saveAndFlush để kích hoạt kiểm tra version
+                // Doc du lieu moi, tinh gia
                 return doCreateBidOnce(maphienDauGia, makh, solan);
             } catch (ObjectOptimisticLockingFailureException | OptimisticLockException ex) {
                 if (attempt >= MAX_RETRY) {
                     throw new ValidationException("Có nhiều người trả giá cùng lúc. Vui lòng thử lại!");
                 }
-                // Backoff ngẫu nhiên ngắn để giảm xung đột
+                // Backoff ngau nhien tranh xung dot
                 try {
                     Thread.sleep(ThreadLocalRandom.current().nextInt(10, 31));
                 } catch (InterruptedException ignored) {
@@ -73,13 +73,6 @@ public class PhientragiaService {
         }
     }
 
-    /**
-     * Thực hiện 1 lần tạo bid:
-     * - Validate thời gian, cooldown
-     * - Tính giá mới dựa trên giá cao nhất hiện tại
-     * - Cập nhật phien (saveAndFlush) -> nếu version thay đổi bởi luồng khác, ném OptimisticLock
-     * - Ghi bản ghi trả giá
-     */
     private BiddingDTO doCreateBidOnce(String maphienDauGia, String makh, int solan) {
         Phiendaugia phien = phiendaugiaRepository.findById(maphienDauGia)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy phiên đấu giá"));
@@ -89,13 +82,12 @@ public class PhientragiaService {
         Timestamp now = Timestamp.from(Instant.now());
         validateAuctionTime(phien, now);
         enforceUserCooldown(makh, maphienDauGia, now);
-        enforceNoSelfBidding(maphienDauGia, makh); // Thêm validate không tự đấu
+        enforceNoSelfBidding(maphienDauGia, makh);
 
         BigDecimal newPrice = calculateNewPrice(phien, solan);
 
-        // Cập nhật giá cao nhất (sẽ kiểm tra @Version khi flush)
+        // Cap nhat gia cao nhat
         phien.setGiacaonhatdatduoc(newPrice);
-        // saveAndFlush để đảm bảo version check xảy ra ngay trong giao dịch này
         phiendaugiaRepository.saveAndFlush(phien);
 
         Timestamp waitUntil = Timestamp.from(now.toInstant().plusSeconds(WAIT_SECONDS));
@@ -112,7 +104,7 @@ public class PhientragiaService {
         return toDto(ptg);
     }
 
-    //    Helper
+    // Helper
     private void validateAuctionTime(Phiendaugia phien, Timestamp now) {
         if (phien.getThoigianbd() != null && now.before(phien.getThoigianbd())) {
             throw new ValidationException("Phiên chưa bắt đầu, không thể trả giá");
@@ -150,7 +142,7 @@ public class PhientragiaService {
         boolean firstTime = giaCaoNhat.compareTo(giaKhoiDiem) <= 0;
 
         if (firstTime) {
-            // Lần đầu: solan = 0 thì bằng giá khởi điểm, solan > 0 thì tăng solan bước
+            // Lan dau: solan = 0 bang gia khoi diem, solan > 0 thi tang solan buoc
             if (solan == 0) {
                 return giaKhoiDiem;
             } else if (solan > 0) {
@@ -161,7 +153,7 @@ public class PhientragiaService {
                 throw new ValidationException("Số lần trả giá không hợp lệ cho lần đầu");
             }
         } else {
-            // Các lần sau: solan >= 1
+            // Cac lan sau: solan >= 1
             if (solan < 1) {
                 throw new ValidationException("Số lần bước giá lớn hơn 1");
             }

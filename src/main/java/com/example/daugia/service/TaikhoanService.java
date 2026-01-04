@@ -132,7 +132,7 @@ public class TaikhoanService {
         taikhoan.setTrangthaidangnhap(TrangThaiTaiKhoan.ONLINE);
         taikhoanRepository.save(taikhoan);
 
-        taikhoan.setMatkhau(null); // Ẩn mật khẩu khi trả về
+        taikhoan.setMatkhau(null);
         return taikhoan;
     }
 

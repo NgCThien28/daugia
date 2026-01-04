@@ -30,9 +30,9 @@ public class Phieuthanhtoan {
     @JsonManagedReference
     private Taikhoan taiKhoan;
     private BigDecimal sotien;
+    private Timestamp hanthanhtoan;
     private Timestamp thoigianthanhtoan;
     private TrangThaiPhieuThanhToan trangthai;
     private String vnptransactionno;
     private String bankcode;
-    private String raw;
 }

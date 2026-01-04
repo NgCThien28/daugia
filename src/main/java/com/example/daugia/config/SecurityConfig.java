@@ -19,10 +19,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Tắt CSRF để test API dễ dàng hơn
+                .csrf(csrf -> csrf.disable()) //Tat CSRF
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll()// Cho phép API register không cần xác thực
-                        .anyRequest().authenticated() // Các API khác yêu cầu đăng nhập
+                        .requestMatchers("/**").permitAll()// Cho phep register
+                        .anyRequest().authenticated() // Api khac yeu cau dang nhap
                 );
 
         return http.build();

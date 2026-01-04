@@ -98,12 +98,12 @@ public class TaikhoanController {
 
         taikhoanService.changePassword(request, email);
 
-        // Vô hiệu hóa token
+        // Vo hieu token
         Date exp = JwtUtil.getExpiration(token);
         if (exp != null) {
             blacklistService.addToken(token, exp.getTime());
         } else {
-            // TTL mặc định 60s nếu không đọc được exp
+            // TTL mac dinh 60s neu khong co exp
             blacklistService.addToken(token, System.currentTimeMillis() + 60_000);
         }
         activeTokenService.removeActiveToken(email);

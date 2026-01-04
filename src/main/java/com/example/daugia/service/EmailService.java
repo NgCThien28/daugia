@@ -170,7 +170,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    // Thêm method gửi email cho người thắng thứ 2
+    //Email cho nguoi thang thu 2
     @Async
     public void sendAuctionTransferEmail(Taikhoan newWinner, Phiendaugia phiendaugia, BigDecimal giaThang) throws MessagingException, IOException {
         MimeMessage message = mailSender.createMimeMessage();

@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 public class AppBeans {
     @Bean
     public HistoryCache historyCache() {
-        // Lưu 20 bản ghi gần nhất mỗi phiên
+        //Luu 20 ban ghi gan nhat moi phien
         return new HistoryCache(20);
     }
 }

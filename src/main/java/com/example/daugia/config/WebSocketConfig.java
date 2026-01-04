@@ -15,12 +15,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // Endpoint frontend sẽ connect
         registry.addEndpoint("/ws-auction")
                 .setAllowedOriginPatterns("*")
-                .withSockJS(); // fallback cho trình duyệt cũ
+                .withSockJS(); // fallback cho trinh duyet cu
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic", "/queue"); // server broadcast tại /topic/...
-        config.setApplicationDestinationPrefixes("/app"); // client gửi tới /app/...
+        config.enableSimpleBroker("/topic", "/queue"); // server broadcast tai /topic/
+        config.setApplicationDestinationPrefixes("/app"); // client gui toi /app/
     }
 }
