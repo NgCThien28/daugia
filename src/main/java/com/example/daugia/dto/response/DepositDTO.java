@@ -16,6 +16,7 @@ public class DepositDTO {
     private UserShortDTO taiKhoanKhachThanhToan;
     private AuctionDTO phienDauGia;
     private Timestamp thoigianthanhtoan;
+    private Timestamp hanthanhtoan;
     private TrangThaiPhieuThanhToanTienCoc trangthai;
     private BigDecimal sotien;
 
@@ -30,11 +31,12 @@ public class DepositDTO {
     public DepositDTO() {
     }
 
-    public DepositDTO(String matc, UserShortDTO taiKhoanKhachThanhToan, AuctionDTO phienDauGia, Timestamp thoigianthanhtoan, TrangThaiPhieuThanhToanTienCoc trangthai, BigDecimal sotien) {
+    public DepositDTO(String matc, UserShortDTO taiKhoanKhachThanhToan, AuctionDTO phienDauGia, Timestamp thoigianthanhtoan, Timestamp hanthanhtoan, TrangThaiPhieuThanhToanTienCoc trangthai, BigDecimal sotien) {
         this.matc = matc;
         this.taiKhoanKhachThanhToan = taiKhoanKhachThanhToan;
         this.phienDauGia = phienDauGia;
         this.thoigianthanhtoan = thoigianthanhtoan;
+        this.hanthanhtoan = hanthanhtoan;
         this.trangthai = trangthai;
         this.sotien = sotien;
     }

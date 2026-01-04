@@ -35,6 +35,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -66,6 +67,7 @@ public class PhieuthanhtoanService {
                                 phieuthanhtoan.getPhienDauGia().getMaphiendg(),
                                 phieuthanhtoan.getPhienDauGia().getGiacaonhatdatduoc()
                         ),
+                        phieuthanhtoan.getThoigianthanhtoan(),
                         phieuthanhtoan.getHanthanhtoan(),
                         phieuthanhtoan.getTrangthai(),
                         phieuthanhtoan.getSotien()
@@ -83,6 +85,7 @@ public class PhieuthanhtoanService {
                         phieuthanhtoan.getPhienDauGia().getMaphiendg(),
                         phieuthanhtoan.getPhienDauGia().getGiacaonhatdatduoc()
                 ),
+                phieuthanhtoan.getThoigianthanhtoan(),
                 phieuthanhtoan.getHanthanhtoan(),
                 phieuthanhtoan.getTrangthai(),
                 phieuthanhtoan.getSotien()
@@ -101,6 +104,7 @@ public class PhieuthanhtoanService {
                                 phieuthanhtoan.getPhienDauGia().getMaphiendg(),
                                 phieuthanhtoan.getPhienDauGia().getGiacaonhatdatduoc()
                         ),
+                        phieuthanhtoan.getThoigianthanhtoan(),
                         phieuthanhtoan.getHanthanhtoan(),
                         phieuthanhtoan.getTrangthai(),
                         phieuthanhtoan.getSotien()
@@ -144,6 +148,7 @@ public class PhieuthanhtoanService {
                         p.getPhienDauGia().getGiacaonhatdatduoc(),
                         new ProductDTO(p.getPhienDauGia().getSanPham().getTensp())
                 ),
+                p.getThoigianthanhtoan(),
                 p.getHanthanhtoan(),
                 p.getTrangthai(),
                 p.getSotien()
@@ -326,6 +331,7 @@ public class PhieuthanhtoanService {
                         ptt.getPhienDauGia().getMaphiendg(),
                         ptt.getPhienDauGia().getGiacaonhatdatduoc()
                 ),
+                ptt.getThoigianthanhtoan(),
                 ptt.getHanthanhtoan(),
                 ptt.getTrangthai(),
                 ptt.getSotien()
@@ -363,6 +369,7 @@ public class PhieuthanhtoanService {
                                 phieuthanhtoan.getPhienDauGia().getGiacaonhatdatduoc()
                         ),
                         phieuthanhtoan.getThoigianthanhtoan(),
+                        phieuthanhtoan.getHanthanhtoan(),
                         phieuthanhtoan.getTrangthai(),
                         phieuthanhtoan.getSotien()
                 ))
