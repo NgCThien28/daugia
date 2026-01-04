@@ -16,14 +16,16 @@ public class PaymentDTO {
     private UserShortDTO taiKhoanKhachThanhToan;
     private AuctionDTO phienDauGia;
     private Timestamp thoigianthanhtoan;
+    private Timestamp hanthanhtoan;
     private TrangThaiPhieuThanhToan trangthai;
     private BigDecimal sotien;
 
-    public PaymentDTO(String matt, UserShortDTO taiKhoanKhachThanhToan, AuctionDTO phienDauGia, Timestamp thoigianthanhtoan, TrangThaiPhieuThanhToan trangthai, BigDecimal sotien) {
+    public PaymentDTO(String matt, UserShortDTO taiKhoanKhachThanhToan, AuctionDTO phienDauGia, Timestamp thoigianthanhtoan, Timestamp hanthanhtoan, TrangThaiPhieuThanhToan trangthai, BigDecimal sotien) {
         this.matt = matt;
         this.taiKhoanKhachThanhToan = taiKhoanKhachThanhToan;
         this.phienDauGia = phienDauGia;
         this.thoigianthanhtoan = thoigianthanhtoan;
+        this.hanthanhtoan = hanthanhtoan;
         this.trangthai = trangthai;
         this.sotien = sotien;
     }
