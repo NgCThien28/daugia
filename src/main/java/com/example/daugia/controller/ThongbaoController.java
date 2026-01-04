@@ -35,7 +35,7 @@ public class ThongbaoController {
         String email = tokenValidator.authenticateAndGetEmail(header);
         Pageable pageable = PageRequest.of(page, size, Sort.by("thoigian").descending());
         Page<NotificationDTO> pageResult = thongbaoService.findByUser(email, pageable);
-        return ApiResponse.success(pageResult, "Thành công");
+        return ApiResponse.success(pageResult, "Thành cônggg");
     }
 
     @PatchMapping("/{matb}/read")
