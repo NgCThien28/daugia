@@ -257,7 +257,6 @@ public class PhiendaugiaService {
         phiendaugia.setTaiKhoanQuanTri(admin);
 
         Phiendaugia saved = phiendaugiaRepository.save(phiendaugia);
-        auctionSchedulerService.cancelAuction(phiendaugia.getMaphiendg(), "Hahaha");
         return toAuctionDTO(saved);
     }
 

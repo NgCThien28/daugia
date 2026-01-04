@@ -5,6 +5,8 @@ import com.example.daugia.core.enums.TrangThaiPhieuThanhToan;
 import com.example.daugia.dto.request.ApiResponse;
 import com.example.daugia.dto.request.ThongBaoCreationRequest;
 import com.example.daugia.dto.response.PaymentDTO;
+import com.example.daugia.dto.response.TransactionAmountDTO;
+import com.example.daugia.dto.response.TransactionDTO;
 import com.example.daugia.service.PhieuthanhtoanService;
 import com.example.daugia.service.ThongbaoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -116,5 +118,41 @@ public class PhieuthanhtoanController {
         );
 
         phieuthanhtoanService.export(from, to, status, response);
+    }
+
+    //Admin
+    @GetMapping("/successful")
+    public ApiResponse<List<TransactionDTO>> getSuccessfulTransactions(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate to
+    ) {
+        List<TransactionDTO> data = phieuthanhtoanService.getSuccessfulTransactions(from, to);
+        return ApiResponse.success(data, "Lấy dữ liệu thành công");
+    }
+
+    //Admin
+    @GetMapping("/total-amount")
+    public ApiResponse<List<TransactionAmountDTO>> getGrossMerchandiseValue(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate to
+    ) {
+        List<TransactionAmountDTO> data = phieuthanhtoanService.getGrossMerchandiseValue(from, to);
+        return ApiResponse.success(data, "Lấy dữ liệu thành công");
+    }
+
+    //Admin
+    @GetMapping("/commission")
+    public ApiResponse<List<TransactionAmountDTO>> getCommission(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate to
+    ) {
+        List<TransactionAmountDTO> data = phieuthanhtoanService.getCommission(from, to);
+        return ApiResponse.success(data, "Lấy dữ liệu thành công");
     }
 }

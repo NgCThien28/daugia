@@ -35,4 +35,51 @@ public interface PhieuthanhtoanRepository extends JpaRepository<Phieuthanhtoan, 
             @Param("to") Timestamp to,
             @Param("status") TrangThaiPhieuThanhToan status
     );
+
+    @Query("""
+            SELECT DATE(p.thoigianthanhtoan) as date, COUNT(p) as count
+            FROM Phieuthanhtoan p
+            WHERE p.trangthai = :status
+            AND (:from IS NULL OR p.thoigianthanhtoan >= :from)
+            AND (:to IS NULL OR p.thoigianthanhtoan <= :to)
+            GROUP BY DATE(p.thoigianthanhtoan)
+            ORDER BY DATE(p.thoigianthanhtoan)
+            """)
+    List<Object[]> findSuccessfulTransactions(
+            @Param("from") Timestamp from,
+            @Param("to") Timestamp to,
+            @Param("status") TrangThaiPhieuThanhToan status
+    );
+
+    @Query("""
+            SELECT DATE(p.thoigianthanhtoan) as date, SUM(p.sotien) as total
+            FROM Phieuthanhtoan p
+            WHERE p.trangthai = :status
+            AND (:from IS NULL OR p.thoigianthanhtoan >= :from)
+            AND (:to IS NULL OR p.thoigianthanhtoan <= :to)
+            GROUP BY DATE(p.thoigianthanhtoan)
+            ORDER BY DATE(p.thoigianthanhtoan)
+            """)
+    List<Object[]> findGrossMerchandiseValue(
+            @Param("from") Timestamp from,
+            @Param("to") Timestamp to,
+            @Param("status") TrangThaiPhieuThanhToan status
+    );
+
+    @Query("""
+            SELECT DATE(ptt.thoigianthanhtoan) as date, SUM(ptt.sotien * sp.hoahong) AS total
+            FROM Phieuthanhtoan ptt
+            JOIN ptt.phienDauGia dg
+            JOIN dg.sanPham sp
+            WHERE ptt.trangthai = :status
+              AND (:from IS NULL OR ptt.thoigianthanhtoan >= :from)
+              AND (:to IS NULL OR ptt.thoigianthanhtoan <= :to)
+            GROUP BY DATE(ptt.thoigianthanhtoan)
+            ORDER BY DATE(ptt.thoigianthanhtoan)
+            """)
+    List<Object[]> findCommission(
+            @Param("from") Timestamp from,
+            @Param("to") Timestamp to,
+            @Param("status") TrangThaiPhieuThanhToan status
+    );
 }
