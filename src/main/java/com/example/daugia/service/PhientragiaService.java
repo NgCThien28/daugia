@@ -82,8 +82,8 @@ public class PhientragiaService {
         Timestamp now = Timestamp.from(Instant.now());
         validateAuctionTime(phien, now);
         enforceUserCooldown(makh, maphienDauGia, now);
-        enforceNoSelfBidding(maphienDauGia, makh);
-
+        enforceNoOwnerBidding(phien, makh);
+        enforceNoSelfBidding(maphienDauGia,makh);
         BigDecimal newPrice = calculateNewPrice(phien, solan);
 
         // Cap nhat gia cao nhat
@@ -125,12 +125,18 @@ public class PhientragiaService {
         }
     }
 
-    // Thêm method validate không tự đấu với chính mình
     private void enforceNoSelfBidding(String maphienDauGia, String makh) {
         Optional<Phientragia> highestBid = phientragiaRepository
                 .findTopByPhienDauGia_MaphiendgOrderBySotienDesc(maphienDauGia);
         if (highestBid.isPresent() && highestBid.get().getTaiKhoan().getMatk().equals(makh)) {
             throw new ValidationException("Bạn đang là người trả giá cao nhất, không thể trả giá thêm!");
+        }
+    }
+
+    private void enforceNoOwnerBidding(Phiendaugia phien, String makh) {
+        Taikhoan owner = phien.getTaiKhoan();
+        if (owner.getMatk().equals(makh)) {
+            throw new ValidationException("Bạn là chủ phiên đấu giá, không được tự trả giá!");
         }
     }
 

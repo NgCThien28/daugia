@@ -129,7 +129,7 @@ public class AuthController {
         if (exists)
             return ApiResponse.success(null, "Đã gửi link đặt lại mật khẩu qua email!");
         else
-            return ApiResponse.error(404, "Không tìm thấy email trong hệ thống");
+            return ApiResponse.error(404, "Không tìm email không tồn tại");
     }
 
     @PutMapping("/reset-password")
@@ -137,7 +137,7 @@ public class AuthController {
                                              @RequestParam String token) {
         boolean success= taikhoanService.resetPassword(request, token);
         if (success)
-            return ApiResponse.success(null, "Đã đổi mật khẩu thành công");
+            return ApiResponse.success(null, "Đổi mật khẩu thành công");
         else
             return ApiResponse.error(404, "Đổi mật khẩu thất bại");
     }
