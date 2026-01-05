@@ -15,5 +15,6 @@ public class TaikhoanCreationRequest {
     private String diachigiaohang;
     private String sdt;
     private String matkhau;
-
+    private String anhmattruoc;
+    private String anhmatsau;
 }
