@@ -4,6 +4,8 @@ import com.example.daugia.core.custom.TokenValidator;
 import com.example.daugia.core.ws.HistoryCache;
 import com.example.daugia.dto.request.ApiResponse;
 import com.example.daugia.dto.response.BiddingDTO;
+import com.example.daugia.entity.Taikhoan;
+import com.example.daugia.repository.TaikhoanRepository;
 import com.example.daugia.service.PhientragiaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -27,18 +29,8 @@ public class PhientragiaController {
     private TokenValidator tokenValidator;
     @Autowired
     private HistoryCache historyCache;
-
-    @PostMapping("/create")
-    public ApiResponse<BiddingDTO> createBidding(
-            @RequestParam String maphienDauGia,
-            @RequestParam String makh,
-            @RequestParam int solan
-    ) {
-        BiddingDTO dto = phientragiaService.createBid(maphienDauGia, makh, solan);
-        historyCache.append(maphienDauGia, dto);
-        messagingTemplate.convertAndSend("/topic/auction/" + maphienDauGia, dto);
-        return ApiResponse.success(dto, "Trả giá thành công");
-    }
+    @Autowired
+    private TaikhoanRepository taikhoanRepository;
 
     @MessageMapping("/bid")
     public void handleBid(BiddingDTO incoming) {
@@ -50,12 +42,22 @@ public class PhientragiaController {
             );
             historyCache.append(dto.getPhienDauGia().getMaphiendg(), dto);
             messagingTemplate.convertAndSend("/topic/auction/" + dto.getPhienDauGia().getMaphiendg(), dto);
+            String email = dto.getTaiKhoanNguoiRaGia().getEmail();
+            if (email != null && !email.isEmpty()) {
+                messagingTemplate.convertAndSendToUser(email, "/queue/bid-result", Map.of("success", true, "message", "Trả giá thành công"));
+            }
         } catch (Exception e) {
             Map<String, Object> error = new HashMap<>();
             error.put("error", true);
             error.put("message", e.getMessage());
             error.put("type", e.getClass().getSimpleName());
-            messagingTemplate.convertAndSend("/topic/auction/" + incoming.getPhienDauGia().getMaphiendg(), error);
+            // Lấy email từ DB
+            String email = taikhoanRepository.findById(incoming.getTaiKhoanNguoiRaGia().getMatk())
+                    .map(Taikhoan::getEmail)
+                    .orElse(null);
+            if (email != null && !email.isEmpty()) {
+                messagingTemplate.convertAndSendToUser(email, "/queue/bid-result", error);
+            }
         }
     }
 
@@ -65,8 +67,8 @@ public class PhientragiaController {
     @SendToUser("/queue/history")
     public List<BiddingDTO> history(HistoryRequest req) {
         String id = req.maphienDauGia();
-        int limit = (req.limit() == null ? 20 : req.limit()); //default 20
-        if (id == null || id.isBlank()) return List.of(); //request hop le tra ve rong
+        int limit = (req.limit() == null ? 20 : req.limit());
+        if (id == null || id.isBlank()) return List.of();
         return historyCache.getLast(id, limit);
     }
 }
