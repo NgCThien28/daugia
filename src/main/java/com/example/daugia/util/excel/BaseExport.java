@@ -89,45 +89,18 @@ public class BaseExport {
 
                 Cell cell = row.createCell(col);
 
-                switch (value) {
-                    case Number number -> {
-                        cell.setCellValue(number.doubleValue());
-                        cell.setCellStyle(numberStyle);
-                    }
-                    case Date date -> {
-                        cell.setCellValue(date);
-                        cell.setCellStyle(dateStyle);
-                    }
-                    case Enum<?> e -> {
-
-                        String label;
-                        IndexedColors color = null;
-
-                        try {
-                            Method getLabel = e.getClass().getMethod("getValue");
-                            label = getLabel.invoke(e).toString();
-
-                            Method getColor = e.getClass().getMethod("getColor");
-                            color = (IndexedColors) getColor.invoke(e);
-
-                        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
-                            cell.setCellValue(e.name());
-                            cell.setCellStyle(textStyle);
-                            continue;
-                        }
-
-                        cell.setCellValue(label);
-
-                        if (color != null) {
-                            cell.setCellStyle(getEnumStyle(e, color));
-                        } else {
-                            cell.setCellStyle(textStyle);
-                        }
-                    }
-                    default -> {
-                        cell.setCellValue(value.toString());
-                        cell.setCellStyle(textStyle);
-                    }
+                if (value instanceof Number) {
+                    cell.setCellValue(((Number) value).doubleValue());
+                    cell.setCellStyle(numberStyle);
+                } else if (value instanceof Date) {
+                    cell.setCellValue((Date) value);
+                    cell.setCellStyle(dateStyle);
+                } else if (value instanceof Boolean) {
+                    cell.setCellValue((Boolean) value);
+                    cell.setCellStyle(textStyle);
+                } else {
+                    cell.setCellValue(value != null ? value.toString() : "");
+                    cell.setCellStyle(textStyle);
                 }
                 col++;
             }
