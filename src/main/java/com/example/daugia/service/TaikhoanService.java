@@ -129,6 +129,10 @@ public class TaikhoanService {
              throw new ValidationException("Tài khoản hiện đã bị khoá");
         }
 
+        if (taikhoan.getXacthuctaikhoan().equals(TrangThaiTaiKhoan.INACTIVE)) {
+            throw new ValidationException("Tài khoản hiện chưa xác thực email");
+        }
+
         taikhoan.setTrangthaidangnhap(TrangThaiTaiKhoan.ONLINE);
         taikhoanRepository.save(taikhoan);
 
