@@ -61,10 +61,13 @@ public class Taikhoan {
     @JsonIgnore
     private String matkhau;
     private TrangThaiTaiKhoan xacthuctaikhoan;
+    private TrangThaiTaiKhoan xacthuckyc;
     @JsonIgnore
     private String tokenxacthuc;
     @JsonIgnore
     private Timestamp tokenhethan;
     private TrangThaiTaiKhoan trangthaidangnhap;
+    private String anhmattruoc;
+    private String anhmatsau;
 
 }

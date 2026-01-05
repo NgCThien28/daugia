@@ -9,9 +9,13 @@ import com.example.daugia.entity.Taikhoanquantri;
 import com.example.daugia.exception.ForbiddenException;
 import com.example.daugia.service.*;
 import com.example.daugia.util.JwtUtil;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Date;
 
 @RestController
@@ -116,6 +120,34 @@ public class AuthController {
 
         blacklistToken(token);
         return ApiResponse.success("OK", "Đăng xuất thành công, token đã bị vô hiệu");
+    }
+
+    @PostMapping("/forgot-password")
+    public ApiResponse<String> checkEmail(@RequestBody TaikhoanCreationRequest request)
+            throws MessagingException, IOException {
+        boolean exists = taikhoanService.sendResetPasswordLink(request.getEmail());
+        if (exists)
+            return ApiResponse.success(null, "Đã gửi link đặt lại mật khẩu qua email!");
+        else
+            return ApiResponse.error(404, "Không tìm thấy email trong hệ thống");
+    }
+
+    @PutMapping("/reset-password")
+    public ApiResponse<String> resetPassword(@RequestBody TaikhoanCreationRequest request,
+                                             @RequestParam String token) {
+        boolean success= taikhoanService.resetPassword(request, token);
+        if (success)
+            return ApiResponse.success(null, "Đã đổi mật khẩu thành công");
+        else
+            return ApiResponse.error(404, "Đổi mật khẩu thất bại");
+    }
+
+    @PutMapping("/verify-kyc")
+    public ApiResponse<Taikhoan> verifyKyc(@RequestHeader("Authorization") String header) {
+        String token = tokenValidator.extractBearerOrThrow(header);
+        String email = JwtUtil.validateToken(token);
+        Taikhoan taikhoan = taikhoanService.verifyKyc(email);
+        return ApiResponse.success(taikhoan, "Xác thực kyc thành công");
     }
 
     private void invalidateOldActiveTokenIfExists(String email) {

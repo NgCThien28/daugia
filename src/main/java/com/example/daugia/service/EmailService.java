@@ -280,5 +280,28 @@ public class EmailService {
         helper.setText(html, true); // true = HTML
         mailSender.send(message);
     }
+
+    public void sendResetPasswordLink(Taikhoan taikhoan, String token) throws MessagingException, IOException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+
+        helper.setTo(taikhoan.getEmail());
+        helper.setSubject("Xác thực tài khoản - Đấu Giá STU");
+        String name = String.join(" ",
+                taikhoan.getHo() == null ? "" : taikhoan.getHo(),
+                taikhoan.getTenlot() == null ? "" : taikhoan.getTenlot(),
+                taikhoan.getTen() == null ? "" : taikhoan.getTen()
+        ).trim();
+        if (name.isEmpty()) name = "Bạn";
+        // Đọc file template HTML
+        String templatePath = "templates/reset-password.html";
+        ClassPathResource resource = new ClassPathResource(templatePath);
+        String html = Files.readString(resource.getFile().toPath());
+        String link = "http://localhost:5173/reset-password?token=" + token;
+        html = html.replace("{{link}}", link);
+        html= html.replace("{{name}}",name);
+        helper.setText(html, true); // true = HTML
+        mailSender.send(message);
+    }
 }
 
