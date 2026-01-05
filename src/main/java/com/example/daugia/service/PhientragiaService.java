@@ -83,7 +83,7 @@ public class PhientragiaService {
         validateAuctionTime(phien, now);
         enforceUserCooldown(makh, maphienDauGia, now);
         enforceNoOwnerBidding(phien, makh);
-
+        enforceNoSelfBidding(maphienDauGia,makh);
         BigDecimal newPrice = calculateNewPrice(phien, solan);
 
         // Cap nhat gia cao nhat
@@ -122,6 +122,14 @@ public class PhientragiaService {
             if (lockUntil != null && lockUntil.after(now)) {
                 throw new ValidationException("Bạn phải đợi hết thời gian chờ mới được trả giá lại!");
             }
+        }
+    }
+
+    private void enforceNoSelfBidding(String maphienDauGia, String makh) {
+        Optional<Phientragia> highestBid = phientragiaRepository
+                .findTopByPhienDauGia_MaphiendgOrderBySotienDesc(maphienDauGia);
+        if (highestBid.isPresent() && highestBid.get().getTaiKhoan().getMatk().equals(makh)) {
+            throw new ValidationException("Bạn đang là người trả giá cao nhất, không thể trả giá thêm!");
         }
     }
 
