@@ -169,6 +169,9 @@ public class PhieuthanhtoantiencocService {
         if (taikhoan.getXacthuctaikhoan() == TrangThaiTaiKhoan.INACTIVE) {
             throw new ValidationException("Tài khoản chưa được xác thực, vui lòng xác thực email trước khi tham gia đấu giá");
         }
+        if (taikhoan.getXacthuckyc() == TrangThaiTaiKhoan.INACTIVE) {
+            throw new ValidationException("Tài khoản chưa được xác thực cccd, vui lòng xác thực cccd");
+        }
         Phiendaugia phiendaugia = phiendaugiaRepository.findById(request.getMaphien())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy phiên đấu giá"));
 

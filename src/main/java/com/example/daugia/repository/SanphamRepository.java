@@ -11,10 +11,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SanphamRepository extends JpaRepository<Sanpham, String> {
-//    Page<Sanpham> findByTaiKhoan_MatkAndTrangthaiIn(String makh,
-//                                                    List<TrangThaiSanPham> trangthai,
-//                                                    Pageable pageable);
-
     Page<Sanpham> findAll(Specification<Sanpham> spec, Pageable pageable);
     Page<Sanpham> findByTrangthai(TrangThaiSanPham trangthai, Pageable pageable);
 }
