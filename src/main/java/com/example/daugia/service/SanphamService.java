@@ -43,11 +43,14 @@ public class SanphamService {
     private ThongbaoService thongbaoService;
 
     public Page<ProductDTO> findAll(TrangThaiSanPham trangthai, Pageable pageable) {
-        Page<Sanpham> sanphamList;
-        if (trangthai == null)
-            sanphamList = sanphamRepository.findAll(pageable);
-        else
-            sanphamList = sanphamRepository.findByTrangthai(trangthai, pageable);
+        Specification<Sanpham> spec = (root, query, cb) -> cb.notEqual(root.get("trangthai"), TrangThaiSanPham.NOT_REGISTERED);
+
+        if (trangthai != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("trangthai"), trangthai));
+        }
+
+        Page<Sanpham> sanphamList = sanphamRepository.findAll(spec, pageable);
+
         return sanphamList
                 .map(sp -> new ProductDTO(
                         sp.getMasp(),
@@ -113,7 +116,9 @@ public class SanphamService {
         if (taikhoan.getXacthuctaikhoan() == TrangThaiTaiKhoan.INACTIVE) {
             throw new ValidationException("Tài khoản chưa được xác thực, vui lòng xác thực email");
         }
-
+        if (taikhoan.getXacthuckyc() == TrangThaiTaiKhoan.INACTIVE) {
+            throw new ValidationException("Tài khoản chưa được xác thực cccd, vui lòng xác thực cccd");
+        }
         Sanpham sp = new Sanpham();
         sp.setTaiKhoan(taikhoan);
         sp.setDanhMuc(danhmucRepository.findById(request.getMadm())
