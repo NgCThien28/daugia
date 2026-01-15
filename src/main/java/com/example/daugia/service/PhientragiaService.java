@@ -5,12 +5,15 @@ import com.example.daugia.dto.response.BiddingDTO;
 import com.example.daugia.dto.response.UserShortDTO;
 import com.example.daugia.entity.Phiendaugia;
 import com.example.daugia.entity.Phientragia;
+import com.example.daugia.entity.Phieuthanhtoantiencoc;
 import com.example.daugia.entity.Taikhoan;
 import com.example.daugia.exception.NotFoundException;
 import com.example.daugia.exception.ValidationException;
 import com.example.daugia.repository.PhiendaugiaRepository;
 import com.example.daugia.repository.PhientragiaRepository;
 import com.example.daugia.repository.TaikhoanRepository;
+import com.example.daugia.repository.PhieuthanhtoantiencocRepository; // Thêm import
+import com.example.daugia.core.enums.TrangThaiPhieuThanhToanTienCoc; // Thêm import nếu cần
 import jakarta.transaction.Transactional;
 import jakarta.persistence.OptimisticLockException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +36,8 @@ public class PhientragiaService {
     private PhiendaugiaRepository phiendaugiaRepository;
     @Autowired
     private TaikhoanRepository taikhoanRepository;
+    @Autowired
+    private PhieuthanhtoantiencocRepository phieuthanhtoantiencocRepository; // Thêm injection
 
     private static final int WAIT_SECONDS = 10;
 
@@ -79,6 +84,11 @@ public class PhientragiaService {
         Taikhoan user = taikhoanRepository.findById(makh)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng"));
 
+        // Kiem tra phieu thanh toan ton tai
+        if (!hasPaidDeposit(makh, maphienDauGia)) {
+            throw new ValidationException("Bạn không thể trả giá cho phiên này!");
+        }
+
         Timestamp now = Timestamp.from(Instant.now());
         validateAuctionTime(phien, now);
         enforceUserCooldown(makh, maphienDauGia, now);
@@ -105,6 +115,12 @@ public class PhientragiaService {
     }
 
     // Helper
+    private boolean hasPaidDeposit(String makh, String maphienDauGia) {
+        Optional<Phieuthanhtoantiencoc> phieu = phieuthanhtoantiencocRepository
+                .findByTaiKhoan_MatkAndPhienDauGia_Maphiendg(makh, maphienDauGia);
+        return phieu.isPresent() && TrangThaiPhieuThanhToanTienCoc.PAID.equals(phieu.get().getTrangthai());
+    }
+
     private void validateAuctionTime(Phiendaugia phien, Timestamp now) {
         if (phien.getThoigianbd() != null && now.before(phien.getThoigianbd())) {
             throw new ValidationException("Phiên chưa bắt đầu, không thể trả giá");
