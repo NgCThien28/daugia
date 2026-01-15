@@ -17,9 +17,6 @@ import java.util.Optional;
 
 @Repository
 public interface PhiendaugiaRepository extends JpaRepository<Phiendaugia, String> {
-//    List<Phiendaugia> findByTaiKhoan_Matk(String makh);
-
-//    Page<Phiendaugia> findByTaiKhoan_Matk(String makh, Pageable pageable);
 
     boolean existsBySanPham_Masp(String masp);
 
@@ -28,11 +25,6 @@ public interface PhiendaugiaRepository extends JpaRepository<Phiendaugia, String
 
     @Query("SELECT p FROM Phiendaugia p WHERE p.trangthai NOT IN :excludedStatuses")
     List<Phiendaugia> findActiveAuctions(@Param("excludedStatuses") List<TrangThaiPhienDauGia> excludedStatuses);
-//    List<Phiendaugia> findByTrangthai(TrangThaiPhienDauGia trangthai);
-
-//    List<Phiendaugia> findByTrangthaiAndThoigianktBefore(TrangThaiPhienDauGia trangthai, Timestamp currentTime);
-
-//    Page<Phiendaugia> findByTrangthai(TrangThaiPhienDauGia trangthai, Pageable pageable);
 
     Page<Phiendaugia> findByTrangthaiIn(List<TrangThaiPhienDauGia> statuses, Pageable pageable);
 

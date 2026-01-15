@@ -26,11 +26,6 @@ public interface PhieuthanhtoantiencocRepository extends JpaRepository<Phieuthan
             Pageable pageable
     );
 
-//    long countByPhienDauGia_MaphiendgAndTrangthai(
-//            String maphiendg,
-//            TrangThaiPhieuThanhToanTienCoc trangthai
-//    );
-
     List<Phieuthanhtoantiencoc> findByPhienDauGia_MaphiendgAndTrangthai(
             String maphiendg,
             TrangThaiPhieuThanhToanTienCoc trangthai
