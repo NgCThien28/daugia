@@ -51,7 +51,6 @@ public class PhientragiaController {
             error.put("error", true);
             error.put("message", e.getMessage());
             error.put("type", e.getClass().getSimpleName());
-            // Lấy email từ DB
             String email = taikhoanRepository.findById(incoming.getTaiKhoanNguoiRaGia().getMatk())
                     .map(Taikhoan::getEmail)
                     .orElse(null);
