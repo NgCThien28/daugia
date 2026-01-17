@@ -386,15 +386,35 @@ public class PhieuthanhtoanService {
 
         // Sheet 1 - Thanh toán
         export.createSheet("Thanh toán");
+        export.writeTitle(
+                "THỐNG KÊ PHIẾU THANH TOÁN", 0, 0, 3
+        );
+        export.writeDateRangeLine(from, to, 1, 0, 3);
         export.writeHeader(
                 new String[]{"Mã phiếu", "Ngày thanh toán", "Số tiền", "Trạng thái"},
-                0
+                2
         ).writeData(
                 listPTT,
                 new String[]{"matt", "thoigianthanhtoan", "sotien", "trangthai"},
                 PaymentDTO.class,
-                1
+                3
         );
+        // Freeze 3 dòng đầu (title + date line + header)
+        export.freeze(0, 3);
+
+        // AutoFilter cho header (row 2, A-D)
+        export.applyAutoFilter(2, 0, 3);
+
+
+        int dataStartRow = 3;
+
+        if (!listPTT.isEmpty()) {
+            int dataEndRow = dataStartRow + listPTT.size() - 1;
+            int totalRow = dataEndRow + 1;
+
+            // "Tổng tiền" đặt ở cột B (index 1), tổng ở cột C (index 2)
+            export.writeTotalRow(totalRow, 1, 2, dataStartRow, dataEndRow);
+        }
 
         export.export(response);
     }

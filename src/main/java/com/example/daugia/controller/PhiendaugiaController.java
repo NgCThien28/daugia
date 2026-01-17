@@ -6,7 +6,6 @@ import com.example.daugia.dto.request.ApiResponse;
 import com.example.daugia.dto.request.PhiendaugiaCreationRequest;
 import com.example.daugia.dto.request.ThongBaoCreationRequest;
 import com.example.daugia.dto.response.AuctionDTO;
-import com.example.daugia.service.AuctionSchedulerService;
 import com.example.daugia.service.EmailService;
 import com.example.daugia.service.PhiendaugiaService;
 import com.example.daugia.service.ThongbaoService;
