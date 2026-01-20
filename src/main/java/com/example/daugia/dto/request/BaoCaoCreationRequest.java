@@ -7,5 +7,4 @@ import lombok.Setter;
 @Getter
 public class BaoCaoCreationRequest {
     private String noidung;
-
 }

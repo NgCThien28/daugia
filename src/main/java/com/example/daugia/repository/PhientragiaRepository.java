@@ -16,10 +16,6 @@ public interface PhientragiaRepository extends JpaRepository<Phientragia, String
 
     Optional<Phientragia> findTopByPhienDauGia_MaphiendgOrderBySotienDesc(String maphiendg);
 
-    // Thêm methods mới cho scheduler
     List<Phientragia> findByPhienDauGia_Maphiendg(String maphiendg);
-
-    @Query("SELECT MAX(p.sotien) FROM Phientragia p WHERE p.phienDauGia.maphiendg = :maphiendg")
-    Optional<BigDecimal> findMaxSotienByPhienDauGia_Maphiendg(@Param("maphiendg") String maphiendg);
 
 }

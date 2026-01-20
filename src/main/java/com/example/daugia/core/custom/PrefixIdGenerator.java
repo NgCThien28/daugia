@@ -8,15 +8,15 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class PrefixIdGenerator implements IdentifierGenerator {
 
-    private static final int TOTAL_LENGTH = 10; // tổng độ dài ID (gồm cả prefix)
+    private static final int TOTAL_LENGTH = 10; // tong do dai id bao gom prefix
 
     @Override
     public Serializable generate(SharedSessionContractImplementor session, Object object) {
         try {
-            // Lấy prefix từ annotation (nếu có)
+            // lay prefix tu annotation
             String prefix = (String) object.getClass().getDeclaredField("ID_PREFIX").get(null);
 
-            // Sinh phần số ngẫu nhiên (8 ký tự còn lại, hoặc bớt đi tùy prefix)
+            // sinh so ngau nhien
             int numericLength = TOTAL_LENGTH - prefix.length();
             String randomPart = generateRandomDigits(numericLength);
 

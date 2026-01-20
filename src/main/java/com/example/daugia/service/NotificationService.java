@@ -1,5 +1,4 @@
 package com.example.daugia.service;
-import com.example.daugia.dto.response.AuctionDTO;
 import com.example.daugia.dto.response.NotificationDTO;
 import com.example.daugia.entity.Phiendaugia;
 import com.example.daugia.entity.Thongbao;
@@ -13,7 +12,7 @@ public class NotificationService {
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
     private final Map<String, SseEmitter> auctionEmitters = new ConcurrentHashMap<>();
     public SseEmitter createEmitter(String email) {
-        // Nếu emitter cũ còn tồn tại thi huy
+        // Neu emitter cu con ton tai thi huy
         SseEmitter oldEmitter = emitters.remove(email);
         if (oldEmitter != null) {
             try {
@@ -21,7 +20,7 @@ public class NotificationService {
             } catch (Exception ignored) {}
         }
 
-        SseEmitter emitter = new SseEmitter(0L); // 0L = không timeout
+        SseEmitter emitter = new SseEmitter(0L); // 0L = khong timeout
         emitters.put(email, emitter);
 
         emitter.onCompletion(() -> emitters.remove(email));

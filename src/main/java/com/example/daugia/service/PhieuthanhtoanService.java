@@ -10,13 +10,10 @@ import com.example.daugia.entity.Taikhoan;
 import com.example.daugia.exception.ConflictException;
 import com.example.daugia.exception.NotFoundException;
 import com.example.daugia.exception.ValidationException;
-import com.example.daugia.repository.PhiendaugiaRepository;
 import com.example.daugia.repository.PhientragiaRepository;
 import com.example.daugia.repository.PhieuthanhtoanRepository;
 import com.example.daugia.repository.TaikhoanRepository;
 import com.example.daugia.util.excel.BaseExport;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -47,10 +44,9 @@ public class PhieuthanhtoanService {
     @Autowired
     private TaikhoanRepository taikhoanRepository;
     @Autowired
-    private PhiendaugiaRepository phiendaugiaRepository;
-    @Autowired
     private PhientragiaRepository phientragiaRepository;
-
+    @Autowired
+    private AuctionSchedulerService auctionSchedulerService;
     // TIM KIEM
     public List<PaymentDTO> findAll() {
         List<Phieuthanhtoan> phieuthanhtoanList = phieuthanhtoanRepository.findAll();
@@ -92,30 +88,6 @@ public class PhieuthanhtoanService {
         );
     }
 
-    public List<PaymentDTO> findByUser(String email) {
-        Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
-        List<Phieuthanhtoan> phieuthanhtoanList = phieuthanhtoanRepository.findByTaiKhoan_Matk(taikhoan.getMatk());
-        return phieuthanhtoanList.stream()
-                .map(phieuthanhtoan -> new PaymentDTO(
-                        phieuthanhtoan.getMatt(),
-                        new UserShortDTO(phieuthanhtoan.getTaiKhoan().getMatk()),
-                        new AuctionDTO(
-                                phieuthanhtoan.getPhienDauGia().getMaphiendg(),
-                                phieuthanhtoan.getPhienDauGia().getGiacaonhatdatduoc()
-                        ),
-                        phieuthanhtoan.getThoigianthanhtoan(),
-                        phieuthanhtoan.getHanthanhtoan(),
-                        phieuthanhtoan.getTrangthai(),
-                        phieuthanhtoan.getSotien()
-                ))
-                .toList();
-    }
-
-    public Optional<Phieuthanhtoan> findByPhienDauGia(String maphiendg) {
-        return phieuthanhtoanRepository.findByPhienDauGia_Maphiendg(maphiendg);
-    }
-
     public Page<PaymentDTO> findByUserAndStatus(String email, TrangThaiPhieuThanhToan status, String keyword, Pageable pageable) {
         Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
@@ -123,11 +95,11 @@ public class PhieuthanhtoanService {
         Specification<Phieuthanhtoan> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // Filter tài khoản và trạng thái
+            // Filter tai khoan va trang thai
             predicates.add(cb.equal(root.get("taiKhoan").get("matk"), taikhoan.getMatk()));
             predicates.add(cb.equal(root.get("trangthai"), status));
 
-            // keyword, tìm kiếm trong matt hoặc maphiendg (case-insensitive)
+            // keyword, tim kiem trong matt hoac maphiendg (case-insensitive)
             if (keyword != null && !keyword.trim().isEmpty()) {
                 String keywordLower = "%" + keyword.toLowerCase() + "%";
                 Predicate mattPredicate = cb.like(cb.lower(root.get("matt")), keywordLower);
@@ -260,7 +232,7 @@ public class PhieuthanhtoanService {
     }
 
     @Transactional
-    public int orderReturn(HttpServletRequest request) throws JsonProcessingException {
+    public int orderReturn(HttpServletRequest request) {
         Map<String, String> fields = new HashMap<>();
         for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements(); ) {
             String fieldName = URLEncoder.encode((String) params.nextElement(), StandardCharsets.US_ASCII);
@@ -298,6 +270,7 @@ public class PhieuthanhtoanService {
             phieu.setBankcode(fields.get("vnp_BankCode"));
             phieu.setThoigianthanhtoan(Timestamp.valueOf(LocalDateTime.now()));
             phieuthanhtoanRepository.save(phieu);
+            auctionSchedulerService.schedulePaymentCheck(phieu.getPhienDauGia());
             return 1;
         } else {
             return 0;

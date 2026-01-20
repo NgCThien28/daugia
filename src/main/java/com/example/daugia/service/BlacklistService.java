@@ -8,10 +8,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class BlacklistService {
 
-    // Map lưu token + thời gian hết hạn
+    // Map luu token va thoi gian het han
     private final ConcurrentHashMap<String, Long> blacklist = new ConcurrentHashMap<>();
 
-    // Thêm token vào danh sách đen
+    // Them token vao danh sach den
     public void addToken(String token, long expirationTime) {
         blacklist.put(token, expirationTime);
     }

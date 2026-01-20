@@ -45,7 +45,7 @@ public class PhieuthanhtoantiencocController {
     }
 
     @GetMapping("/find-by-id/{id}")
-    public ApiResponse<DepositDTO> findById(@PathVariable("id") String id) {
+    public ApiResponse<DepositDTO> findById(@PathVariable String id) {
         DepositDTO dto = phieuthanhtoantiencocService.findById(id);
         return ApiResponse.success(dto, "Thành công");
     }

@@ -59,12 +59,6 @@ public class PhiendaugiaService {
         return page.map(this::toAuctionDTO);
     }
 
-    @Transactional(readOnly = true)
-    public List<AuctionDTO> getPaidAuctionsByMatk(String email) {
-        List<Phiendaugia> page = phiendaugiaRepository.findAuctionsPaidByEmail(email);
-        return page.stream().map(this::toAuctionDTO).toList();
-    }
-
     public AuctionDTO findByIdDTO(String id) {
         Phiendaugia entity = phiendaugiaRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy phiên đấu giá"));
@@ -200,7 +194,6 @@ public class PhiendaugiaService {
 
     @Transactional
     public String delete(String maphiendg, String email) {
-        // Kiểm tra tồn tại và quyền sở hữu (tùy chọn, nhưng giữ để validation rõ ràng)
         Phiendaugia phiendaugia = phiendaugiaRepository.findById(maphiendg)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy phiên này"));
         if (!email.equals(phiendaugia.getTaiKhoan().getEmail()))
@@ -214,24 +207,6 @@ public class PhiendaugiaService {
         }
         return "Xóa phiên thành công!";
     }
-
-//    //  PRIVATE HELPERS
-//    private void validateAuctionTimes(Timestamp start, Timestamp end,
-//                                      Timestamp regStart, Timestamp regEnd) {
-//
-//        if (start != null && end != null && !end.after(start)) {
-//            throw new ValidationException("Thời gian kết thúc phiên phải sau thời gian bắt đầu");
-//        }
-//        if (regStart != null && start != null && !regStart.before(start)) {
-//            throw new ValidationException("Thời gian bắt đầu đăng ký phải trước thời gian bắt đầu phiên");
-//        }
-//        if (regEnd != null && regStart != null && !regEnd.after(regStart)) {
-//            throw new ValidationException("Thời gian kết thúc đăng ký phải sau thời gian bắt đầu đăng ký");
-//        }
-//        if (regEnd != null && start != null && !regEnd.before(start)) {
-//            throw new ValidationException("Thời gian kết thúc đăng ký phải trước thời gian bắt đầu phiên");
-//        }
-//    }
 
     //Admin
     public AuctionDTO approveAuction(PhiendaugiaCreationRequest request, String mapdg, String email) throws MessagingException, IOException {

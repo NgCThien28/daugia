@@ -6,9 +6,9 @@ import lombok.Setter;
 import java.util.List;
 
 /**
- * Dùng cho endpoint upsert hỗn hợp (multipart):
- * Phần JSON (field meta) sẽ chứa đối tượng này.
- * Phần file (field files) chứa danh sách file theo thứ tự xuất hiện của các operation kiểu APPEND/REPLACE.
+ * Dung cho endpoint upsert hon hop (multipart):
+ * Phan JSON (field meta) se chua đoi tuong nay.
+ * Phan file (field files) chua danh sach file theo thu tu xuat hien cua cac operation kieu APPEND/REPLACE.
  */
 @Setter
 @Getter
