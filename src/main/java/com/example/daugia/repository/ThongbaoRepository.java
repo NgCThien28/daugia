@@ -1,7 +1,6 @@
 package com.example.daugia.repository;
 
 import com.example.daugia.entity.Thongbao;
-import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

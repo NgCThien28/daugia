@@ -199,7 +199,7 @@ public class TaikhoanService {
         // Nhanh 1: cap nhat lan dau, chua co anh ma lai muon luu anh => bat buoc đu 2 anh
         if (!hasKycImages && wantsUpdateImages) {
             validateTwoImages(validFiles);
-            List<String> added = internalAppend(taikhoan, validFiles);
+            List<String> added = internalAppend(validFiles);
             taikhoan.setAnhmattruoc(added.get(0));
             taikhoan.setAnhmatsau(added.get(1));
 
@@ -218,7 +218,7 @@ public class TaikhoanService {
         // Nhanh 3: chua xac thuc, đa co anh, update ca anh (gui anh moi)
         if (hasKycImages && wantsUpdateImages) {
             validateTwoImages(validFiles);
-            List<String> added = internalAppend(taikhoan, validFiles);
+            List<String> added = internalAppend(validFiles);
             taikhoan.setAnhmattruoc(added.get(0));
             taikhoan.setAnhmatsau(added.get(1));
 
@@ -301,7 +301,7 @@ public class TaikhoanService {
     }
 
 
-    private List<String> internalAppend(Taikhoan taikhoan, List<MultipartFile> files) {
+    private List<String> internalAppend(List<MultipartFile> files) {
         Path dir = ensureImageDir();
         List<String> added = new ArrayList<>();
         int addedCount = 0;

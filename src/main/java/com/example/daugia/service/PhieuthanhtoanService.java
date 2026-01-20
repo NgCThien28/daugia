@@ -10,13 +10,10 @@ import com.example.daugia.entity.Taikhoan;
 import com.example.daugia.exception.ConflictException;
 import com.example.daugia.exception.NotFoundException;
 import com.example.daugia.exception.ValidationException;
-import com.example.daugia.repository.PhiendaugiaRepository;
 import com.example.daugia.repository.PhientragiaRepository;
 import com.example.daugia.repository.PhieuthanhtoanRepository;
 import com.example.daugia.repository.TaikhoanRepository;
 import com.example.daugia.util.excel.BaseExport;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -46,8 +43,6 @@ public class PhieuthanhtoanService {
     private PhieuthanhtoanRepository phieuthanhtoanRepository;
     @Autowired
     private TaikhoanRepository taikhoanRepository;
-    @Autowired
-    private PhiendaugiaRepository phiendaugiaRepository;
     @Autowired
     private PhientragiaRepository phientragiaRepository;
     @Autowired
@@ -91,30 +86,6 @@ public class PhieuthanhtoanService {
                 phieuthanhtoan.getTrangthai(),
                 phieuthanhtoan.getSotien()
         );
-    }
-
-    public List<PaymentDTO> findByUser(String email) {
-        Taikhoan taikhoan = taikhoanRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản"));
-        List<Phieuthanhtoan> phieuthanhtoanList = phieuthanhtoanRepository.findByTaiKhoan_Matk(taikhoan.getMatk());
-        return phieuthanhtoanList.stream()
-                .map(phieuthanhtoan -> new PaymentDTO(
-                        phieuthanhtoan.getMatt(),
-                        new UserShortDTO(phieuthanhtoan.getTaiKhoan().getMatk()),
-                        new AuctionDTO(
-                                phieuthanhtoan.getPhienDauGia().getMaphiendg(),
-                                phieuthanhtoan.getPhienDauGia().getGiacaonhatdatduoc()
-                        ),
-                        phieuthanhtoan.getThoigianthanhtoan(),
-                        phieuthanhtoan.getHanthanhtoan(),
-                        phieuthanhtoan.getTrangthai(),
-                        phieuthanhtoan.getSotien()
-                ))
-                .toList();
-    }
-
-    public Optional<Phieuthanhtoan> findByPhienDauGia(String maphiendg) {
-        return phieuthanhtoanRepository.findByPhienDauGia_Maphiendg(maphiendg);
     }
 
     public Page<PaymentDTO> findByUserAndStatus(String email, TrangThaiPhieuThanhToan status, String keyword, Pageable pageable) {
@@ -261,7 +232,7 @@ public class PhieuthanhtoanService {
     }
 
     @Transactional
-    public int orderReturn(HttpServletRequest request) throws JsonProcessingException {
+    public int orderReturn(HttpServletRequest request) {
         Map<String, String> fields = new HashMap<>();
         for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements(); ) {
             String fieldName = URLEncoder.encode((String) params.nextElement(), StandardCharsets.US_ASCII);

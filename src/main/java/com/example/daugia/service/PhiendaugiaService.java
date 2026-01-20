@@ -59,12 +59,6 @@ public class PhiendaugiaService {
         return page.map(this::toAuctionDTO);
     }
 
-    @Transactional(readOnly = true)
-    public List<AuctionDTO> getPaidAuctionsByMatk(String email) {
-        List<Phiendaugia> page = phiendaugiaRepository.findAuctionsPaidByEmail(email);
-        return page.stream().map(this::toAuctionDTO).toList();
-    }
-
     public AuctionDTO findByIdDTO(String id) {
         Phiendaugia entity = phiendaugiaRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy phiên đấu giá"));

@@ -37,8 +37,6 @@ public class SanphamService {
     private ThanhphoRepository thanhphoRepository;
     @Autowired
     private TaikhoanquantriRepository taikhoanquantriRepository;
-    @Autowired
-    private ThongbaoService thongbaoService;
 
     public Page<ProductDTO> findAll(TrangThaiSanPham trangthai, Pageable pageable) {
         Specification<Sanpham> spec = (root, query, cb) -> cb.notEqual(root.get("trangthai"), TrangThaiSanPham.NOT_REGISTERED);
