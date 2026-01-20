@@ -37,7 +37,7 @@ public class PhientragiaService {
     @Autowired
     private TaikhoanRepository taikhoanRepository;
     @Autowired
-    private PhieuthanhtoantiencocRepository phieuthanhtoantiencocRepository; // Thêm injection
+    private PhieuthanhtoantiencocRepository phieuthanhtoantiencocRepository;
 
     private static final int WAIT_SECONDS = 10;
 
