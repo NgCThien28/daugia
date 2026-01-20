@@ -20,11 +20,11 @@ public class DepositDTO {
     private TrangThaiPhieuThanhToanTienCoc trangthai;
     private BigDecimal sotien;
 
-    public DepositDTO(String matc, UserShortDTO taiKhoanKhachThanhToan, AuctionDTO phienDauGia, Timestamp thoigianthanhtoan, TrangThaiPhieuThanhToanTienCoc trangthai) {
+    public DepositDTO(String matc, UserShortDTO taiKhoanKhachThanhToan, AuctionDTO phienDauGia, Timestamp hanthanhtoan, TrangThaiPhieuThanhToanTienCoc trangthai) {
         this.matc = matc;
         this.taiKhoanKhachThanhToan = taiKhoanKhachThanhToan;
         this.phienDauGia = phienDauGia;
-        this.thoigianthanhtoan = thoigianthanhtoan;
+        this.hanthanhtoan = hanthanhtoan;
         this.trangthai = trangthai;
     }
 

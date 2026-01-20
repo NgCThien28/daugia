@@ -1,6 +1,7 @@
 package com.example.daugia.repository;
 
 import com.example.daugia.core.enums.TrangThaiPhienDauGia;
+import com.example.daugia.core.enums.TrangThaiPhieuThanhToanTienCoc;
 import com.example.daugia.entity.Phiendaugia;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -77,16 +78,16 @@ public interface PhiendaugiaRepository extends JpaRepository<Phiendaugia, String
             from Phiendaugia ph
             join ph.phieuThanhToanTienCoc tc
             where tc.taiKhoan.email = :email
-              and tc.trangthai = com.example.daugia.core.enums.TrangThaiPhieuThanhToanTienCoc.PAID
+              and tc.trangthai IN :statuses
             """,
             countQuery = """
                     select count(distinct ph.maphiendg)
                     from Phiendaugia ph
                     join ph.phieuThanhToanTienCoc tc
                     where tc.taiKhoan.email = :email
-                      and tc.trangthai = com.example.daugia.core.enums.TrangThaiPhieuThanhToanTienCoc.PAID
+                      and tc.trangthai IN :statuses
                     """)
-    Page<Phiendaugia> findAuctionsPaidByEmail(@Param("email") String email, Pageable pageable);
+    Page<Phiendaugia> findAuctionsByEmailAndTrangThaiIn(@Param("email") String email, @Param("statuses") List<TrangThaiPhieuThanhToanTienCoc> statuses, Pageable pageable);
 
     Page<Phiendaugia> findAll(Specification<Phiendaugia> spec, Pageable pageable);
 

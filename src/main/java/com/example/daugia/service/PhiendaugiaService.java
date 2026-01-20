@@ -1,6 +1,7 @@
 package com.example.daugia.service;
 
 import com.example.daugia.core.enums.TrangThaiPhienDauGia;
+import com.example.daugia.core.enums.TrangThaiPhieuThanhToanTienCoc;
 import com.example.daugia.core.enums.TrangThaiSanPham;
 import com.example.daugia.dto.request.PhiendaugiaCreationRequest;
 import com.example.daugia.dto.response.*;
@@ -55,7 +56,14 @@ public class PhiendaugiaService {
 
     @Transactional(readOnly = true)
     public Page<AuctionDTO> getPaidAuctionsByMatk(String email, Pageable pageable) {
-        Page<Phiendaugia> page = phiendaugiaRepository.findAuctionsPaidByEmail(email, pageable);
+        List<TrangThaiPhieuThanhToanTienCoc> statuses = List.of(
+                TrangThaiPhieuThanhToanTienCoc.PAID,
+                TrangThaiPhieuThanhToanTienCoc.REFUNDING,
+                TrangThaiPhieuThanhToanTienCoc.REFUNDED,
+                TrangThaiPhieuThanhToanTienCoc.LOST
+        );
+
+        Page<Phiendaugia> page = phiendaugiaRepository.findAuctionsByEmailAndTrangThaiIn(email, statuses, pageable);
         return page.map(this::toAuctionDTO);
     }
 
