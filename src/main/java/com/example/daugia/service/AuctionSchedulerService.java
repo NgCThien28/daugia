@@ -19,6 +19,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +51,7 @@ public class AuctionSchedulerService {
     @Autowired
     private PhientragiaRepository phientragiaRepository;
     @Autowired
+    @Lazy
     private PhieuthanhtoanService phieuthanhtoanService;
     @Autowired
     private PhieuthanhtoanRepository phieuthanhtoanRepository;
