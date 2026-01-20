@@ -67,7 +67,7 @@ public interface PhieuthanhtoanRepository extends JpaRepository<Phieuthanhtoan, 
     );
 
     @Query("""
-            SELECT DATE(ptt.thoigianthanhtoan) as date, SUM(ptt.sotien * sp.hoahong) AS total
+            SELECT DATE(ptt.thoigianthanhtoan) as date, SUM(ptt.sotien * (sp.hoahong / 100)) AS total
             FROM Phieuthanhtoan ptt
             JOIN ptt.phienDauGia dg
             JOIN dg.sanPham sp
