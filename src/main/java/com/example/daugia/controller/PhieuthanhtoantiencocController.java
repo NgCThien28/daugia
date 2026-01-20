@@ -89,7 +89,7 @@ public class PhieuthanhtoantiencocController {
     public ApiResponse<Page<DepositDTO>> findByAccountAndStatus(
             @RequestParam String matk,
             @RequestParam TrangThaiPhieuThanhToanTienCoc status,
-            @PageableDefault(size = 20, sort = "thoigianthanhtoan", direction = Sort.Direction.DESC)
+            @PageableDefault(size = 20, sort = "hanthanhtoan", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
         Page<DepositDTO> page = phieuthanhtoantiencocService.findByAccountAndStatus(matk, status, pageable);

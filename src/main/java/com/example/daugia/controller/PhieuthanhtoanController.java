@@ -78,7 +78,7 @@ public class PhieuthanhtoanController {
             @RequestHeader("Authorization") String header,
             @RequestParam TrangThaiPhieuThanhToan status,
             @RequestParam(required = false) String keyword,
-            @PageableDefault(size = 20, sort = "thoigianthanhtoan", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 20, sort = "hanthanhtoan", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         String email = tokenValidator.authenticateAndGetEmail(header);
         Page<PaymentDTO> page = phieuthanhtoanService.findByUserAndStatus(email, status, keyword, pageable);

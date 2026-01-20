@@ -256,7 +256,7 @@ public class AuctionSchedulerService {
     private void startAuction(Phiendaugia phien) {
         try {
             int participantCount = phien.getSlnguoithamgia();
-            if (participantCount < 5) {
+            if (participantCount < 3) {
                 log.warn("Khong the bat dau phien {}: Khong du nguoi tham gia ({} < 5)", phien.getMaphiendg(), participantCount);
                 phien.setTrangthai(TrangThaiPhienDauGia.FAILED);
                 phiendaugiaRepository.save(phien);
@@ -410,7 +410,7 @@ public class AuctionSchedulerService {
 
     //Kiem tra thanh toan
     @Transactional
-    private void checkPaymentAndFinalize(Phiendaugia phien) {
+    public void checkPaymentAndFinalize(Phiendaugia phien) {
         String maphiendg = phien.getMaphiendg();
         //Lay khoa hien tai, neu chua co thi tao moi
         Object lock = finalizationLocks.computeIfAbsent(maphiendg, k -> new Object());

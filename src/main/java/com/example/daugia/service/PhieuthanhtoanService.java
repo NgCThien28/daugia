@@ -272,7 +272,7 @@ public class PhieuthanhtoanService {
             phieu.setBankcode(fields.get("vnp_BankCode"));
             phieu.setThoigianthanhtoan(Timestamp.valueOf(LocalDateTime.now()));
             phieuthanhtoanRepository.save(phieu);
-            auctionSchedulerService.schedulePaymentCheck(phieu.getPhienDauGia());
+            auctionSchedulerService.checkPaymentAndFinalize(phieu.getPhienDauGia());
             return 1;
         } else {
             return 0;
