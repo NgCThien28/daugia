@@ -34,8 +34,6 @@ public class SanphamService {
     @Autowired
     private TaikhoanRepository taikhoanRepository;
     @Autowired
-    private HinhanhRepository hinhanhRepository;
-    @Autowired
     private ThanhphoRepository thanhphoRepository;
     @Autowired
     private TaikhoanquantriRepository taikhoanquantriRepository;

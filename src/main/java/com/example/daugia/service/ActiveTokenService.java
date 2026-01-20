@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class ActiveTokenService {
 
-    // Map email → token hiện tại
+    // Map email -> token hien tai
     private final ConcurrentHashMap<String, String> activeTokens = new ConcurrentHashMap<>();
 
     public void saveActiveToken(String email, String token) {

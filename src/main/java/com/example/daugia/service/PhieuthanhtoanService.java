@@ -50,7 +50,8 @@ public class PhieuthanhtoanService {
     private PhiendaugiaRepository phiendaugiaRepository;
     @Autowired
     private PhientragiaRepository phientragiaRepository;
-
+    @Autowired
+    private AuctionSchedulerService auctionSchedulerService;
     // TIM KIEM
     public List<PaymentDTO> findAll() {
         List<Phieuthanhtoan> phieuthanhtoanList = phieuthanhtoanRepository.findAll();
@@ -123,11 +124,11 @@ public class PhieuthanhtoanService {
         Specification<Phieuthanhtoan> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // Filter tài khoản và trạng thái
+            // Filter tai khoan va trang thai
             predicates.add(cb.equal(root.get("taiKhoan").get("matk"), taikhoan.getMatk()));
             predicates.add(cb.equal(root.get("trangthai"), status));
 
-            // keyword, tìm kiếm trong matt hoặc maphiendg (case-insensitive)
+            // keyword, tim kiem trong matt hoac maphiendg (case-insensitive)
             if (keyword != null && !keyword.trim().isEmpty()) {
                 String keywordLower = "%" + keyword.toLowerCase() + "%";
                 Predicate mattPredicate = cb.like(cb.lower(root.get("matt")), keywordLower);
@@ -298,6 +299,7 @@ public class PhieuthanhtoanService {
             phieu.setBankcode(fields.get("vnp_BankCode"));
             phieu.setThoigianthanhtoan(Timestamp.valueOf(LocalDateTime.now()));
             phieuthanhtoanRepository.save(phieu);
+            auctionSchedulerService.schedulePaymentCheck(phieu.getPhienDauGia());
             return 1;
         } else {
             return 0;

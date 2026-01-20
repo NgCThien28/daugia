@@ -30,7 +30,7 @@ public class HinhanhController {
         return ApiResponse.success(list, "Thành công");
     }
 
-    /* Khởi tạo ảnh ban đầu (tối đa 3) */
+    // Khởi tạo ảnh ban đầu
     @PostMapping(value = "/init", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<List<Hinhanh>> initImages(
             @RequestParam("masp") String masp,
@@ -50,7 +50,7 @@ public class HinhanhController {
         }
     }
 
-    /* Append ảnh (chỉ thêm nếu chưa đủ 3) */
+    // Append ảnh
     @PostMapping(value = "/append", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<List<Hinhanh>> appendImages(
             @RequestParam("masp") String masp,

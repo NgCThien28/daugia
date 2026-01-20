@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Cache giữ tối đa lastN bản ghi trả giá theo từng mã phiên.
- * Lưu ý: volatile, sẽ mất khi server restart.
+ * Cache giu toi đa lastN ban ghi tra gia theo tung ma phien.
+ * Volatile, se mat khi server restart.
  */
 public class HistoryCache {
 

@@ -377,7 +377,7 @@ public class AuctionSchedulerService {
     }
 
     //Len lich kiem tra thanh toan
-    private void schedulePaymentCheck(Phiendaugia phien) {
+    public void schedulePaymentCheck(Phiendaugia phien) {
         //Lay phieu thanh toan moi nhat cua phien
         Phieuthanhtoan phieu = getActivePhieu(phien);
         if (phieu == null) return;

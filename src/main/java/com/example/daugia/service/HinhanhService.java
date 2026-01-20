@@ -52,7 +52,7 @@ public class HinhanhService {
         }
 
         List<Hinhanh> added = internalAppend(sp, files, MAX_IMAGES);
-        // Không set list mới, chỉ add vào list hiện có
+        // Khong set list mới, chi add vao list hien co
         sp.getHinhAnh().addAll(added);
         sanphamRepository.save(sp);
         return sp.getHinhAnh();
@@ -128,7 +128,7 @@ public class HinhanhService {
         ensureImageCollection(sp);
         Path dir = ensureImageDir();
 
-        // Xóa file + entity cũ
+        // Xoa file + entity cu
         List<Hinhanh> current = sp.getHinhAnh();
         for (Hinhanh h : new ArrayList<>(current)) {
             try {
@@ -229,7 +229,7 @@ public class HinhanhService {
         for (Integer i : newOrder) {
             reordered.add(current.get(i));
         }
-        // Không set list mới — clear + addAll
+        // Khong set list moi —> clear + addAll
         current.clear();
         current.addAll(reordered);
 
@@ -334,7 +334,7 @@ public class HinhanhService {
         if (current.size() > MAX_IMAGES) {
             throw new ValidationException("Sau thao tác vượt quá " + MAX_IMAGES + " ảnh");
         }
-        // Không cần set lại collection
+        // Khong can set lai collection
         sanphamRepository.save(sp);
         return current;
     }
@@ -347,7 +347,6 @@ public class HinhanhService {
     }
 
     private void ensureImageCollection(Sanpham sp) {
-        // Chỉ set list mới nếu hiện tại là null; nếu đã có PersistentCollection thì không đụng tới tham chiếu
         if (sp.getHinhAnh() == null) {
             sp.setHinhAnh(new ArrayList<>());
         }

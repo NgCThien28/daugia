@@ -18,7 +18,7 @@ public class TokenValidator {
         return authorizationHeader.substring(7);
     }
 
-    // Kiểm tra blacklist + validate JWT, trả về email
+    // kiem tra blacklist va validate JWT, tra ve email
     public String validateAndGetEmailFromToken(String token) {
         if (token == null || token.isBlank()) {
             throw new UnauthorizedException("Thiếu token");

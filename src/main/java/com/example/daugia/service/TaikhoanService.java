@@ -117,7 +117,7 @@ public class TaikhoanService {
             throw new ValidationException("Tài khoản đã được xác thực");
         }
 
-        // Sinh token mới và cập nhật
+        // Sinh token moi va cap nhat
         String newToken = UUID.randomUUID().toString();
         user.setTokenxacthuc(newToken);
         user.setTokenhethan(new Timestamp(System.currentTimeMillis() + 24L * 60 * 60 * 1000));
@@ -163,7 +163,7 @@ public class TaikhoanService {
         taikhoan.setThanhPho(thanhphoRepository.findById(request.getMatp())
                 .orElseThrow(() -> new NotFoundException("Thành phố không tồn tại")));
 
-        // Update các field "bình thường" luôn luôn cho phép
+        // Update cac field thuong
         taikhoan.setHo(request.getHo());
         taikhoan.setTenlot(request.getTenlot());
         taikhoan.setTen(request.getTen());
@@ -175,7 +175,7 @@ public class TaikhoanService {
         boolean hasBack  = taikhoan.getAnhmatsau() != null && !taikhoan.getAnhmatsau().isBlank();
         boolean hasKycImages = hasFront && hasBack;
 
-        // normalize files: null / rỗng / toàn file empty => coi như không gửi ảnh
+        // null / rong / toan file empty => coi như không gui anh
         List<MultipartFile> safeFiles = (files == null) ? List.of() : files;
         List<MultipartFile> validFiles = safeFiles.stream()
                 .filter(f -> f != null && !f.isEmpty())
@@ -184,7 +184,7 @@ public class TaikhoanService {
         boolean wantsUpdateImages = !validFiles.isEmpty();
         boolean kycActive = taikhoan.getXacthuckyc() == TrangThaiTaiKhoan.ACTIVE; // chỉnh theo enum thật của mày
 
-        // Nhánh 4: đã xác thực KYC -> cấm update ảnh
+        // Nhanh 4: da xac thuc KYC
         if (kycActive) {
             if (wantsUpdateImages) {
                 throw new ValidationException("Tài khoản đã xác thực KYC, không được thay đổi ảnh CCCD");
@@ -194,9 +194,9 @@ public class TaikhoanService {
             return saved;
         }
 
-        // Từ đây: KYC INACTIVE (chưa xác thực)
+        // KYC INACTIVE
 
-        // Nhánh 1: cập nhật lần đầu: chưa có ảnh mà lại muốn lưu ảnh => bắt buộc đủ 2 ảnh
+        // Nhanh 1: cap nhat lan dau, chua co anh ma lai muon luu anh => bat buoc đu 2 anh
         if (!hasKycImages && wantsUpdateImages) {
             validateTwoImages(validFiles);
             List<String> added = internalAppend(taikhoan, validFiles);
@@ -208,14 +208,14 @@ public class TaikhoanService {
             return saved;
         }
 
-        // Nhánh 2: chưa xác thực, đã có ảnh, chỉ update info thường (không gửi ảnh)
+        // Nhanh 2: chua xac thuc, đa co anh, chi update thuong (khong gui anh)
         if (hasKycImages && !wantsUpdateImages) {
             Taikhoan saved = taikhoanRepository.save(taikhoan);
             saved.setMatkhau(null);
             return saved;
         }
 
-        // Nhánh 3: chưa xác thực, đã có ảnh, update cả ảnh (gửi ảnh mới)
+        // Nhanh 3: chua xac thuc, đa co anh, update ca anh (gui anh moi)
         if (hasKycImages && wantsUpdateImages) {
             validateTwoImages(validFiles);
             List<String> added = internalAppend(taikhoan, validFiles);
@@ -227,12 +227,12 @@ public class TaikhoanService {
             return saved;
         }
 
-        // Trường hợp còn lại: chưa xác thực, chưa có ảnh, nhưng lại không gửi ảnh => không hợp lệ nếu mày muốn "lần đầu phải có ảnh"
+        // Truong hop con lai: chua xac thuc, chua co anh, nhung lai khong gui anh => khong hop le
         if (!hasKycImages && !wantsUpdateImages) {
             throw new ValidationException("Vui lòng tải lên đủ 2 ảnh CCCD (mặt trước & mặt sau)");
         }
 
-        // fallback (thực ra không tới đây)
+        // fallback
         Taikhoan saved = taikhoanRepository.save(taikhoan);
         saved.setMatkhau(null);
         return saved;
@@ -300,12 +300,6 @@ public class TaikhoanService {
         return taikhoan;
     }
 
-
-    private void validateFilesNotEmpty(List<MultipartFile> files) {
-        if (files == null || files.isEmpty()) {
-            throw new ValidationException("Không có file nào được gửi");
-        }
-    }
 
     private List<String> internalAppend(Taikhoan taikhoan, List<MultipartFile> files) {
         Path dir = ensureImageDir();

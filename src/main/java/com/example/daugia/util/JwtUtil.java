@@ -43,7 +43,7 @@ public class JwtUtil {
                     .getBody()
                     .getExpiration();
         } catch (JwtException e) {
-            return new Date(); // nếu token lỗi, trả về thời điểm hiện tại
+            return new Date(); // neu token loi, tra ve thoi điem hien tai
         }
     }
 }

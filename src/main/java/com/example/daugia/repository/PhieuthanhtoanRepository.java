@@ -17,7 +17,6 @@ import java.util.Optional;
 @Repository
 public interface PhieuthanhtoanRepository extends JpaRepository<Phieuthanhtoan, String> {
     Optional<Phieuthanhtoan> findByPhienDauGia_Maphiendg(String maphiendg);
-//    Page<Phieuthanhtoan> findByTaiKhoan_MatkAndTrangthai(String matk, TrangThaiPhieuThanhToan status, Pageable pageable);
 
     List<Phieuthanhtoan> findByTaiKhoan_Matk(String matk);
 
