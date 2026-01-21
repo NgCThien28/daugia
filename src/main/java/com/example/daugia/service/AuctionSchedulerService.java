@@ -80,8 +80,10 @@ public class AuctionSchedulerService {
             log.error("Loi khoi tao dau tien syncAndScheduleAllAuctions", e);
         }
         //Dong bo moi 30 phut
-        Date startTime = new Date(System.currentTimeMillis() + 30 * 60_000L);
-        scheduler.scheduleAtFixedRate(this::safeSyncAndScheduleAllAuctions, startTime, 30 * 60_000L);
+//        Date startTime = new Date(System.currentTimeMillis() + 30 * 60_000L);
+//        scheduler.scheduleAtFixedRate(this::safeSyncAndScheduleAllAuctions, startTime, 30 * 60_000L);
+        Date startTime = new Date(System.currentTimeMillis() + 10_000L);
+        scheduler.scheduleAtFixedRate(this::safeSyncAndScheduleAllAuctions, startTime,10_000L);
         log.info("Khoi tao AuctionSchedulerService xong.");
     }
 

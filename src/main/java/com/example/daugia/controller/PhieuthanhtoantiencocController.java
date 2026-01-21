@@ -108,8 +108,8 @@ public class PhieuthanhtoantiencocController {
         return ApiResponse.success(page, "OK");
     }
 
-    @PutMapping("/cancel-payment/{matc}")
-    public ApiResponse<DepositDTO> cancelPayment(
+    @PutMapping("/cancel-deposit/{matc}")
+    public ApiResponse<DepositDTO> cancelDeposit(
             @RequestBody ThongBaoCreationRequest request,
             @PathVariable String matc,
             @RequestHeader("Authorization") String header) {
